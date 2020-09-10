@@ -3,15 +3,15 @@
 > Polkadot chain loadbalancer.
 
 ## Installation
-You can download already built binaries for your platform from `builds` folder or get `vedran-daemon` golang package and build it locally. Find detailed instructions below.
+You can download already built binaries for your platform from `builds` folder or get `vedran` golang package and build it locally. Find detailed instructions below.
 
-### Get `vedran-daemon` package
+### Get `vedran` package
 1. Install [Golang](https://golang.org/doc/install) **1.13 or greater**
 2. Run the command below
 ```
 go get github.com/NodeFactoryIo/vedran
 ```
-3. Run vedran-daemon from your Go bin directory. For linux systems it will likely be:
+3. Run vedran from your Go bin directory. For linux systems it will likely be:
 ```
 ~/go/bin/vedran
 ```

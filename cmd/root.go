@@ -12,7 +12,7 @@ var (
 )
 
 var RootCmd = &cobra.Command{
-	Use:   "vedran-daemon",
+	Use:   "vedran",
 	Short: "Vedran daemon cli tool",
 }
 
