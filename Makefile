@@ -20,7 +20,7 @@ lint:
 	golangci-lint run
 
 clean:
-	rm vedran-daemon 2> /dev/null || exit 0
+	rm vedran 2> /dev/null || exit 0
 
 build:
 	go build
@@ -28,4 +28,4 @@ build:
 install:
 	make clean
 	make build
-	cp vedran-daemon /usr/local/bin
+	cp vedran /usr/local/bin
