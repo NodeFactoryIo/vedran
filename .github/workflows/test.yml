@@ -1,0 +1,34 @@
+on: [pull_request, push]
+name: Tests
+
+jobs:
+  build:
+    name: Run tests
+    runs-on: ubuntu-latest
+    env:
+      GO111MODULE: "on"
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.13.x
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install build essentials
+        shell: bash
+        run: sudo apt-get -y install build-essential
+
+      - name: Build
+        shell: bash
+        run: make build
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.29
+
+      - name: Run tests
+        shell: bash
+        run: make test

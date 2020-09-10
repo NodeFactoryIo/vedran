@@ -1,0 +1,4 @@
+stats:
+  interval: 30 #seconds
+log:
+  level: "error"
