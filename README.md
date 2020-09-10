@@ -41,4 +41,4 @@ Expected name of the configuration file depends on `ENV` variable. For example, 
 ## License
 
 This project is licensed under Apache 2.0:
-- Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+- Apache License, Version 2.0, ([LICENSE-APACHE](http://www.apache.org/licenses/LICENSE-2.0))
