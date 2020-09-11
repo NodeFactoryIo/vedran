@@ -11,15 +11,15 @@ var (
 	shellCmd string
 )
 
-var exampleCmd = &cobra.Command{
+var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Starts vedran load balancer",
 	Run:   startCommand,
 }
 
 func init() {
-	exampleCmd.Flags().StringVar(&shellCmd, "command", "flag", "example flag")
-	RootCmd.AddCommand(exampleCmd)
+	startCmd.Flags().StringVar(&shellCmd, "command", "flag", "example flag")
+	RootCmd.AddCommand(startCmd)
 }
 
 func startCommand(_ *cobra.Command, _ []string) {
