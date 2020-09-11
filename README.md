@@ -2,9 +2,6 @@
 
 > Polkadot chain loadbalancer.
 
-## Installation
-You can download already built binaries for your platform from `builds` folder or get `vedran` golang package and build it locally. Find detailed instructions below.
-
 ### Get `vedran` package
 1. Install [Golang](https://golang.org/doc/install) **1.13 or greater**
 2. Run the command below
