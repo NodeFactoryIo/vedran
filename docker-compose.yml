@@ -1,0 +1,29 @@
+version: '3'
+services:
+  polkadot:
+    ports:
+      - "127.0.0.1:30333:30333/tcp"
+      - "127.0.0.1:9933:9933/tcp"
+      - "127.0.0.1:9615:9615/tcp"
+    image: chevdor/polkadot:latest
+    volumes:
+      - "polkadot-data:/data"
+    command: sh -c "polkadot --rpc-external --public-addr 0.0.0.0"
+  vedran:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: ./vedran start
+    image: nodefactory/vedran:${IMAGE_TAG:-latest}
+    container_name: "vedran"
+    ports:
+      - "${BACKEND_LOCAL_PORT:-4000}:${SERVER_PORT:-4000}"
+  vedran-daemon:
+    image: nodefactory/vedran-daemon:${IMAGE_TAG:-latest}
+    depends_on:
+      - vedran
+      - polkadot
+    command: sh -c "sleep 5 && ./vedran-daemon register --id test-id --lb http://vedran:4000 --node http://polkadot:9615 --payout-address 0xtestaddress"
+
+volumes:
+  polkadot-data:
