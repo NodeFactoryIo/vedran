@@ -31,9 +31,6 @@ Use "vedran [command] --help" for more information about a command.
 ```
 
 ## Development
-Run daemon app with `go run main.go [command]`.
-
-Expected name of the configuration file depends on `ENV` variable. For example, if you run a daemon app with `ENV=test go run main.go start`, expected config file name is `config-test.yaml`
 
 ## License
 
