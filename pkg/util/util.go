@@ -44,8 +44,7 @@ func DecodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) err
 			return &MalformedRequest{Status: http.StatusBadRequest, Msg: msg}
 
 		case errors.Is(err, io.ErrUnexpectedEOF):
-			msg := fmt.Sprintf("Request body contains badly-formed JSON")
-			return &MalformedRequest{Status: http.StatusBadRequest, Msg: msg}
+			return &MalformedRequest{Status: http.StatusBadRequest, Msg: "Request body contains badly-formed JSON"}
 
 		case errors.As(err, &unmarshalTypeError):
 			msg := fmt.Sprintf("Request body contains an invalid value for the %q field (at position %d)", unmarshalTypeError.Field, unmarshalTypeError.Offset)

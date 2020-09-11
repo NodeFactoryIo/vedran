@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"github.com/NodeFactoryIo/vedran/internal/handlers"
-	"github.com/gorilla/mux"
+	"github.com/NodeFactoryIo/vedran/internal/router"
 	"github.com/spf13/cobra"
 	"log"
 	"net/http"
@@ -24,10 +23,7 @@ func init() {
 }
 
 func startCommand(_ *cobra.Command, _ []string) {
-	router := mux.NewRouter()
-	router.HandleFunc("/api/v1/nodes", handlers.RegisterHandler).Methods("POST")
-
 	log.Println("Starting server on :4000...")
-	err := http.ListenAndServe(":4000", router)
+	err := http.ListenAndServe(":4000", router.CreateNewApiRouter())
 	log.Fatal(err)
 }

@@ -22,13 +22,15 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var mr *util.MalformedRequest
 		if errors.As(err, &mr) {
+			// malformed request error
 			http.Error(w, mr.Msg, mr.Status)
 		} else {
+			// unknown error
 			log.Println(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
 		return
 	}
 
-	fmt.Fprintf(w, "Register request: %+v", p)
+	_, _ = fmt.Fprintf(w, "Register request: %+v", p)
 }
