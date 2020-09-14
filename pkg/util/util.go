@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+const MaxBytesBody = 1048576
+
 type MalformedRequest struct {
 	Status int
 	Msg    string
@@ -28,7 +30,7 @@ func DecodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) err
 		}
 	}
 
-	r.Body = http.MaxBytesReader(w, r.Body, 1048576)
+	r.Body = http.MaxBytesReader(w, r.Body, MaxBytesBody)
 
 	dec := json.NewDecoder(r.Body)
 	dec.DisallowUnknownFields()
