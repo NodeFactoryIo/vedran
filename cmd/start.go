@@ -7,10 +7,6 @@ import (
 	"net/http"
 )
 
-var (
-	shellCmd string
-)
-
 var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Starts vedran load balancer",
@@ -18,7 +14,6 @@ var startCmd = &cobra.Command{
 }
 
 func init() {
-	startCmd.Flags().StringVar(&shellCmd, "command", "flag", "example flag")
 	RootCmd.AddCommand(startCmd)
 }
 
