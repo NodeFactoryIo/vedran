@@ -18,7 +18,7 @@ func init() {
 }
 
 func startCommand(_ *cobra.Command, _ []string) {
+	log.Println("Starting vedran load balancer on port :4000...")
 	err := http.ListenAndServe(":4000", router.CreateNewApiRouter())
-	log.Println("Started vedran load balancer on port :4000...")
 	log.Fatal(err)
 }
