@@ -1,6 +1,6 @@
 FROM golang:alpine AS builder
 
-# Set necessary environmet variables needed for our image
+# Set necessary environment variables needed for our image
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
     GOOS=linux \
@@ -24,7 +24,7 @@ RUN go build -o vedran .
 WORKDIR /dist
 
 # Copy binary from build to main folder
-RUN cp /build/vedran .
+RUN cp /build .
 
 # Build a small image
 FROM scratch
