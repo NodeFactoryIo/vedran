@@ -13,7 +13,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-    command: ./vedran start
+    command: start
     image: nodefactory/vedran:${IMAGE_TAG:-latest}
     container_name: "vedran"
     ports:
