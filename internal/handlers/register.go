@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/pkg/util"
+	"github.com/dgrijalva/jwt-go"
 	"log"
 	"net/http"
 )
@@ -15,10 +16,14 @@ type RegisterRequest struct {
 	PayoutAddress string `json:"payout_address"`
 }
 
-func RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	var p RegisterRequest
+type RegisterResponse struct {
+	Token string `json:"token"`
+}
 
-	err := util.DecodeJSONBody(w, r, &p)
+func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+	// decode body
+	var registerRequest RegisterRequest
+	err := util.DecodeJSONBody(w, r, &registerRequest)
 	if err != nil {
 		var mr *util.MalformedRequest
 		if errors.As(err, &mr) {
@@ -32,5 +37,22 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, _ = fmt.Fprintf(w, "Register request: %+v", p)
+	// create token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"authorized": true,
+		"user_id": "1",
+	})
+	// TODO -> move secret to env variable
+	stringToken, error := token.SignedString([]byte("jdnfksdmfksd"))
+	if error != nil {
+		// unknown error
+		log.Println(error.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	t := RegisterResponse{
+		Token: stringToken,
+	}
+
+	_, _ = fmt.Fprintf(w, "%+v", t)
 }
