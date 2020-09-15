@@ -1,4 +1,0 @@
-stats:
-  interval: 5 #seconds
-log:
-  level: "info"
