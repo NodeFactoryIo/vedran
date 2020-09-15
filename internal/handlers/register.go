@@ -21,31 +21,31 @@ type RegisterResponse struct {
 }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	// decode body
+	// decode request body
 	var registerRequest RegisterRequest
 	err := util.DecodeJSONBody(w, r, &registerRequest)
 	if err != nil {
 		var mr *util.MalformedRequest
 		if errors.As(err, &mr) {
-			// malformed request err2
+			// malformed request error
 			http.Error(w, mr.Msg, mr.Status)
 		} else {
-			// unknown err2
+			// unknown error
 			log.Println(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
 		return
 	}
 
+	// generate auth token
 	token, err := auth.CreateNewToken()
 	if err != nil {
-		// unknown err2
+		// unknown error
 		log.Println(err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+	// return generated token
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(RegisterResponse{
-		token,
-	})
+	_ = json.NewEncoder(w).Encode(RegisterResponse{token})
 }
