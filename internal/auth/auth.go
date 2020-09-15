@@ -7,9 +7,9 @@ import (
 )
 
 func CreateNewToken() (string, error) {
+	// set claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"authorized": true,
-		"user_id": "1",
 	})
 	return token.SignedString([]byte(getSecret()))
 }
