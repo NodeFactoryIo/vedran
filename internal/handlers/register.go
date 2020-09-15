@@ -1,10 +1,10 @@
 package handlers
 
 import (
+	"encoding/json"
 	"errors"
-	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/pkg/util"
-	"github.com/dgrijalva/jwt-go"
 	"log"
 	"net/http"
 )
@@ -27,32 +27,25 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var mr *util.MalformedRequest
 		if errors.As(err, &mr) {
-			// malformed request error
+			// malformed request err2
 			http.Error(w, mr.Msg, mr.Status)
 		} else {
-			// unknown error
+			// unknown err2
 			log.Println(err.Error())
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
 		return
 	}
 
-	// create token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"authorized": true,
-		"user_id": "1",
-	})
-	// TODO -> move secret to env variable
-	stringToken, error := token.SignedString([]byte("jdnfksdmfksd"))
-	if error != nil {
-		// unknown error
-		log.Println(error.Error())
+	token, err := auth.CreateNewToken()
+	if err != nil {
+		// unknown err2
+		log.Println(err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	t := RegisterResponse{
-		Token: stringToken,
-	}
-
-	_, _ = fmt.Fprintf(w, "%+v", t)
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(RegisterResponse{
+		token,
+	})
 }
