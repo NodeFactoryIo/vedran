@@ -13,7 +13,7 @@ var (
 
 var RootCmd = &cobra.Command{
 	Use:   "vedran",
-	Short: "Vedran daemon cli tool",
+	Short: "Vedran cli tool",
 }
 
 func init() {
