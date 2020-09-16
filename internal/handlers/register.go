@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/db"
 	"github.com/NodeFactoryIo/vedran/pkg/util"
 	"log"
 	"net/http"
@@ -31,6 +32,16 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+
+	database := db.GetDatabaseService()
+	node := db.Node{
+		ID:            p.Id,
+		ConfigHash:    p.ConfigHash,
+		NodeUrl:       p.NodeUrl,
+		PayoutAddress: p.PayoutAddress,
+		Token:         ,
+	}
+	database.DB.Save()
 
 	_, _ = fmt.Fprintf(w, "Register request: %+v", p)
 }
