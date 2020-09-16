@@ -1,26 +1,35 @@
 package auth
 
 import (
+	"errors"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/gommon/random"
 	"os"
 )
 
-func CreateNewToken() (string, error) {
+var authSecret string
+
+func SetAuthSecret(secret string) error {
+	// set auth secret if provided as arg
+	if secret != "" && authSecret == "" {
+		authSecret = secret
+	}
+	// fallback to env variable
+	if authSecret == "" {
+		authSecret = os.Getenv("AUTH_SECRET")
+	}
+	// throw error if secret not set
+	if authSecret == "" {
+		return errors.New("auth secret not provided")
+	} else {
+		return nil
+	}
+}
+
+func CreateNewToken(nodeId string) (string, error) {
 	// set claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"authorized": true,
+		"node_id":    nodeId,
 	})
-	return token.SignedString([]byte(getSecret()))
-}
-
-func getSecret() string {
-	secret := os.Getenv("AUTH_SECRET")
-	if secret == "" {
-		// generate secret if not set
-		generatedSecret := random.String(24, random.Alphabetic)
-		_ = os.Setenv("AUTH_SECRET", generatedSecret)
-		secret = generatedSecret
-	}
-	return secret
+	return token.SignedString([]byte(authSecret))
 }

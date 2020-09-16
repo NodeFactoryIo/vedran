@@ -38,7 +38,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// generate auth token
-	token, err := auth.CreateNewToken()
+	token, err := auth.CreateNewToken(registerRequest.Id)
 	if err != nil {
 		// unknown error
 		log.Println(err.Error())

@@ -29,7 +29,7 @@ func TestRegisterHandler(t *testing.T) {
 			},
 			httpStatus: http.StatusOK,
 			registerResponse: RegisterResponse{
-				Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlfQ.rM39-Py3d6fDT3xG-HjqmQ7554wxHrrwNxJT2bA76RY",
+				Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
 			},
 		},
 	}
