@@ -4,10 +4,10 @@ import "github.com/asdine/storm/v3"
 
 type Node struct {
 	ID            int    `storm:"id"`
-	ConfigHash    string `storm:"config_hash"`
-	NodeUrl       string `storm:"config_hash"`
-	PayoutAddress string `storm:"payout_address"`
-	Token         string `storm:"token"`
+	ConfigHash    string
+	NodeUrl       string
+	PayoutAddress string `storm:"index"`
+	Token         string
 }
 
 type NodeDatabaseService interface {

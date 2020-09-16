@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/db"
 	"github.com/NodeFactoryIo/vedran/pkg/util"
@@ -50,6 +51,9 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	database := db.GetDatabaseService()
 	id, err := strconv.Atoi(registerRequest.Id)
+	if err != nil {
+		// todo
+	}
 	node := db.Node{
 		ID:            id,
 		ConfigHash:    registerRequest.ConfigHash,
@@ -57,7 +61,16 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		PayoutAddress: registerRequest.PayoutAddress,
 		Token:         token,
 	}
-	err = database.DB.Save(node)
+	err = database.DB.Save(&node)
+	if err != nil {
+		// todo
+		log.Print(err)
+	}
+
+	var allNodes []db.Node
+	_ = database.DB.All(&allNodes)
+
+	fmt.Print(allNodes)
 
 	// return generated token
 	w.Header().Set("Content-Type", "application/json")

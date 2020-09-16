@@ -22,6 +22,7 @@ func newDatabaseService() *DatabaseService {
 	return &DatabaseService{
 		DB: db,
 	}
+
 }
 
 func GetDatabaseService() *DatabaseService {
