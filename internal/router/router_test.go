@@ -8,8 +8,8 @@ import (
 
 func TestApiRouter(t *testing.T) {
 	tests := []struct {
-		name string
-		url string
+		name    string
+		url     string
 		methods []string
 	}{
 		{name: "Test register route", url: "/api/v1/nodes", methods: []string{"POST"}},
@@ -28,4 +28,3 @@ func TestApiRouter(t *testing.T) {
 		})
 	}
 }
-
