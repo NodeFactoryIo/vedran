@@ -35,7 +35,7 @@ func init() {
 		&authSecret,
 		"auth-secret",
 		"",
-		"authentication secret used for generating tokens")
+		"[REQUIRED] authentication secret used for generating tokens")
 
 	startCmd.Flags().StringVar(
 		&name,
@@ -53,13 +53,13 @@ func init() {
 		&whitelist,
 		"whitelist",
 		nil,
-		"[OPTIONAL] coma separated list of node id-s, if provided only these nodes will be allowed to connect")
+		"[OPTIONAL] comma separated list of node id-s, if provided only these nodes will be allowed to connect")
 
 	startCmd.Flags().Float32Var(
 		&fee,
 		"fee",
 		0,
-		"[OPTIONAL] float value representing fee percentage")
+		"[REQUIRED] float value representing fee percentage")
 
 	startCmd.Flags().StringVar(
 		&selection,
