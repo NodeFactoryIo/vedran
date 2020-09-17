@@ -24,7 +24,7 @@ RUN go build -o vedran .
 WORKDIR /dist
 
 # Copy binary from build to main folder
-RUN cp /build .
+RUN cp /build/vedran .
 
 # Build a small image
 FROM scratch
