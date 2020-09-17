@@ -1,4 +1,4 @@
-package controlers
+package controllers
 
 import (
 	"bytes"
@@ -54,8 +54,8 @@ func TestRegisterHandler(t *testing.T) {
 				t.Fatal(err)
 			}
 			rr := httptest.NewRecorder()
-			baseController := NewBaseController(&nodeRepoMock)
-			handler := http.HandlerFunc(baseController.RegisterHandler)
+			apiController := NewApiController(&nodeRepoMock)
+			handler := http.HandlerFunc(apiController.RegisterHandler)
 			// invoke test request
 			handler.ServeHTTP(rr, req)
 			var response RegisterResponse
