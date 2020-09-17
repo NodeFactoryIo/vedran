@@ -1,10 +1,17 @@
-on: [pull_request, push]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 name: Tests
 
 jobs:
   build:
     name: Run tests
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     env:
       GO111MODULE: "on"
     steps:
@@ -19,22 +26,11 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Install build essentials
-        shell: bash
-        run: sudo apt-get -y install build-essential
+          key: ${{ matrix.os }}-go-${{ hashFiles('**/go.sum') }}
 
       - name: Build
         shell: bash
         run: make build
-
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
-        with:
-          version: v1.29
 
       - name: Run tests
         shell: bash
