@@ -8,13 +8,14 @@ import (
 
 func TestApiRouter(t *testing.T) {
 	tests := []struct {
-		name string
-		url string
+		name    string
+		url     string
 		methods []string
 	}{
 		{name: "Test register route", url: "/api/v1/nodes", methods: []string{"POST"}},
 	}
-	router := CreateNewApiRouter()
+	// pass nil as db instance as only routes are tested
+	router := CreateNewApiRouter(nil)
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("%s::%s", test.name, test.url), func(t *testing.T) {
 			rout := router.GetRoute(test.url)
@@ -28,4 +29,3 @@ func TestApiRouter(t *testing.T) {
 		})
 	}
 }
-

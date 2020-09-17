@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/router"
+	"github.com/asdine/storm/v3"
 	"github.com/spf13/cobra"
 	"log"
 	"net/http"
@@ -37,6 +38,15 @@ func startCommand(_ *cobra.Command, _ []string) {
 
 	log.Println("Starting vedran load balancer on port :4000...")
 
-	err = http.ListenAndServe(":4000", router.CreateNewApiRouter())
+	database, err := storm.Open("my.db")
+	if err != nil {
+		// todo
+	}
+
+	err = http.ListenAndServe(":4000", router.CreateNewApiRouter(database))
+	if err != nil {
+		log.Print(err)
+	}
+	err = database.Close()
 	log.Fatal(err)
 }

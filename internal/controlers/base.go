@@ -1,16 +1,27 @@
-package handlers
+package controlers
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/auth"
-	"github.com/NodeFactoryIo/vedran/internal/db"
+	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/pkg/util"
 	"log"
 	"net/http"
-	"strconv"
 )
+
+type BaseController struct {
+	nodeRepo models.NodeRepository
+}
+
+func NewBaseController(nodeRepo models.NodeRepository) *BaseController {
+	return &BaseController{
+		nodeRepo: nodeRepo,
+	}
+}
+
+// /api/v1/node -> register handler
 
 type RegisterRequest struct {
 	Id            string `json:"id"`
@@ -23,7 +34,7 @@ type RegisterResponse struct {
 	Token string `json:"token"`
 }
 
-func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+func (c BaseController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	// decode request body
 	var registerRequest RegisterRequest
 	err := util.DecodeJSONBody(w, r, &registerRequest)
@@ -49,28 +60,21 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	database := db.GetDatabaseService()
-	id, err := strconv.Atoi(registerRequest.Id)
-	if err != nil {
-		// todo
-	}
-	node := db.Node{
-		ID:            id,
+	node := &models.Node{
+		ID:            registerRequest.Id,
 		ConfigHash:    registerRequest.ConfigHash,
 		NodeUrl:       registerRequest.NodeUrl,
 		PayoutAddress: registerRequest.PayoutAddress,
 		Token:         token,
 	}
-	err = database.DB.Save(&node)
+	err = c.nodeRepo.Save(node)
 	if err != nil {
 		// todo
 		log.Print(err)
 	}
 
-	var allNodes []db.Node
-	_ = database.DB.All(&allNodes)
-
-	fmt.Print(allNodes)
+	all, _ := c.nodeRepo.GetAll()
+	fmt.Println(all)
 
 	// return generated token
 	w.Header().Set("Content-Type", "application/json")

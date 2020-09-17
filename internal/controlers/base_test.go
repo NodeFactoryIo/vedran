@@ -1,9 +1,11 @@
-package handlers
+package controlers
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/models"
+	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -34,9 +36,17 @@ func TestRegisterHandler(t *testing.T) {
 		},
 	}
 	_ = os.Setenv("AUTH_SECRET", "test-auth-secret")
+	nodeRepoMock := mocks.NodeRepository{}
 	// execute tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			nodeRepoMock.On("Save", &models.Node{
+				ID:            test.registerRequest.Id,
+				ConfigHash:    test.registerRequest.ConfigHash,
+				NodeUrl:       test.registerRequest.NodeUrl,
+				PayoutAddress: test.registerRequest.PayoutAddress,
+				Token:         test.registerResponse.Token,
+			}).Return(nil)
 			// create test request
 			rb, _ := json.Marshal(test.registerRequest)
 			req, err := http.NewRequest("POST", "/api/v1/node", bytes.NewReader(rb))
@@ -44,7 +54,8 @@ func TestRegisterHandler(t *testing.T) {
 				t.Fatal(err)
 			}
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(RegisterHandler)
+			baseController := NewBaseController(&nodeRepoMock)
+			handler := http.HandlerFunc(baseController.RegisterHandler)
 			// invoke test request
 			handler.ServeHTTP(rr, req)
 			var response RegisterResponse
