@@ -6,7 +6,12 @@ import (
 )
 
 var (
-	authSecretFlag string
+	authSecret string
+	name       string
+	capacity string
+	whitelist []string
+	fee string
+	selection string
 )
 
 var startCmd = &cobra.Command{
@@ -16,14 +21,23 @@ var startCmd = &cobra.Command{
 }
 
 func init() {
-	startCmd.Flags().StringVar(
-		&authSecretFlag,
-		"auth-secret",
-		"",
-		"example flag")
+	// initialize flags
+	startCmd.Flags().StringVar(&authSecret, "auth-secret", "", "example flag")
+	startCmd.Flags().StringVar(&name, "name", "", "")
+	startCmd.Flags().StringVar(&capacity, "name", "", "")
+	startCmd.Flags().StringArrayVar(&whitelist, "name", nil, "")
+	startCmd.Flags().StringVar(&fee, "name", "", "")
+	startCmd.Flags().StringVar(&selection, "name", "", "")
+
+	// mark required flags
+	_ = startCmd.MarkFlagRequired("auth-secret")
+	_ = startCmd.MarkFlagRequired("fee")
+	_ = startCmd.MarkFlagRequired("selection")
+
 	RootCmd.AddCommand(startCmd)
 }
 
 func startCommand(_ *cobra.Command, _ []string) {
-	loadbalancer.StartLoadBalancerServer(authSecretFlag, "4000")
+
+	loadbalancer.StartLoadBalancerServer(authSecret, "4000")
 }
