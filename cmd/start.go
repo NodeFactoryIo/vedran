@@ -25,7 +25,7 @@ func init() {
 		&authSecretFlag,
 		"auth-secret",
 		"",
-		"example flag")
+		"authentication secret used for generating tokens")
 	RootCmd.AddCommand(startCmd)
 }
 
