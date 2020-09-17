@@ -30,18 +30,21 @@ func init() {
 }
 
 func startCommand(_ *cobra.Command, _ []string) {
+	// set auth secret
 	err := auth.SetAuthSecret(authSecretFlag)
 	if err != nil {
 		// terminate app: no auth secret provided
 		log.Fatal(fmt.Sprintf("Unable to start vedran load balancer: %v", err))
 	}
 
-	log.Println("Starting vedran load balancer on port :4000...")
-
-	database, err := storm.Open("my.db")
+	// init database
+	database, err := storm.Open("vedran-load-balancer.db")
 	if err != nil {
-		// todo
+		// terminate app: unable to start database connection
+		log.Fatal(fmt.Sprintf("Unable to start vedran load balancer: %v", err))
 	}
+
+	log.Println("Starting vedran load balancer on port :4000...")
 
 	err = http.ListenAndServe(":4000", router.CreateNewApiRouter(database))
 	if err != nil {

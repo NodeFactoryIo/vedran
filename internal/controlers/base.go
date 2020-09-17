@@ -3,7 +3,6 @@ package controlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/pkg/util"
@@ -60,6 +59,7 @@ func (c BaseController) RegisterHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// save node to database
 	node := &models.Node{
 		ID:            registerRequest.Id,
 		ConfigHash:    registerRequest.ConfigHash,
@@ -69,12 +69,11 @@ func (c BaseController) RegisterHandler(w http.ResponseWriter, r *http.Request) 
 	}
 	err = c.nodeRepo.Save(node)
 	if err != nil {
-		// todo
-		log.Print(err)
+		// error on saving in database
+		log.Println(err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
-
-	all, _ := c.nodeRepo.GetAll()
-	fmt.Println(all)
 
 	// return generated token
 	w.Header().Set("Content-Type", "application/json")
