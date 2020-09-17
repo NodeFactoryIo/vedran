@@ -1,9 +1,10 @@
-package handlers
+package controllers
 
 import (
 	"encoding/json"
 	"errors"
 	"github.com/NodeFactoryIo/vedran/internal/auth"
+	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/pkg/util"
 	"log"
 	"net/http"
@@ -20,7 +21,7 @@ type RegisterResponse struct {
 	Token string `json:"token"`
 }
 
-func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	// decode request body
 	var registerRequest RegisterRequest
 	err := util.DecodeJSONBody(w, r, &registerRequest)
@@ -45,6 +46,23 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
+	// save node to database
+	node := &models.Node{
+		ID:            registerRequest.Id,
+		ConfigHash:    registerRequest.ConfigHash,
+		NodeUrl:       registerRequest.NodeUrl,
+		PayoutAddress: registerRequest.PayoutAddress,
+		Token:         token,
+	}
+	err = c.nodeRepo.Save(node)
+	if err != nil {
+		// error on saving in database
+		log.Println(err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
 	// return generated token
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(RegisterResponse{token})

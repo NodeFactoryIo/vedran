@@ -8,9 +8,9 @@ import (
 
 func TestSetAuthSecret(t *testing.T) {
 	tests := []struct {
-		name string
-		argument string
-		env string
+		name       string
+		argument   string
+		env        string
 		shouldFail bool
 	}{
 		{name: "Auth secret as param", argument: "auth-secret", env: "", shouldFail: false},
