@@ -36,10 +36,10 @@ func TestRegisterHandler(t *testing.T) {
 		},
 	}
 	_ = os.Setenv("AUTH_SECRET", "test-auth-secret")
-	nodeRepoMock := mocks.NodeRepository{}
 	// execute tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			nodeRepoMock := mocks.NodeRepository{}
 			nodeRepoMock.On("Save", &models.Node{
 				ID:            test.registerRequest.Id,
 				ConfigHash:    test.registerRequest.ConfigHash,
@@ -63,6 +63,7 @@ func TestRegisterHandler(t *testing.T) {
 			// asserts
 			assert.Equal(t, rr.Code, test.httpStatus, fmt.Sprintf("Response status code should be %d", test.httpStatus))
 			assert.Equal(t, response, test.registerResponse, fmt.Sprintf("Response should be %v", test.registerResponse))
+			assert.True(t, nodeRepoMock.AssertNumberOfCalls(t, "Save", 1))
 		})
 	}
 	_ = os.Setenv("AUTH_SECRET", "")
