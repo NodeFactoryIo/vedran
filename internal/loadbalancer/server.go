@@ -9,9 +9,18 @@ import (
 	"net/http"
 )
 
-func StartLoadBalancerServer(secret string, port string) {
+type Properties struct {
+	AuthSecret string
+	Name string
+	Capacity int64
+	Whitelist []string
+	Fee float32
+	Selection string
+}
+
+func StartLoadBalancerServer(props Properties, port string) {
 	// set auth secret
-	err := auth.SetAuthSecret(secret)
+	err := auth.SetAuthSecret(props.AuthSecret)
 	if err != nil {
 		// terminate app: no auth secret provided
 		log.Fatal(fmt.Sprintf("Unable to start vedran load balancer: %v", err))
