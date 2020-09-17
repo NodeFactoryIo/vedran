@@ -1,8 +1,9 @@
 package handlers
 
 import (
+	"encoding/json"
 	"errors"
-	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/pkg/util"
 	"log"
 	"net/http"
@@ -15,10 +16,14 @@ type RegisterRequest struct {
 	PayoutAddress string `json:"payout_address"`
 }
 
-func RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	var p RegisterRequest
+type RegisterResponse struct {
+	Token string `json:"token"`
+}
 
-	err := util.DecodeJSONBody(w, r, &p)
+func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+	// decode request body
+	var registerRequest RegisterRequest
+	err := util.DecodeJSONBody(w, r, &registerRequest)
 	if err != nil {
 		var mr *util.MalformedRequest
 		if errors.As(err, &mr) {
@@ -32,5 +37,15 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, _ = fmt.Fprintf(w, "Register request: %+v", p)
+	// generate auth token
+	token, err := auth.CreateNewToken(registerRequest.Id)
+	if err != nil {
+		// unknown error
+		log.Println(err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	// return generated token
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(RegisterResponse{token})
 }
