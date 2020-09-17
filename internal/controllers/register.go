@@ -1,4 +1,4 @@
-package controlers
+package controllers
 
 import (
 	"encoding/json"
@@ -9,18 +9,6 @@ import (
 	"log"
 	"net/http"
 )
-
-type BaseController struct {
-	nodeRepo models.NodeRepository
-}
-
-func NewBaseController(nodeRepo models.NodeRepository) *BaseController {
-	return &BaseController{
-		nodeRepo: nodeRepo,
-	}
-}
-
-// /api/v1/node -> register handler
 
 type RegisterRequest struct {
 	Id            string `json:"id"`
@@ -33,7 +21,7 @@ type RegisterResponse struct {
 	Token string `json:"token"`
 }
 
-func (c BaseController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
+func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	// decode request body
 	var registerRequest RegisterRequest
 	err := util.DecodeJSONBody(w, r, &registerRequest)

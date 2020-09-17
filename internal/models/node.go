@@ -4,7 +4,7 @@ type Node struct {
 	ID            string `storm:"id"`
 	ConfigHash    string
 	NodeUrl       string
-	PayoutAddress string `storm:"index"`
+	PayoutAddress string
 	Token         string
 }
 
