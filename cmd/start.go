@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/loadbalancer"
+	"github.com/NodeFactoryIo/vedran/pkg/util/random"
 	"github.com/spf13/cobra"
 )
 
@@ -21,13 +23,20 @@ var startCmd = &cobra.Command{
 }
 
 func init() {
+
 	// initialize flags
-	startCmd.Flags().StringVar(&authSecret, "auth-secret", "", "example flag")
-	startCmd.Flags().StringVar(&name, "name", "", "")
-	startCmd.Flags().StringVar(&capacity, "name", "", "")
-	startCmd.Flags().StringArrayVar(&whitelist, "name", nil, "")
-	startCmd.Flags().StringVar(&fee, "name", "", "")
-	startCmd.Flags().StringVar(&selection, "name", "", "")
+	startCmd.Flags().StringVar(
+		&authSecret, "auth-secret", "", "example flag")
+	startCmd.Flags().StringVar(
+		&name, "name", fmt.Sprintf("load-balancer-%s", random.String(12, random.Alphabetic)), "")
+	startCmd.Flags().StringVar(
+		&capacity, "name", "", "")
+	startCmd.Flags().StringArrayVar(
+		&whitelist, "name", nil, "")
+	startCmd.Flags().StringVar(
+		&fee, "name", "", "")
+	startCmd.Flags().StringVar(
+		&selection, "name", "", "")
 
 	// mark required flags
 	_ = startCmd.MarkFlagRequired("auth-secret")
