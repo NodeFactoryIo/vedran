@@ -8,12 +8,12 @@ services:
     image: chevdor/polkadot:latest
     volumes:
       - "polkadot-data:/data"
-    command: sh -c "polkadot --rpc-external --prometheus-external"
+    command: sh -c "polkadot --rpc-external --prometheus-external --log error"
   vedran:
     build:
       context: .
       dockerfile: ./Dockerfile
-    command: start
+    command: start --fee=0.1 --auth-secret=test-secret
     image: nodefactory/vedran:${IMAGE_TAG:-latest}
     container_name: "vedran"
     ports:
@@ -23,7 +23,7 @@ services:
     depends_on:
       - vedran
       - polkadot
-    command: sh -c "sleep 5 && ./vedran-daemon register --id test-id --lb http://vedran:4000 --node http://polkadot:9615 --payout-address 0xtestaddress"
+    command: --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-metrics http://polkadot:9615 --payout-address 0xtestaddress
 
 volumes:
   polkadot-data:
