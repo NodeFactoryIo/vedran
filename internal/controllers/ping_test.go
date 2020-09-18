@@ -28,7 +28,7 @@ func TestApiController_PingHandler(t *testing.T) {
 	apiController := NewApiController(&nodeRepoMock, &pingRepoMock)
 	handler := http.HandlerFunc(apiController.PingHandler)
 
-	// create request and populate context
+	// create test request and populate context
 	req, _ := http.NewRequest("POST", "/api/v1/node", bytes.NewReader(nil))
 	ctx := req.Context()
 	ctx = context.WithValue(ctx, "node-id", "1")

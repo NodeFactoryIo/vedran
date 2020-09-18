@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/NodeFactoryIo/vedran/internal/models"
+	"log"
 	"net/http"
 	"time"
 )
@@ -14,6 +15,9 @@ func (c ApiController) PingHandler(w http.ResponseWriter, r *http.Request) {
 		Timestamp: timestamp,
 	})
 	if err != nil {
-		// todo handle
+		// error on saving in database
+		log.Println(err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 }
