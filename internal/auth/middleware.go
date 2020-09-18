@@ -41,7 +41,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			}
 		}
 
-		log.Println(err)
+		log.Println("Unauthorized request:", err)
 		w.WriteHeader(http.StatusUnauthorized)
 		_, _ = w.Write([]byte("Unauthorized"))
 	})

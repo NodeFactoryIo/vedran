@@ -8,31 +8,40 @@ import (
 	"testing"
 )
 
-func TestAuthMiddleware_AuthorizedRequest(t *testing.T) {
-	token, _ := CreateNewToken("test-node-id")
-	req, _ := http.NewRequest("POST", "/", bytes.NewReader(nil))
-	req.Header.Add("X-Auth-Token", token)
-	rr := httptest.NewRecorder()
+func TestAuthMiddleware(t *testing.T) {
+	validToken, _ := CreateNewToken("test-node-id")
+	tests := []struct {
+		name string
+		token string
+		status int
+		mockHandle http.HandlerFunc
+	}{
+		{
+			name: "Authorized request",
+			token: validToken,
+			status: http.StatusOK,
+			mockHandle: func(writer http.ResponseWriter, request *http.Request) {
+				r := request.Context().Value(RequestContextKey).(*RequestContext)
+				assert.Equal(t, r.NodeId, "test-node-id")
+				assert.NotNil(t, r.Timestamp)
+			},
+		},
+		{
+			name: "Unauthorized request",
+			token: "invalidtokenstring",
+			status: http.StatusUnauthorized,
+			mockHandle: func(writer http.ResponseWriter, request *http.Request) {},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			req, _ := http.NewRequest("POST", "/", bytes.NewReader(nil))
+			req.Header.Add("X-Auth-Token", test.token)
+			rr := httptest.NewRecorder()
 
-	mockHandler := http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		r := request.Context().Value(RequestContextKey).(*RequestContext)
-		assert.Equal(t, r.NodeId, "test-node-id")
-		assert.NotNil(t, r.Timestamp)
-	})
-
-	handler := AuthMiddleware(mockHandler)
-	handler.ServeHTTP(rr, req)
-}
-
-func TestAuthMiddleware_UnauthorizedRequest(t *testing.T) {
-	token := "invalidtokenstring"
-	req, _ := http.NewRequest("POST", "/", bytes.NewReader(nil))
-	req.Header.Add("X-Auth-Token", token)
-	rr := httptest.NewRecorder()
-
-	mockHandler := http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {})
-
-	handler := AuthMiddleware(mockHandler)
-	handler.ServeHTTP(rr, req)
-	assert.Equal(t, rr.Code, http.StatusUnauthorized)
+			handler := AuthMiddleware(test.mockHandle)
+			handler.ServeHTTP(rr, req)
+			assert.Equal(t, rr.Code, test.status)
+		})
+	}
 }
