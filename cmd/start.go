@@ -6,6 +6,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/loadbalancer"
 	"github.com/NodeFactoryIo/vedran/pkg/util/random"
 	"github.com/spf13/cobra"
+	"math"
 )
 
 var (
@@ -28,7 +29,7 @@ var startCmd = &cobra.Command{
 			return errors.New("invalid selection option selected")
 		}
 		// all positive integers are valid, and -1 representing unlimited capacity
-		if capacity < -1 {
+		if capacity < -1 || capacity > math.MaxInt64 {
 			return errors.New("invalid capacity value")
 		}
 		// valid value is between 0-1
