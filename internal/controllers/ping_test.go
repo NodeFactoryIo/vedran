@@ -35,7 +35,7 @@ func TestApiController_PingHandler(t *testing.T) {
 		NodeId:    "1",
 		Timestamp: timestamp,
 	}
-	ctx := context.WithValue(req.Context(), "request", c)
+	ctx := context.WithValue(req.Context(), auth.RequestContextKey, c)
 	req = req.WithContext(ctx)
 	rr := httptest.NewRecorder()
 

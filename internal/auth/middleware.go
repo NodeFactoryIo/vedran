@@ -9,7 +9,9 @@ import (
 	"time"
 )
 
-const RequestContextKey = "request"
+type ContextKey string
+
+const RequestContextKey = ContextKey("request")
 
 type RequestContext struct {
 	NodeId string
