@@ -15,7 +15,7 @@ func TestAuthMiddleware_AuthorizedRequest(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	mockHandler := http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		r := request.Context().Value("request").(*RequestContext)
+		r := request.Context().Value(RequestContextKey).(*RequestContext)
 		assert.Equal(t, r.NodeId, "test-node-id")
 		assert.NotNil(t, r.Timestamp)
 	})
