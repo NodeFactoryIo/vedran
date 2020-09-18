@@ -14,45 +14,34 @@ import (
 	"time"
 )
 
-func TestPingHandler(t *testing.T) {
-	// define test cases
-	tests := []struct {
-		name             string
-		httpStatus       int
-	}{
-		{
-			name: "Valid ping test",
-			httpStatus: http.StatusOK,
-		},
-	}
+func TestApiController_PingHandler(t *testing.T) {
 	_ = os.Setenv("AUTH_SECRET", "test-auth-secret")
-	// execute tests
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			timestamp := time.Now()
-			nodeRepoMock := mocks.NodeRepository{}
-			pingRepoMock := mocks.PingRepository{}
-			pingRepoMock.On("Save", &models.Ping{
-				NodeId:    "1",
-				Timestamp: timestamp,
-			}).Return(nil)
+	timestamp := time.Now()
 
-			rr := httptest.NewRecorder()
-			req, _ := http.NewRequest("POST", "/api/v1/node", bytes.NewReader(nil))
-			ctx := req.Context()
-			ctx = context.WithValue(ctx, "node-id", "1")
-			ctx = context.WithValue(ctx, "timestamp", timestamp)
-			req = req.WithContext(ctx)
+	// create mock controller
+	nodeRepoMock := mocks.NodeRepository{}
+	pingRepoMock := mocks.PingRepository{}
+	pingRepoMock.On("Save", &models.Ping{
+		NodeId:    "1",
+		Timestamp: timestamp,
+	}).Return(nil)
+	apiController := NewApiController(&nodeRepoMock, &pingRepoMock)
+	handler := http.HandlerFunc(apiController.PingHandler)
 
-			apiController := NewApiController(&nodeRepoMock, &pingRepoMock)
-			handler := http.HandlerFunc(apiController.PingHandler)
-			// invoke test request
-			handler.ServeHTTP(rr, req)
+	// create request and populate context
+	req, _ := http.NewRequest("POST", "/api/v1/node", bytes.NewReader(nil))
+	ctx := req.Context()
+	ctx = context.WithValue(ctx, "node-id", "1")
+	ctx = context.WithValue(ctx, "timestamp", timestamp)
+	req = req.WithContext(ctx)
+	rr := httptest.NewRecorder()
 
-			// asserts
-			assert.Equal(t, rr.Code, test.httpStatus, fmt.Sprintf("Response status code should be %d", test.httpStatus))
-			assert.True(t, pingRepoMock.AssertNumberOfCalls(t, "Save", 1))
-		})
-	}
+	// invoke test request
+	handler.ServeHTTP(rr, req)
+
+	// asserts
+	assert.Equal(t, rr.Code, http.StatusOK, fmt.Sprintf("Response status code should be %d", http.StatusOK))
+	assert.True(t, pingRepoMock.AssertNumberOfCalls(t, "Save", 1))
+
 	_ = os.Setenv("AUTH_SECRET", "")
 }

@@ -13,7 +13,7 @@ import (
 	"testing"
 )
 
-func TestRegisterHandler(t *testing.T) {
+func TestApiController_RegisterHandler(t *testing.T) {
 	// define test cases
 	tests := []struct {
 		name             string
