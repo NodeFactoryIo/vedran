@@ -26,8 +26,8 @@ func SetAuthSecret(secret string) error {
 }
 
 type CustomClaims struct {
-	Authorized bool `json:"authorized"`
-	NodeId string `json:"node_id"`
+	Authorized bool   `json:"authorized"`
+	NodeId     string `json:"node_id"`
 	jwt.StandardClaims
 }
 

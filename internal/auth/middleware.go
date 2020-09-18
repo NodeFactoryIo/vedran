@@ -4,9 +4,17 @@ import (
 	"context"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"log"
 	"net/http"
 	"time"
 )
+
+const RequestContextKey = "request"
+
+type RequestContext struct {
+	NodeId string
+	Timestamp time.Time
+}
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -19,21 +27,20 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return []byte(authSecret), nil
 		})
 
-		if token == nil {
-			// todo
-			return
+		if err == nil {
+			if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
+				c := &RequestContext{
+					NodeId:    claims.NodeId,
+					Timestamp: time.Now(),
+				}
+				ctx := context.WithValue(r.Context(), RequestContextKey, c)
+				next.ServeHTTP(w, r.WithContext(ctx))
+				return
+			}
 		}
 
-		if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
-			ctx := context.WithValue(r.Context(), "node-id", claims.NodeId)
-			ctx = context.WithValue(r.Context(), "timestamp", time.Now())
-			// Access context values in handlers like this
-			// props, _ := r.Context().Value("props").(jwt.MapClaims)
-			next.ServeHTTP(w, r.WithContext(ctx))
-		} else {
-			fmt.Println(err)
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Unauthorized"))
-		}
+		log.Println(err)
+		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte("Unauthorized"))
 	})
 }

@@ -1,18 +1,17 @@
 package controllers
 
 import (
+	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"log"
 	"net/http"
-	"time"
 )
 
 func (c ApiController) PingHandler(w http.ResponseWriter, r *http.Request) {
-	id := r.Context().Value("node-id").(string)
-	timestamp := r.Context().Value("timestamp").(time.Time)
+	request := r.Context().Value(auth.RequestContextKey).(*auth.RequestContext)
 	err := c.pingRepo.Save(&models.Ping{
-		NodeId:    id,
-		Timestamp: timestamp,
+		NodeId:    request.NodeId,
+		Timestamp: request.Timestamp,
 	})
 	if err != nil {
 		// error on saving in database

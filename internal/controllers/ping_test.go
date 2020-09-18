@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
 	"github.com/stretchr/testify/assert"
@@ -30,9 +31,11 @@ func TestApiController_PingHandler(t *testing.T) {
 
 	// create test request and populate context
 	req, _ := http.NewRequest("POST", "/api/v1/node", bytes.NewReader(nil))
-	ctx := req.Context()
-	ctx = context.WithValue(ctx, "node-id", "1")
-	ctx = context.WithValue(ctx, "timestamp", timestamp)
+	c := &auth.RequestContext{
+		NodeId:    "1",
+		Timestamp: timestamp,
+	}
+	ctx := context.WithValue(req.Context(), "request", c)
 	req = req.WithContext(ctx)
 	rr := httptest.NewRecorder()
 
