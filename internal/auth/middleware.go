@@ -20,7 +20,7 @@ type RequestContext struct {
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		jwtToken := r.Header.Get("X-Auth-Token")
+		jwtToken := r.Header.Get("X-Auth-Header")
 
 		token, err := jwt.ParseWithClaims(jwtToken, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

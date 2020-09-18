@@ -36,7 +36,7 @@ func TestAuthMiddleware(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			req, _ := http.NewRequest("POST", "/", bytes.NewReader(nil))
-			req.Header.Add("X-Auth-Token", test.token)
+			req.Header.Add("X-Auth-Header", test.token)
 			rr := httptest.NewRecorder()
 
 			handler := AuthMiddleware(test.mockHandle)
