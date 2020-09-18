@@ -15,6 +15,7 @@ var (
 	whitelist  []string
 	fee        float32
 	selection  string
+	port       int32
 )
 
 var startCmd = &cobra.Command{
@@ -22,9 +23,21 @@ var startCmd = &cobra.Command{
 	Short: "Starts vedran load balancer",
 	Run:   startCommand,
 	Args: func(cmd *cobra.Command, args []string) error {
-		// validate flags values
+		// valid values are round-robin and random
 		if selection != "round-robin" && selection != "random" {
 			return errors.New("invalid selection option selected")
+		}
+		// all positive integers are valid, and -1 representing unlimited capacity
+		if capacity < -1 {
+			return errors.New("invalid capacity value")
+		}
+		// valid value is between 0-1
+		if fee < 0 || fee > 1 {
+			return errors.New("invalid fee value")
+		}
+		// well known ports and registered ports
+		if port > 0 && port <= 49151 {
+			return errors.New("invalid port number")
 		}
 		return nil
 	},
@@ -46,8 +59,8 @@ func init() {
 	startCmd.Flags().Int64Var(
 		&capacity,
 		"capacity",
-		10,
-		"[OPTIONAL] maximum number of nodes allowed to connect")
+		-1,
+		"[OPTIONAL] maximum number of nodes allowed to connect, where -1 represents no upper limit")
 
 	startCmd.Flags().StringArrayVar(
 		&whitelist,
@@ -58,8 +71,8 @@ func init() {
 	startCmd.Flags().Float32Var(
 		&fee,
 		"fee",
-		0,
-		"[REQUIRED] float value representing fee percentage")
+		0.1,
+		"[OPTIONAL] value between 0-1 representing fee percentage")
 
 	startCmd.Flags().StringVar(
 		&selection,
@@ -67,8 +80,11 @@ func init() {
 		"round-robin",
 		"[OPTIONAL] type of selection used for choosing nodes")
 
-	// mark required flags
-	_ = startCmd.MarkFlagRequired("fee")
+	startCmd.Flags().Int32Var(
+		&port,
+		"port",
+		4000,
+		"[OPTIONAL] port on which load balancer will be started")
 
 	RootCmd.AddCommand(startCmd)
 }
@@ -81,5 +97,6 @@ func startCommand(_ *cobra.Command, _ []string) {
 		Whitelist:  whitelist,
 		Fee:        fee,
 		Selection:  selection,
-	}, "4000")
+		Port:       port,
+	})
 }

@@ -11,14 +11,15 @@ import (
 
 type Properties struct {
 	AuthSecret string
-	Name string
-	Capacity int64
-	Whitelist []string
-	Fee float32
-	Selection string
+	Name       string
+	Capacity   int64
+	Whitelist  []string
+	Fee        float32
+	Selection  string
+	Port       int32
 }
 
-func StartLoadBalancerServer(props Properties, port string) {
+func StartLoadBalancerServer(props Properties) {
 	// set auth secret
 	err := auth.SetAuthSecret(props.AuthSecret)
 	if err != nil {
@@ -34,8 +35,8 @@ func StartLoadBalancerServer(props Properties, port string) {
 	}
 
 	// start server
-	log.Println("Starting vedran load balancer on port :4000...")
-	err = http.ListenAndServe(fmt.Sprintf(":%s", port), router.CreateNewApiRouter(database))
+	log.Println(fmt.Sprintf("Starting vedran load balancer on port :%d...", props.Port))
+	err = http.ListenAndServe(fmt.Sprintf(":%d", props.Port), router.CreateNewApiRouter(database))
 	if err != nil {
 		log.Print(err)
 	}
