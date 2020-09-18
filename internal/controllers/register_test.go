@@ -40,6 +40,7 @@ func TestRegisterHandler(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			nodeRepoMock := mocks.NodeRepository{}
+			pingRepoMock := mocks.PingRepository{}
 			nodeRepoMock.On("Save", &models.Node{
 				ID:            test.registerRequest.Id,
 				ConfigHash:    test.registerRequest.ConfigHash,
@@ -54,7 +55,7 @@ func TestRegisterHandler(t *testing.T) {
 				t.Fatal(err)
 			}
 			rr := httptest.NewRecorder()
-			apiController := NewApiController(&nodeRepoMock)
+			apiController := NewApiController(&nodeRepoMock, &pingRepoMock)
 			handler := http.HandlerFunc(apiController.RegisterHandler)
 			// invoke test request
 			handler.ServeHTTP(rr, req)

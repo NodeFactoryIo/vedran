@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"net/http"
+	"time"
 )
 
 func AuthMiddleware(next http.Handler) http.Handler {
@@ -25,6 +26,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 		if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 			ctx := context.WithValue(r.Context(), "node-id", claims.NodeId)
+			ctx = context.WithValue(r.Context(), "timestamp", time.Now())
 			// Access context values in handlers like this
 			// props, _ := r.Context().Value("props").(jwt.MapClaims)
 			next.ServeHTTP(w, r.WithContext(ctx))
