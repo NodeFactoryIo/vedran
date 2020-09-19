@@ -36,7 +36,7 @@ var startCmd = &cobra.Command{
 			return errors.New("invalid fee value")
 		}
 		// well known ports and registered ports
-		if port > 0 && port <= 49151 {
+		if port <= 0 && port > 49151 {
 			return errors.New("invalid port number")
 		}
 		return nil
