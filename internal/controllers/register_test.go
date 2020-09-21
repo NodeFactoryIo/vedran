@@ -42,6 +42,7 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			// create mock controller
 			nodeRepoMock := mocks.NodeRepository{}
 			pingRepoMock := mocks.PingRepository{}
+			metricsRepoMock := mocks.MetricsRepository{}
 			nodeRepoMock.On("Save", &models.Node{
 				ID:            test.registerRequest.Id,
 				ConfigHash:    test.registerRequest.ConfigHash,
@@ -49,7 +50,7 @@ func TestApiController_RegisterHandler(t *testing.T) {
 				PayoutAddress: test.registerRequest.PayoutAddress,
 				Token:         test.registerResponse.Token,
 			}).Return(nil)
-			apiController := NewApiController(&nodeRepoMock, &pingRepoMock)
+			apiController := NewApiController(&nodeRepoMock, &pingRepoMock, &metricsRepoMock)
 			handler := http.HandlerFunc(apiController.RegisterHandler)
 
 			// create test request

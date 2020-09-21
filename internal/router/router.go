@@ -14,11 +14,13 @@ func CreateNewApiRouter(db *storm.DB) *mux.Router {
 	// initialize repos
 	nodeRepo := repositories.NewNodeRepo(db)
 	pingRepo := repositories.NewPingRepo(db)
+	metricsRepo := repositories.NewMetricsRepo(db)
 	// initialize controllers
-	apiController := controllers.NewApiController(nodeRepo, pingRepo)
+	apiController := controllers.NewApiController(nodeRepo, pingRepo, metricsRepo)
 	// map controllers handlers to endpoints
 	createRoute("/api/v1/nodes", "POST", apiController.RegisterHandler, router, false)
 	createRoute("/api/v1/nodes/pings", "POST", apiController.PingHandler, router, true)
+	createRoute("/api/v1/nodes/metrics", "POST", apiController.SaveMetricsHandler, router, true)
 	return router
 }
 

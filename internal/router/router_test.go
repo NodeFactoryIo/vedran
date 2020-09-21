@@ -13,6 +13,8 @@ func TestApiRouter(t *testing.T) {
 		methods []string
 	}{
 		{name: "Test register route", url: "/api/v1/nodes", methods: []string{"POST"}},
+		{name: "Test ping route", url: "/api/v1/nodes/pings", methods: []string{"POST"}},
+		{name: "Test metrics route", url: "/api/v1/nodes/metrics", methods: []string{"POST"}},
 	}
 	// pass nil as db instance as only routes are tested
 	router := CreateNewApiRouter(nil)
