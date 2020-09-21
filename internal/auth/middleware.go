@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
@@ -41,7 +41,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			}
 		}
 
-		log.Println("Unauthorized request:", err)
+		log.Errorf("Unauthorized request: %v", err)
 		w.WriteHeader(http.StatusUnauthorized)
 		_, _ = w.Write([]byte("Unauthorized"))
 	})
