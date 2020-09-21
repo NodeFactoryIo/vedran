@@ -3,6 +3,7 @@ package loadbalancer
 import (
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/auth"
+	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/router"
 	"github.com/asdine/storm/v3"
 	"log"
@@ -32,6 +33,17 @@ func StartLoadBalancerServer(props Properties) {
 	if err != nil {
 		// terminate app: unable to start database connection
 		log.Fatal(fmt.Sprintf("Unable to start vedran load balancer: %v", err))
+	}
+
+	// save whitelisted id-s
+	if len(props.Whitelist) > 0 {
+		for _, nodeId := range props.Whitelist {
+			err = database.Set(models.WhitelistBucket, nodeId, true)
+			if err != nil {
+				// terminate app: unable to save whitelist id-s
+				log.Fatal(fmt.Sprintf("Unable to start vedran load balancer: %v", err))
+			}
+		}
 	}
 
 	// start server
