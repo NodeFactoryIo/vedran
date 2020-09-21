@@ -11,11 +11,11 @@ type NodeRepository struct {
 }
 
 // FindByID provides a mock function with given fields: ID
-func (_m *NodeRepository) FindByID(ID int) (*models.Node, error) {
+func (_m *NodeRepository) FindByID(ID string) (*models.Node, error) {
 	ret := _m.Called(ID)
 
 	var r0 *models.Node
-	if rf, ok := ret.Get(0).(func(int) *models.Node); ok {
+	if rf, ok := ret.Get(0).(func(string) *models.Node); ok {
 		r0 = rf(ID)
 	} else {
 		if ret.Get(0) != nil {
@@ -24,7 +24,7 @@ func (_m *NodeRepository) FindByID(ID int) (*models.Node, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int) error); ok {
+	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(ID)
 	} else {
 		r1 = ret.Error(1)

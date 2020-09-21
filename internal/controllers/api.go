@@ -6,10 +6,12 @@ import (
 
 type ApiController struct {
 	nodeRepo models.NodeRepository
+	pingRepo models.PingRepository
 }
 
-func NewApiController(nodeRepo models.NodeRepository) *ApiController {
+func NewApiController(nodeRepo models.NodeRepository, pingRepo models.PingRepository) *ApiController {
 	return &ApiController{
 		nodeRepo: nodeRepo,
+		pingRepo: pingRepo,
 	}
 }

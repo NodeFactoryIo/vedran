@@ -9,7 +9,7 @@ type Node struct {
 }
 
 type NodeRepository interface {
-	FindByID(ID int) (*Node, error)
+	FindByID(ID string) (*Node, error)
 	Save(node *Node) error
 	GetAll() (*[]Node, error)
 }

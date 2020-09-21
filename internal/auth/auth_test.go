@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -39,3 +40,25 @@ func TestSetAuthSecret(t *testing.T) {
 		})
 	}
 }
+
+func TestCreateNewToken(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		{name: "Valid token with claims generated"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			jwtToken, err := CreateNewToken("test-node-1")
+			assert.NoError(t, err, "Should successfully generate token")
+			token, err := jwt.ParseWithClaims(jwtToken, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+				return []byte(authSecret), nil
+			})
+			assert.NoError(t, err, "Should successfully parse token")
+			claims, ok := token.Claims.(*CustomClaims)
+			assert.True(t, ok, "Should contain custom claims")
+			assert.Equal(t, "test-node-1", claims.NodeId, "Claims should have nodeId")
+		})
+	}
+}
+

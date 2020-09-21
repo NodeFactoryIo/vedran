@@ -13,7 +13,7 @@ import (
 	"testing"
 )
 
-func TestRegisterHandler(t *testing.T) {
+func TestApiController_RegisterHandler(t *testing.T) {
 	// define test cases
 	tests := []struct {
 		name             string
@@ -39,7 +39,9 @@ func TestRegisterHandler(t *testing.T) {
 	// execute tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			// create mock controller
 			nodeRepoMock := mocks.NodeRepository{}
+			pingRepoMock := mocks.PingRepository{}
 			nodeRepoMock.On("Save", &models.Node{
 				ID:            test.registerRequest.Id,
 				ConfigHash:    test.registerRequest.ConfigHash,
@@ -47,6 +49,9 @@ func TestRegisterHandler(t *testing.T) {
 				PayoutAddress: test.registerRequest.PayoutAddress,
 				Token:         test.registerResponse.Token,
 			}).Return(nil)
+			apiController := NewApiController(&nodeRepoMock, &pingRepoMock)
+			handler := http.HandlerFunc(apiController.RegisterHandler)
+
 			// create test request
 			rb, _ := json.Marshal(test.registerRequest)
 			req, err := http.NewRequest("POST", "/api/v1/node", bytes.NewReader(rb))
@@ -54,12 +59,12 @@ func TestRegisterHandler(t *testing.T) {
 				t.Fatal(err)
 			}
 			rr := httptest.NewRecorder()
-			apiController := NewApiController(&nodeRepoMock)
-			handler := http.HandlerFunc(apiController.RegisterHandler)
+
 			// invoke test request
 			handler.ServeHTTP(rr, req)
 			var response RegisterResponse
 			_ = json.Unmarshal(rr.Body.Bytes(), &response)
+
 			// asserts
 			assert.Equal(t, rr.Code, test.httpStatus, fmt.Sprintf("Response status code should be %d", test.httpStatus))
 			assert.Equal(t, response, test.registerResponse, fmt.Sprintf("Response should be %v", test.registerResponse))
