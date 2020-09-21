@@ -71,7 +71,7 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 				FinalizedBlockHeight:  100,
 				ReadyTransactionCount: 10,
 			}).Return(test.repoReturn)
-			apiController := NewApiController(&nodeRepoMock, &pingRepoMock, &metricsRepoMock)
+			apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock)
 			handler := http.HandlerFunc(apiController.SaveMetricsHandler)
 
 			// create test request

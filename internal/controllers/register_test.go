@@ -20,9 +20,14 @@ func TestApiController_RegisterHandler(t *testing.T) {
 		registerRequest  RegisterRequest
 		httpStatus       int
 		registerResponse RegisterResponse
+		isWhitelisted bool
+		saveMockReturns interface{}
+		saveMockCalledNumber int
+		isNodeWhitelistedMockReturns interface{}
+		isNodeWhitelistedCalledNumber int
 	}{
 		{
-			name: "Valid registration test",
+			name: "Valid registration test no whitelist",
 			registerRequest: RegisterRequest{
 				Id:            "1",
 				ConfigHash:    "dadf2e32dwq12",
@@ -33,6 +38,45 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			registerResponse: RegisterResponse{
 				Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
 			},
+			isWhitelisted: false,
+			saveMockReturns: nil,
+			saveMockCalledNumber: 1,
+			isNodeWhitelistedMockReturns: nil,
+			isNodeWhitelistedCalledNumber: 0,
+		},
+		{
+			name: "Valid registration test nodeId on whitelist",
+			registerRequest: RegisterRequest{
+				Id:            "1",
+				ConfigHash:    "dadf2e32dwq12",
+				NodeUrl:       "node.test.url",
+				PayoutAddress: "0xdafe2cdscdsa",
+			},
+			httpStatus: http.StatusOK,
+			registerResponse: RegisterResponse{
+				Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
+			},
+			isWhitelisted: true,
+			saveMockReturns: nil,
+			saveMockCalledNumber: 1,
+			isNodeWhitelistedMockReturns: true,
+			isNodeWhitelistedCalledNumber: 1,
+		},
+		{
+			name: "Invalid registration test nodeId not on whitelist",
+			registerRequest: RegisterRequest{
+				Id:            "1",
+				ConfigHash:    "dadf2e32dwq12",
+				NodeUrl:       "node.test.url",
+				PayoutAddress: "0xdafe2cdscdsa",
+			},
+			httpStatus: http.StatusBadRequest,
+			registerResponse: RegisterResponse{},
+			isWhitelisted: true,
+			saveMockReturns: nil,
+			saveMockCalledNumber: 0,
+			isNodeWhitelistedMockReturns: false,
+			isNodeWhitelistedCalledNumber: 1,
 		},
 	}
 	_ = os.Setenv("AUTH_SECRET", "test-auth-secret")
@@ -49,8 +93,9 @@ func TestApiController_RegisterHandler(t *testing.T) {
 				NodeUrl:       test.registerRequest.NodeUrl,
 				PayoutAddress: test.registerRequest.PayoutAddress,
 				Token:         test.registerResponse.Token,
-			}).Return(nil)
-			apiController := NewApiController(&nodeRepoMock, &pingRepoMock, &metricsRepoMock)
+			}).Return(test.saveMockReturns)
+			nodeRepoMock.On("IsNodeWhitelisted", test.registerRequest.Id).Return(test.isNodeWhitelistedMockReturns, nil)
+			apiController := NewApiController(test.isWhitelisted, &nodeRepoMock, &pingRepoMock, &metricsRepoMock)
 			handler := http.HandlerFunc(apiController.RegisterHandler)
 
 			// create test request
@@ -63,13 +108,18 @@ func TestApiController_RegisterHandler(t *testing.T) {
 
 			// invoke test request
 			handler.ServeHTTP(rr, req)
-			var response RegisterResponse
-			_ = json.Unmarshal(rr.Body.Bytes(), &response)
 
 			// asserts
 			assert.Equal(t, rr.Code, test.httpStatus, fmt.Sprintf("Response status code should be %d", test.httpStatus))
-			assert.Equal(t, response, test.registerResponse, fmt.Sprintf("Response should be %v", test.registerResponse))
-			assert.True(t, nodeRepoMock.AssertNumberOfCalls(t, "Save", 1))
+
+			var response RegisterResponse
+			if rr.Code == http.StatusOK {
+				_ = json.Unmarshal(rr.Body.Bytes(), &response)
+				assert.Equal(t, response, test.registerResponse, fmt.Sprintf("Response should be %v", test.registerResponse))
+			}
+
+			assert.True(t, nodeRepoMock.AssertNumberOfCalls(t, "Save", test.saveMockCalledNumber))
+			assert.True(t, nodeRepoMock.AssertNumberOfCalls(t, "IsNodeWhitelisted", test.isNodeWhitelistedCalledNumber))
 		})
 	}
 	_ = os.Setenv("AUTH_SECRET", "")

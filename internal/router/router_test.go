@@ -17,7 +17,7 @@ func TestApiRouter(t *testing.T) {
 		{name: "Test metrics route", url: "/api/v1/nodes/metrics", methods: []string{"POST"}},
 	}
 	// pass nil as db instance as only routes are tested
-	router := CreateNewApiRouter(nil)
+	router := CreateNewApiRouter(nil, false)
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("%s::%s", test.name, test.url), func(t *testing.T) {
 			rout := router.GetRoute(test.url)

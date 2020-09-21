@@ -30,3 +30,9 @@ func (r *NodeRepo) GetAll() (*[]models.Node, error) {
 	err := r.db.All(&nodes)
 	return &nodes, err
 }
+
+func (r *NodeRepo) IsNodeWhitelisted(ID string) (bool, error) {
+	var isWhitelisted bool
+	err := r.db.Get(models.WhitelistBucket, ID, &isWhitelisted)
+	return isWhitelisted, err
+}
