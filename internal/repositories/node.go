@@ -15,7 +15,7 @@ func NewNodeRepo(db *storm.DB) *NodeRepo {
 	}
 }
 
-func (r *NodeRepo) FindByID(ID int) (*models.Node, error) {
+func (r *NodeRepo) FindByID(ID string) (*models.Node, error) {
 	var node *models.Node
 	err := r.db.One("ID", ID, node)
 	return node, err
