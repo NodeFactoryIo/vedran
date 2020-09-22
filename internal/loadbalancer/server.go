@@ -34,17 +34,21 @@ func StartLoadBalancerServer(props Properties) {
 		// terminate app: unable to start database connection
 		log.Fatalf("Unable to start vedran load balancer: %v", err)
 	}
+	log.Debug("Successfully connected to database")
 
 	whitelistEnabled := len(props.Whitelist) > 0
 	// save whitelisted id-s
 	if whitelistEnabled {
+		log.Debugf("Whitelisting enabled, whitelisted node IDs: %v", props.Whitelist)
 		for _, nodeId := range props.Whitelist {
 			err = database.Set(models.WhitelistBucket, nodeId, true)
 			if err != nil {
 				// terminate app: unable to save whitelist id-s
-				log.Fatal(fmt.Sprintf("Unable to start vedran load balancer: %v", err))
+				log.Fatalf("Unable to start vedran load balancer: %v", err)
 			}
 		}
+	} else {
+		log.Debug("Whitelisting disabled")
 	}
 
 	// start server
