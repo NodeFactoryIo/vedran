@@ -20,7 +20,7 @@ func CreateNewApiRouter(db *storm.DB, whitelistEnabled bool) *mux.Router {
 	// map controllers handlers to endpoints
 	createRoute("/api/v1/nodes", "POST", apiController.RegisterHandler, router, false)
 	createRoute("/api/v1/nodes/pings", "POST", apiController.PingHandler, router, true)
-	createRoute("/api/v1/nodes/metrics", "POST", apiController.SaveMetricsHandler, router, true)
+	createRoute("/api/v1/nodes/metrics", "PUT", apiController.SaveMetricsHandler, router, true)
 	return router
 }
 
