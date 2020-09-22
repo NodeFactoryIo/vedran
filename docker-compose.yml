@@ -1,5 +1,6 @@
 version: '3'
 services:
+
   polkadot:
     ports:
       - "127.0.0.1:30333:30333/tcp"
@@ -8,7 +9,8 @@ services:
     image: chevdor/polkadot:latest
     volumes:
       - "polkadot-data:/data"
-    command: sh -c "polkadot --rpc-external --prometheus-external --log error"
+    command: sh -c "polkadot --rpc-external --prometheus-external --log warn --rpc-cors=all"
+
   vedran:
     build:
       context: .
@@ -18,12 +20,13 @@ services:
     container_name: "vedran"
     ports:
       - "${LB_LOCAL_PORT:-4000}:${LB_REMOTE_PORT:-4000}"
+
   vedran-daemon:
-    image: nodefactory/vedran-daemon:${IMAGE_TAG:-latest}
+    image: nodefactory/vedran-daemon:${IMAGE_TAG:-v0.1.0}
     depends_on:
       - vedran
       - polkadot
-    command: --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-metrics http://polkadot:9615 --payout-address 0xtestaddress
+    entrypoint: /bin/sh -c "sleep 5; ./vedran-daemon --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-metrics http://polkadot:9615 --payout-address 0xtestaddress --log-level debug"
 
 volumes:
   polkadot-data:
