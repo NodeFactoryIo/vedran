@@ -9,14 +9,14 @@ import (
 	"net/http"
 )
 
-func CreateNewApiRouter(db *storm.DB) *mux.Router {
+func CreateNewApiRouter(db *storm.DB, whitelistEnabled bool) *mux.Router {
 	router := mux.NewRouter()
 	// initialize repos
 	nodeRepo := repositories.NewNodeRepo(db)
 	pingRepo := repositories.NewPingRepo(db)
 	metricsRepo := repositories.NewMetricsRepo(db)
 	// initialize controllers
-	apiController := controllers.NewApiController(nodeRepo, pingRepo, metricsRepo)
+	apiController := controllers.NewApiController(whitelistEnabled, nodeRepo, pingRepo, metricsRepo)
 	// map controllers handlers to endpoints
 	createRoute("/api/v1/nodes", "POST", apiController.RegisterHandler, router, false)
 	createRoute("/api/v1/nodes/pings", "POST", apiController.PingHandler, router, true)

@@ -12,4 +12,5 @@ type NodeRepository interface {
 	FindByID(ID string) (*Node, error)
 	Save(node *Node) error
 	GetAll() (*[]Node, error)
+	IsNodeWhitelisted(ID string) (bool, error)
 }
