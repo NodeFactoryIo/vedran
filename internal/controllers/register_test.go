@@ -3,6 +3,7 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
@@ -59,7 +60,7 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			isWhitelisted: true,
 			saveMockReturns: nil,
 			saveMockCalledNumber: 1,
-			isNodeWhitelistedMockReturns: true,
+			isNodeWhitelistedMockReturns: nil,
 			isNodeWhitelistedCalledNumber: 1,
 		},
 		{
@@ -75,7 +76,7 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			isWhitelisted: true,
 			saveMockReturns: nil,
 			saveMockCalledNumber: 0,
-			isNodeWhitelistedMockReturns: false,
+			isNodeWhitelistedMockReturns: errors.New("not found"),
 			isNodeWhitelistedCalledNumber: 1,
 		},
 	}
@@ -94,7 +95,7 @@ func TestApiController_RegisterHandler(t *testing.T) {
 				PayoutAddress: test.registerRequest.PayoutAddress,
 				Token:         test.registerResponse.Token,
 			}).Return(test.saveMockReturns)
-			nodeRepoMock.On("IsNodeWhitelisted", test.registerRequest.Id).Return(test.isNodeWhitelistedMockReturns, nil)
+			nodeRepoMock.On("IsNodeWhitelisted", test.registerRequest.Id).Return(true, test.isNodeWhitelistedMockReturns)
 			apiController := NewApiController(test.isWhitelisted, &nodeRepoMock, &pingRepoMock, &metricsRepoMock)
 			handler := http.HandlerFunc(apiController.RegisterHandler)
 
