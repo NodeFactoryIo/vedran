@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/pkg/util"
@@ -37,6 +38,15 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
 		return
+	}
+
+	if c.whitelistEnabled {
+		_, err := c.nodeRepo.IsNodeWhitelisted(registerRequest.Id)
+		if err != nil {
+			log.Printf("Node id %s not whitelisted: %v", registerRequest.Id, err)
+			http.Error(w, fmt.Sprintf("Node %s is not whitelisted", registerRequest.Id), http.StatusBadRequest)
+			return
+		}
 	}
 
 	// generate auth token

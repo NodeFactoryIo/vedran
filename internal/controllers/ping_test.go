@@ -26,11 +26,12 @@ func TestApiController_PingHandler(t *testing.T) {
 			// create mock controller
 			nodeRepoMock := mocks.NodeRepository{}
 			pingRepoMock := mocks.PingRepository{}
+			metricsRepoMock := mocks.MetricsRepository{}
 			pingRepoMock.On("Save", &models.Ping{
 				NodeId:    "1",
 				Timestamp: timestamp,
 			}).Return(nil)
-			apiController := NewApiController(&nodeRepoMock, &pingRepoMock)
+			apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock)
 			handler := http.HandlerFunc(apiController.PingHandler)
 
 			// create test request and populate context

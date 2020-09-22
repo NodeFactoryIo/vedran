@@ -5,13 +5,22 @@ import (
 )
 
 type ApiController struct {
-	nodeRepo models.NodeRepository
-	pingRepo models.PingRepository
+	whitelistEnabled bool
+	nodeRepo         models.NodeRepository
+	pingRepo         models.PingRepository
+	metricsRepo      models.MetricsRepository
 }
 
-func NewApiController(nodeRepo models.NodeRepository, pingRepo models.PingRepository) *ApiController {
+func NewApiController(
+	whitelistEnabled bool,
+	nodeRepo models.NodeRepository,
+	pingRepo models.PingRepository,
+	metricsRepo models.MetricsRepository,
+) *ApiController {
 	return &ApiController{
-		nodeRepo: nodeRepo,
-		pingRepo: pingRepo,
+		whitelistEnabled: whitelistEnabled,
+		nodeRepo:         nodeRepo,
+		pingRepo:         pingRepo,
+		metricsRepo:      metricsRepo,
 	}
 }
