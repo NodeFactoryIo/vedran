@@ -62,7 +62,7 @@ func init() {
 		-1,
 		"[OPTIONAL] maximum number of nodes allowed to connect, where -1 represents no upper limit")
 
-	startCmd.Flags().StringArrayVar(
+	startCmd.Flags().StringSliceVar(
 		&whitelist,
 		"whitelist",
 		nil,

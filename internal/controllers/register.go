@@ -40,15 +40,9 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if c.whitelistEnabled {
-		whitelisted, err := c.nodeRepo.IsNodeWhitelisted(registerRequest.Id)
+		_, err := c.nodeRepo.IsNodeWhitelisted(registerRequest.Id)
 		if err != nil {
-			// error on querying database
-			log.Println(err.Error())
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-		if !whitelisted {
-			log.Printf("Node id %s not whitelisted", registerRequest.Id)
+			log.Printf("Node id %s not whitelisted: %v", registerRequest.Id, err)
 			http.Error(w, fmt.Sprintf("Node %s is not whitelisted", registerRequest.Id), http.StatusBadRequest)
 			return
 		}
