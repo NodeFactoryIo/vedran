@@ -12,17 +12,12 @@ services:
     command: sh -c "polkadot --rpc-external --prometheus-external --log error --rpc-cors=all"
 
   vedran:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
     command: start --fee=0.1 --auth-secret=test-secret --log-level debug
     image: nodefactory/vedran:${IMAGE_TAG:-latest}
     container_name: "vedran"
-    ports:
-      - "${LB_LOCAL_PORT:-4000}:${LB_REMOTE_PORT:-4000}"
 
   vedran-daemon:
-    image: nodefactory/vedran-daemon:${IMAGE_TAG:-v0.1.1}
+    image: nodefactory/vedran-daemon:v0.1.1
     depends_on:
       - vedran
       - polkadot
