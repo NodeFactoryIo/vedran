@@ -76,8 +76,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./vedran-daemon-linux-amd64
-          asset_name: vedran-daemon-linux-amd64
+          asset_path: ./vedran-linux-amd64
+          asset_name: vedran-linux-amd64
           asset_content_type: application/x-binary
 
       - name: Upload Linux Arm
@@ -87,8 +87,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./vedran-daemon-linux-arm
-          asset_name: vedran-daemon-linux-arm
+          asset_path: ./vedran-linux-arm
+          asset_name: vedran-linux-arm
           asset_content_type: application/x-binary
 
       - name: Upload Windows
@@ -98,8 +98,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./vedran-daemon-windows-amd64.exe
-          asset_name: vedran-daemon-windows.exe
+          asset_path: ./vedran-windows-amd64.exe
+          asset_name: vedran-windows.exe
           asset_content_type: application/x-binary
 
       - name: Upload MacOS
@@ -109,8 +109,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./vedran-daemon-darwin-amd64
-          asset_name: vedran-daemon-macos
+          asset_path: ./vedran-darwin-amd64
+          asset_name: vedran-macos
           asset_content_type: application/x-binary
 
       #in case of failure
