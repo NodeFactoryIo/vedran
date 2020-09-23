@@ -17,14 +17,14 @@ import (
 func TestApiController_RegisterHandler(t *testing.T) {
 	// define test cases
 	tests := []struct {
-		name             string
-		registerRequest  RegisterRequest
-		httpStatus       int
-		registerResponse RegisterResponse
-		isWhitelisted bool
-		saveMockReturns interface{}
-		saveMockCalledNumber int
-		isNodeWhitelistedMockReturns interface{}
+		name                          string
+		registerRequest               RegisterRequest
+		httpStatus                    int
+		registerResponse              RegisterResponse
+		isWhitelisted                 bool
+		saveMockReturns               interface{}
+		saveMockCalledNumber          int
+		isNodeWhitelistedMockReturns  interface{}
 		isNodeWhitelistedCalledNumber int
 	}{
 		{
@@ -39,10 +39,10 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			registerResponse: RegisterResponse{
 				Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
 			},
-			isWhitelisted: false,
-			saveMockReturns: nil,
-			saveMockCalledNumber: 1,
-			isNodeWhitelistedMockReturns: nil,
+			isWhitelisted:                 false,
+			saveMockReturns:               nil,
+			saveMockCalledNumber:          1,
+			isNodeWhitelistedMockReturns:  nil,
 			isNodeWhitelistedCalledNumber: 0,
 		},
 		{
@@ -57,10 +57,10 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			registerResponse: RegisterResponse{
 				Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
 			},
-			isWhitelisted: true,
-			saveMockReturns: nil,
-			saveMockCalledNumber: 1,
-			isNodeWhitelistedMockReturns: nil,
+			isWhitelisted:                 true,
+			saveMockReturns:               nil,
+			saveMockCalledNumber:          1,
+			isNodeWhitelistedMockReturns:  nil,
 			isNodeWhitelistedCalledNumber: 1,
 		},
 		{
@@ -71,12 +71,12 @@ func TestApiController_RegisterHandler(t *testing.T) {
 				NodeUrl:       "node.test.url",
 				PayoutAddress: "0xdafe2cdscdsa",
 			},
-			httpStatus: http.StatusBadRequest,
-			registerResponse: RegisterResponse{},
-			isWhitelisted: true,
-			saveMockReturns: nil,
-			saveMockCalledNumber: 0,
-			isNodeWhitelistedMockReturns: errors.New("not found"),
+			httpStatus:                    http.StatusBadRequest,
+			registerResponse:              RegisterResponse{},
+			isWhitelisted:                 true,
+			saveMockReturns:               nil,
+			saveMockCalledNumber:          0,
+			isNodeWhitelistedMockReturns:  errors.New("not found"),
 			isNodeWhitelistedCalledNumber: 1,
 		},
 	}

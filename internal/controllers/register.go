@@ -7,7 +7,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/pkg/util"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -29,11 +29,11 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var mr *util.MalformedRequest
 		if errors.As(err, &mr) {
-			// malformed request error
+			log.Errorf("Malformed request error: %v", err)
 			http.Error(w, mr.Msg, mr.Status)
 		} else {
 			// unknown error
-			log.Println(err.Error())
+			log.Error(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
 		return
@@ -42,7 +42,7 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if c.whitelistEnabled {
 		_, err := c.nodeRepo.IsNodeWhitelisted(registerRequest.Id)
 		if err != nil {
-			log.Printf("Node id %s not whitelisted: %v", registerRequest.Id, err)
+			log.Errorf("Node id %s not whitelisted: %v", registerRequest.Id, err)
 			http.Error(w, fmt.Sprintf("Node %s is not whitelisted", registerRequest.Id), http.StatusBadRequest)
 			return
 		}
@@ -52,7 +52,7 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	token, err := auth.CreateNewToken(registerRequest.Id)
 	if err != nil {
 		// unknown error
-		log.Println(err.Error())
+		log.Errorf("Unable to create auth token, error: %v", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -67,11 +67,12 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err = c.nodeRepo.Save(node)
 	if err != nil {
-		// error on saving in database
-		log.Println(err.Error())
+		log.Errorf("Unable to save node %v to database, error: %v", node, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
+	log.Infof("New node %s registered", node.ID)
 
 	// return generated token
 	w.Header().Set("Content-Type", "application/json")

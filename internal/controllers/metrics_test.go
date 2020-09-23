@@ -18,10 +18,10 @@ import (
 
 func TestApiController_SaveMetricsHandler(t *testing.T) {
 	tests := []struct {
-		name string
-		metricsRequest interface{}
-		httpStatus int
-		repoReturn interface{}
+		name                  string
+		metricsRequest        interface{}
+		httpStatus            int
+		repoReturn            interface{}
 		numberOfRepoSaveCalls int
 	}{
 		{
@@ -32,15 +32,15 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 				FinalizedBlockHeight:  100,
 				ReadyTransactionCount: 10,
 			},
-			httpStatus: http.StatusOK,
-			repoReturn: nil,
+			httpStatus:            http.StatusOK,
+			repoReturn:            nil,
 			numberOfRepoSaveCalls: 1,
 		},
 		{
-			name: "Invalid metrics save request",
-			metricsRequest: struct {PeerCount string}{PeerCount: "10"},
-			httpStatus: http.StatusBadRequest,
-			repoReturn: nil,
+			name:                  "Invalid metrics save request",
+			metricsRequest:        struct{ PeerCount string }{PeerCount: "10"},
+			httpStatus:            http.StatusBadRequest,
+			repoReturn:            nil,
 			numberOfRepoSaveCalls: 0,
 		},
 		{
@@ -51,8 +51,8 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 				FinalizedBlockHeight:  100,
 				ReadyTransactionCount: 10,
 			},
-			httpStatus: http.StatusInternalServerError,
-			repoReturn: errors.New("database error"),
+			httpStatus:            http.StatusInternalServerError,
+			repoReturn:            errors.New("database error"),
 			numberOfRepoSaveCalls: 1,
 		},
 	}

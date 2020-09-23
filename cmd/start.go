@@ -4,11 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/loadbalancer"
+	"github.com/NodeFactoryIo/vedran/pkg/logger"
 	"github.com/NodeFactoryIo/vedran/pkg/util/random"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 var (
+	// load balancer related flags
 	authSecret string
 	name       string
 	capacity   int64
@@ -16,12 +19,26 @@ var (
 	fee        float32
 	selection  string
 	port       int32
+	// logging related flags
+	logLevel string
+	logFile  string
 )
 
 var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Starts vedran load balancer",
 	Run:   startCommand,
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		level, err := log.ParseLevel(logLevel)
+		if err != nil {
+			log.Fatalf("Invalid log level %s", logLevel)
+		}
+		err = logger.SetupLogger(level, logFile)
+		if err != nil {
+			return err
+		}
+		return nil
+	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		// valid values are round-robin and random
 		if selection != "round-robin" && selection != "random" {
@@ -85,6 +102,18 @@ func init() {
 		"port",
 		4000,
 		"[OPTIONAL] port on which load balancer will be started")
+
+	startCmd.Flags().StringVar(
+		&logLevel,
+		"log-level",
+		"error",
+		"Level of logging (eg. info, warn, error)")
+
+	startCmd.Flags().StringVar(
+		&logFile,
+		"log-file",
+		"",
+		"Path to logfile. If not set defaults to stdout")
 
 	RootCmd.AddCommand(startCmd)
 }

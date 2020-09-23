@@ -1,8 +1,8 @@
 package config
 
 import (
-	"fmt"
 	"github.com/getsentry/sentry-go"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"time"
 )
@@ -20,7 +20,7 @@ func setupSentry() {
 		Debug: false,
 	})
 	if err != nil {
-		fmt.Println("Sentry init failed")
+		log.Error("Sentry init failed")
 	}
 
 	// Flush buffered events before the program terminates.

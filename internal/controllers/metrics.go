@@ -5,7 +5,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/pkg/util"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -23,11 +23,11 @@ func (c ApiController) SaveMetricsHandler(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		var mr *util.MalformedRequest
 		if errors.As(err, &mr) {
-			// malformed request error
+			log.Errorf("Malformed request error: %v", err)
 			http.Error(w, mr.Msg, mr.Status)
 		} else {
 			// unknown error
-			log.Println(err.Error())
+			log.Error(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
 		return
@@ -44,9 +44,15 @@ func (c ApiController) SaveMetricsHandler(w http.ResponseWriter, r *http.Request
 	})
 
 	if err != nil {
-		// error on saving in database
-		log.Println(err.Error())
+		log.Errorf("Unable to save metrics for node %v to database, error: %v", requestContext.NodeId, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
+	log.Debugf(
+		"Node %s saved new metrics { finalized_block_height: %d, best_block_height: %d }",
+		requestContext.NodeId,
+		metricsRequest.FinalizedBlockHeight,
+		metricsRequest.BestBlockHeight,
+		)
 }
