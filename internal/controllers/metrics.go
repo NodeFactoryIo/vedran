@@ -23,7 +23,6 @@ func (c ApiController) SaveMetricsHandler(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		var mr *util.MalformedRequest
 		if errors.As(err, &mr) {
-			// malformed request error
 			log.Errorf("Malformed request error: %v", err)
 			http.Error(w, mr.Msg, mr.Status)
 		} else {
@@ -45,11 +44,15 @@ func (c ApiController) SaveMetricsHandler(w http.ResponseWriter, r *http.Request
 	})
 
 	if err != nil {
-		// error on saving in database
 		log.Errorf("Unable to save metrics for node %v to database, error: %v", requestContext.NodeId, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	log.Debugf("Node %s saved new metrics", requestContext.NodeId)
+	log.Debugf(
+		"Node %s saved new metrics { finalized_block_height: %d, best_block_height: %d }",
+		requestContext.NodeId,
+		metricsRequest.FinalizedBlockHeight,
+		metricsRequest.BestBlockHeight,
+		)
 }

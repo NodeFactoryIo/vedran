@@ -17,7 +17,6 @@ func (c ApiController) PingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err := c.pingRepo.Save(&ping)
 	if err != nil {
-		// error on saving in database
 		log.Errorf("Unable to save ping %v to database, error: %v", ping, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

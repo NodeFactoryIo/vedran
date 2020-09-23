@@ -29,7 +29,6 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var mr *util.MalformedRequest
 		if errors.As(err, &mr) {
-			// malformed request error
 			log.Errorf("Malformed request error: %v", err)
 			http.Error(w, mr.Msg, mr.Status)
 		} else {
@@ -68,7 +67,6 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err = c.nodeRepo.Save(node)
 	if err != nil {
-		// error on saving in database
 		log.Errorf("Unable to save node %v to database, error: %v", node, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
