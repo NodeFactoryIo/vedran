@@ -24,6 +24,3 @@
 - Fix failing docker build [\#19](https://github.com/NodeFactoryIo/vedran/pull/19) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Changed
-
-
-
