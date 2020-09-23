@@ -70,7 +70,7 @@ jobs:
           release_name: Release ${{ needs.tag.outputs.tag }}
 
       - name: Upload Linux amd64
-        id: vedran-daemon-linux-amd64
+        id: vedran-linux-amd64
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -81,7 +81,7 @@ jobs:
           asset_content_type: application/x-binary
 
       - name: Upload Linux Arm
-        id: vedran-daemon-linux-arm
+        id: vedran-linux-arm
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -92,7 +92,7 @@ jobs:
           asset_content_type: application/x-binary
 
       - name: Upload Windows
-        id: vedran-daemon-windows
+        id: vedran-windows
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -103,7 +103,7 @@ jobs:
           asset_content_type: application/x-binary
 
       - name: Upload MacOS
-        id: vedran-daemon-macos
+        id: vedran-macos
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
