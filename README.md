@@ -49,12 +49,17 @@ When running vedran load balancer, flags described below can be used to customiz
 
 ### Demo
 
-Dockerized demo with
+#### Requirements
+
+- Install [Docker Engine](https://docs.docker.com/engine/install/)
+- Install [Docker Compose](https://docs.docker.com/compose/install/)
+
+**Run demo with `docker-compose up`**
+
+This demo starts three separate dockerized components:
 - _Polkadot node_
 - _Vedran daemon_
 - _Vedran loadbalancer_ 
-
-can be run with `docker-compose up`
 
 ## License
 
