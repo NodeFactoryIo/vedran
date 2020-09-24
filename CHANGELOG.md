@@ -1,8 +1,19 @@
 # Changelog
 
-## [v0.1.0]((https://github.com/NodeFactoryIo/vedran/tree/v0.1.1))
+## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
 
-[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/6facfb9564b9da01e3652117334c94774da3360e...HEAD)
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v.0.1.0...v.0.1.1)
+
+### Added
+- Docker compose setup [\#24](https://github.com/NodeFactoryIo/vedran/pull/24) ([MakMuftic](https://github.com/MakMuftic))
+
+### Fix
+
+### Changed
+
+## [v0.1.0]((https://github.com/NodeFactoryIo/vedran/tree/v0.1.0))
+
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/6facfb9564b9da01e3652117334c94774da3360e...v.0.1.0)
 
 ### Added
 - Initial repo setup [\#9](https://github.com/NodeFactoryIo/vedran/pull/9) ([MakMuftic](https://github.com/MakMuftic))

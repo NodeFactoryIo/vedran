@@ -9,7 +9,7 @@ services:
 
   vedran:
     command: start --fee=0.1 --auth-secret=test-secret --log-level debug
-    image: nodefactory/vedran:v0.1.0
+    image: nodefactory/vedran:v0.1.1
     container_name: "vedran"
 
   vedran-daemon:
