@@ -22,5 +22,5 @@ func (c ApiController) PingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Debugf("Ping from node %s at %s", ping.NodeId, ping.Timestamp.String())
+	log.Debugf("Ping from node %s", ping.NodeId)
 }
