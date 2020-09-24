@@ -13,11 +13,11 @@ services:
     container_name: "vedran"
 
   vedran-daemon:
-    image: nodefactory/vedran-daemon:v0.1.1
+    image: nodefactory/vedran-daemon:v0.1.2
     depends_on:
       - vedran
       - polkadot
-    entrypoint: /bin/sh -c "sleep 5; ./vedran-daemon --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-metrics http://polkadot:9615 --payout-address 0xtestaddress --log-level error"
+    entrypoint: /bin/sh -c "./vedran-daemon --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-metrics http://polkadot:9615 --payout-address 0xtestaddress --log-level error"
 
 volumes:
   polkadot-data:
