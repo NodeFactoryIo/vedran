@@ -1,0 +1,125 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  tag:
+    name: Check and Tag
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create tag
+        id: tag
+        uses: butlerlogic/action-autotag@1.1.1
+        with:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          strategy: regex
+          tag_prefix: "v"
+          root: .version
+          regex_pattern: version=([0-9\.]{5}([-\+][\w\.0-9]+)?)
+
+    outputs:
+      tag: ${{ steps.tag.outputs.tagname }}
+      version: ${{ steps.tag.outputs.version }}
+
+
+  publish:
+    name: Publish
+    needs: tag
+    if: ${{ needs.tag.outputs.tag != ''}}
+    runs-on: ubuntu-latest
+    env:
+      GO111MODULE: "on"
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2-beta
+        with:
+          go-version: 1.14.x
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build All
+        shell: bash
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          SENTRY_DSN=$SENTRY_DSN make buildAll
+      - name: Get Changelog Entry
+        id: changelog_reader
+        uses: mindsers/changelog-reader-action@v2
+        with:
+          version: ${{ needs.tag.outputs.tag }}
+          path: ./CHANGELOG.md
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.tag.outputs.tag }}
+          body: ${{ steps.changelog_reader.outputs.changes }}
+          prerelease: true
+          release_name: Release ${{ needs.tag.outputs.tag }}
+
+      - name: Upload Linux amd64
+        id: vedran-linux-amd64
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./vedran-linux-amd64
+          asset_name: vedran-linux-amd64
+          asset_content_type: application/x-binary
+
+      - name: Upload Linux Arm
+        id: vedran-linux-arm
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./vedran-linux-arm
+          asset_name: vedran-linux-arm
+          asset_content_type: application/x-binary
+
+      - name: Upload Windows
+        id: vedran-windows
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./vedran-windows-amd64.exe
+          asset_name: vedran-windows.exe
+          asset_content_type: application/x-binary
+
+      - name: Upload MacOS
+        id: vedran-macos
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./vedran-darwin-amd64
+          asset_name: vedran-macos
+          asset_content_type: application/x-binary
+
+      #in case of failure
+      - name: Rollback on failure
+        if: failure()
+        uses: author/action-rollback@9ec72a6af74774e00343c6de3e946b0901c23013
+        with:
+          id: ${{ steps.create_release.outputs.id }}
+          tag: ${{ needs.tag.outputs.tag }}
+          delete_orphan_tag: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

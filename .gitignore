@@ -22,4 +22,11 @@
 main
 vedran-daemon
 
+# database
 vedran-load-balancer.db
+
+# builds
+vedran-darwin-amd64
+vedran-linux-amd64
+vedran-linux-arm
+vedran-windows-amd64.exe
