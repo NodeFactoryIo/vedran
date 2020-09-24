@@ -8,7 +8,7 @@ services:
     command: --rpc-external --prometheus-external --log error --rpc-cors=all
 
   vedran:
-    command: start --fee=0.1 --auth-secret=test-secret --log-level debug
+    command: start --auth-secret=test-secret --log-level debug
     image: nodefactory/vedran:v0.1.1
     container_name: "vedran"
 
