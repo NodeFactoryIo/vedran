@@ -2,10 +2,10 @@ version: '3'
 services:
 
   polkadot:
-    image: chevdor/polkadot:latest
+    image: parity/polkadot:v0.8.24
     volumes:
       - "polkadot-data:/data"
-    command: sh -c "polkadot --rpc-external --prometheus-external --log error --rpc-cors=all"
+    command: --rpc-external --prometheus-external --log error --rpc-cors=all
 
   vedran:
     command: start --fee=0.1 --auth-secret=test-secret --log-level debug
@@ -17,7 +17,7 @@ services:
     depends_on:
       - vedran
       - polkadot
-    entrypoint: /bin/sh -c "./vedran-daemon --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-metrics http://polkadot:9615 --payout-address 0xtestaddress --log-level error"
+    command: --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-metrics http://polkadot:9615 --payout-address 0xtestaddress --log-level error
 
 volumes:
   polkadot-data:
