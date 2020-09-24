@@ -13,7 +13,7 @@ services:
 
   vedran:
     command: start --fee=0.1 --auth-secret=test-secret --log-level debug
-    image: nodefactory/vedran:${IMAGE_TAG:-latest}
+    image: nodefactory/vedran:v0.1.0
     container_name: "vedran"
 
   vedran-daemon:
