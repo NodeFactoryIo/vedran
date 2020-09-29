@@ -119,6 +119,7 @@ func init() {
 }
 
 func startCommand(_ *cobra.Command, _ []string) {
+	DisplayBanner()
 	loadbalancer.StartLoadBalancerServer(loadbalancer.Properties{
 		AuthSecret: authSecret,
 		Name:       name,
