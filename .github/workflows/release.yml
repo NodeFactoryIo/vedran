@@ -47,10 +47,8 @@ jobs:
 
       - name: Build All
         shell: bash
-        env:
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: |
-          SENTRY_DSN=$SENTRY_DSN make buildAll
+          make buildAll
       - name: Get Changelog Entry
         id: changelog_reader
         uses: mindsers/changelog-reader-action@v2
