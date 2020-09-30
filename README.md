@@ -9,9 +9,9 @@ _Vedran loadbalancer_ is used in conjunction with [Vedran daemon](https://github
 
 ![Image of vedran architecture](./assets/vedran-arch.png)
 
-### Demo
+## Demo
 
-#### Requirements
+### Requirements
 
 - Install [Docker Engine](https://docs.docker.com/engine/install/)
 - Install [Docker Compose](https://docs.docker.com/compose/install/)
@@ -23,7 +23,7 @@ This demo starts three separate dockerized components:
 - _Vedran daemon_ ([repository](https://github.com/NodeFactoryIo/vedran-daemon))
 - _Vedran loadbalancer_ 
 
-### Get `vedran` package
+## Get `vedran` package
 1. Install [Golang](https://golang.org/doc/install) **1.13 or greater**
 2. Run the command below
 ```
