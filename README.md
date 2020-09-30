@@ -2,6 +2,13 @@
 
 > Polkadot chain load balancer.
 
+### Architecture
+
+_Vedran loadbalancer_ is used in conjunction with [Vedran daemon](https://github.com/NodeFactoryIo/vedran-daemon). Suppose the node owner wants to register to loadbalancer, than it is required to install and run _Vedran daemon_. Daemon executes the registration process and starts providing all relevant information (ping, metrics) to the _Vedran loadbalancer_. Please check [Vedran daemon repo](https://github.com/NodeFactoryIo/vedran-daemon) for more details on the daemon itself.
+
+
+![Image of vedran architecture](./assets/vedran-arch.png)
+
 ### Get `vedran` package
 1. Install [Golang](https://golang.org/doc/install) **1.13 or greater**
 2. Run the command below
