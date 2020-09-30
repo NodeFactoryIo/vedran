@@ -2,7 +2,28 @@
 
 > Polkadot chain load balancer.
 
-### Get `vedran` package
+### Architecture
+
+_Vedran loadbalancer_ is used in conjunction with [Vedran daemon](https://github.com/NodeFactoryIo/vedran-daemon). Suppose the node owner wants to register to loadbalancer, than it is required to install and run _Vedran daemon_. Daemon executes the registration process and starts providing all relevant information (ping, metrics) to the _Vedran loadbalancer_. Please check [Vedran daemon repo](https://github.com/NodeFactoryIo/vedran-daemon) for more details on the daemon itself.
+
+
+![Image of vedran architecture](./assets/vedran-arch.png)
+
+## Demo
+
+### Requirements
+
+- Install [Docker Engine](https://docs.docker.com/engine/install/)
+- Install [Docker Compose](https://docs.docker.com/compose/install/)
+
+**Run demo with `docker-compose up`**
+
+This demo starts three separate dockerized components:
+- _Polkadot node_ ([repository](https://github.com/paritytech/polkadot))
+- _Vedran daemon_ ([repository](https://github.com/NodeFactoryIo/vedran-daemon))
+- _Vedran loadbalancer_ 
+
+## Get `vedran` package
 1. Install [Golang](https://golang.org/doc/install) **1.13 or greater**
 2. Run the command below
 ```
@@ -47,19 +68,43 @@ When running vedran load balancer, flags described below can be used to customiz
 --whitelist strings    [OPTIONAL] Comma separated list of node id-s, if provided only these nodes will be allowed to connect
 ```
 
-### Demo
+## Vedran loadbalancer API
 
-#### Requirements
+`POST   api/v1/nodes`
 
-- Install [Docker Engine](https://docs.docker.com/engine/install/)
-- Install [Docker Compose](https://docs.docker.com/compose/install/)
+Register node to loadbalancer. Body should contain details about node:
 
-**Run demo with `docker-compose up`**
+```json
+{
+  "id": "",
+  "config_hash": "",
+  "node_url": "",
+  "payout_address": ""
+}
+```
 
-This demo starts three separate dockerized components:
-- _Polkadot node_
-- _Vedran daemon_
-- _Vedran loadbalancer_ 
+Returns **token** used for invoking rest of API.
+
+---
+
+`POST   api/v1/nodes/pings`
+
+Ping loadbalancer from node. Auth token should be in header as `X-Auth-Header`.
+
+---
+
+`PUT    api/v1/nodes/metrics`
+ 
+Send metrics for node. Auth token should be in header as `X-Auth-Header`. Body should contain metrics as:
+
+```json
+{
+  "peer_count": "",
+  "best_block_height": "",
+  "finalized_block_height": "",
+  "ready_transaction_count": ""
+}
+```
 
 ## License
 
