@@ -3,6 +3,7 @@ package repositories
 import (
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/asdine/storm/v3"
+	"github.com/asdine/storm/v3/q"
 )
 
 type NodeRepo struct {
@@ -35,4 +36,11 @@ func (r *NodeRepo) IsNodeWhitelisted(ID string) (bool, error) {
 	var isWhitelisted bool
 	err := r.db.Get(models.WhitelistBucket, ID, &isWhitelisted)
 	return isWhitelisted, err
+}
+
+func (r *NodeRepo) GetActiveNodes() (*[]models.Node, error) {
+	var nodes []models.Node
+	q := r.db.Select(q.Lte("Cooldown", 0))
+	err := q.Find(&nodes)
+	return &nodes, err
 }
