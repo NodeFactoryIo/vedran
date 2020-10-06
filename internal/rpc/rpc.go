@@ -65,28 +65,26 @@ func UnmarshalRequest(body []byte, isBatch bool, reqRPCBody *RPCRequest, reqRPCB
 	return nil
 }
 
+func createSingleRPCError(id uint64, code int, message string) RPCResponse {
+	return RPCResponse{
+		ID: id,
+		Error: &RPCError{
+			Code:    code,
+			Message: message,
+		},
+		JSONRPC: "2.0",
+	}
+}
+
 // CreateRPCError returns rpc errors for appropriate request ids
 func CreateRPCError(isBatch bool, reqRPCBody RPCRequest, reqRPCBodies []RPCRequest, code int, message string) interface{} {
 	if !isBatch {
-		return RPCResponse{
-			ID: reqRPCBody.ID,
-			Error: &RPCError{
-				Code:    code,
-				Message: message,
-			},
-			JSONRPC: "2.0",
-		}
+		return createSingleRPCError(reqRPCBody.ID, code, message)
 	}
 
 	rpcResponses := make([]RPCResponse, len(reqRPCBodies))
 	for i, body := range reqRPCBodies {
-		rpcResponses[i] = RPCResponse{
-			ID: body.ID,
-			Error: &RPCError{
-				Code:    code,
-				Message: message,
-			},
-			JSONRPC: "2.0"}
+		rpcResponses[i] = createSingleRPCError(body.ID, code, message)
 	}
 	return rpcResponses
 }
@@ -119,7 +117,7 @@ func CheckBatchRPCResponse(body []byte) ([]RPCResponse, error) {
 	return rpcResponses, nil
 }
 
-// SendRequestToNode routes request to node and checks responss
+// SendRequestToNode routes request to node and checks response
 func SendRequestToNode(isBatch bool, node models.Node, reqBody []byte) (interface{}, error) {
 	resp, err := http.Post(node.NodeUrl, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
