@@ -1,7 +1,13 @@
 package rpc
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+
+	"github.com/NodeFactoryIo/vedran/internal/models"
 )
 
 type RPCError struct {
@@ -25,6 +31,7 @@ type RPCRequest struct {
 
 const (
 	InternalServerError = -32603
+	ParseError          = -32700
 )
 
 // IsBatch returns if requst contains batch rpc requests
@@ -36,9 +43,9 @@ func IsBatch(reqBody RPCRequest) bool {
 	return true
 }
 
-// Unmarshal stores json data in appropriate interface reqRPCBody if it is not batch
+// UnmarshalRequest stores json data in appropriate interface reqRPCBody if it is not batch
 // and reqRPCBodies if request is batched
-func Unmarshal(body []byte, reqRPCBody interface{}, reqRPCBodies interface{}) error {
+func UnmarshalRequest(body []byte, reqRPCBody interface{}, reqRPCBodies interface{}) error {
 	err := json.Unmarshal(body, &reqRPCBody)
 	if err != nil {
 		err = json.Unmarshal(body, &reqRPCBodies)
@@ -51,7 +58,7 @@ func Unmarshal(body []byte, reqRPCBody interface{}, reqRPCBodies interface{}) er
 }
 
 // CreateRPCError returns rpc errors for appropriate request ids
-func CreateRPCError(reqRPCBody RPCRequest, reqRPCBodies []RPCRequest, message string) interface{} {
+func CreateRPCError(reqRPCBody RPCRequest, reqRPCBodies []RPCRequest, code int, message string) interface{} {
 	if !IsBatch(reqRPCBody) {
 		return RPCResponse{
 			ID: reqRPCBody.ID,
@@ -75,4 +82,59 @@ func CreateRPCError(reqRPCBody RPCRequest, reqRPCBodies []RPCRequest, message st
 		i++
 	}
 	return rpcResponses
+}
+
+// CheckSingleRPCResponse checks for errors in non batch rpc response
+func CheckSingleRPCResponse(resp *http.Response) (interface{}, error) {
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	var rpcResponse RPCResponse
+
+	err := json.Unmarshal(body, &rpcResponse)
+	if err != nil {
+		return nil, err
+	} else if rpcResponse.Error != nil {
+		if rpcResponse.Error.Code == InternalServerError {
+			return nil, fmt.Errorf("Invalid rpc code %d", InternalServerError)
+		}
+	}
+
+	return rpcResponse, nil
+}
+
+// CheckBatchRPCResponse checks for errors in batch rpc response
+func CheckBatchRPCResponse(resp *http.Response) (interface{}, error) {
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	var rpcResponses []RPCResponse
+
+	err := json.Unmarshal(body, &rpcResponses)
+	if err != nil {
+		return nil, err
+	}
+
+	return rpcResponses, nil
+}
+
+// SendRequestToNode routes request to node and checks responss
+func SendRequestToNode(node models.Node, reqBody []byte, reqRPCBody RPCRequest) (interface{}, error) {
+	resp, err := http.Post(node.NodeUrl, "application/json", bytes.NewBuffer(reqBody))
+	if err != nil {
+		return nil, err
+	} else if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("Status code is not 200")
+	}
+
+	var rpcResponse interface{}
+	if IsBatch(reqRPCBody) {
+		rpcResponse, err = CheckBatchRPCResponse(resp)
+	} else {
+		rpcResponse, err = CheckSingleRPCResponse(resp)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return rpcResponse, nil
 }
