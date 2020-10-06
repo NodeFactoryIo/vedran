@@ -122,7 +122,7 @@ func SendRequestToNode(isBatch bool, node models.Node, reqBody []byte) (interfac
 	resp, err := http.Post(node.NodeUrl, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, err
-	} else if resp.StatusCode != 200 {
+	} else if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Status code is not 200")
 	}
 
