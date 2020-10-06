@@ -45,7 +45,7 @@ func IsBatch(reqBody RPCRequest) bool {
 
 // UnmarshalRequest stores json data in appropriate interface reqRPCBody if it is not batch
 // and reqRPCBodies if request is batched
-func UnmarshalRequest(body []byte, reqRPCBody interface{}, reqRPCBodies interface{}) error {
+func UnmarshalRequest(body []byte, reqRPCBody *RPCRequest, reqRPCBodies *[]RPCRequest) error {
 	err := json.Unmarshal(body, &reqRPCBody)
 	if err != nil {
 		err = json.Unmarshal(body, &reqRPCBodies)
@@ -63,7 +63,7 @@ func CreateRPCError(reqRPCBody RPCRequest, reqRPCBodies []RPCRequest, code int, 
 		return RPCResponse{
 			ID: reqRPCBody.ID,
 			Error: &RPCError{
-				Code:    InternalServerError,
+				Code:    code,
 				Message: message,
 			},
 			JSONRPC: "2.0",
@@ -75,7 +75,7 @@ func CreateRPCError(reqRPCBody RPCRequest, reqRPCBodies []RPCRequest, code int, 
 		rpcResponses[i] = RPCResponse{
 			ID: body.ID,
 			Error: &RPCError{
-				Code:    InternalServerError,
+				Code:    code,
 				Message: message,
 			},
 			JSONRPC: "2.0"}
@@ -85,17 +85,15 @@ func CreateRPCError(reqRPCBody RPCRequest, reqRPCBodies []RPCRequest, code int, 
 }
 
 // CheckSingleRPCResponse checks for errors in non batch rpc response
-func CheckSingleRPCResponse(resp *http.Response) (interface{}, error) {
-	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
+func CheckSingleRPCResponse(body []byte) (RPCResponse, error) {
 	var rpcResponse RPCResponse
 
 	err := json.Unmarshal(body, &rpcResponse)
 	if err != nil {
-		return nil, err
+		return RPCResponse{}, err
 	} else if rpcResponse.Error != nil {
 		if rpcResponse.Error.Code == InternalServerError {
-			return nil, fmt.Errorf("Invalid rpc code %d", InternalServerError)
+			return RPCResponse{}, fmt.Errorf("Invalid rpc code %d", InternalServerError)
 		}
 	}
 
@@ -103,9 +101,7 @@ func CheckSingleRPCResponse(resp *http.Response) (interface{}, error) {
 }
 
 // CheckBatchRPCResponse checks for errors in batch rpc response
-func CheckBatchRPCResponse(resp *http.Response) (interface{}, error) {
-	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
+func CheckBatchRPCResponse(body []byte) ([]RPCResponse, error) {
 	var rpcResponses []RPCResponse
 
 	err := json.Unmarshal(body, &rpcResponses)
@@ -125,11 +121,13 @@ func SendRequestToNode(node models.Node, reqBody []byte, reqRPCBody RPCRequest) 
 		return nil, fmt.Errorf("Status code is not 200")
 	}
 
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
 	var rpcResponse interface{}
 	if IsBatch(reqRPCBody) {
-		rpcResponse, err = CheckBatchRPCResponse(resp)
+		rpcResponse, err = CheckBatchRPCResponse(body)
 	} else {
-		rpcResponse, err = CheckSingleRPCResponse(resp)
+		rpcResponse, err = CheckSingleRPCResponse(body)
 	}
 
 	if err != nil {
