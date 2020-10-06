@@ -14,28 +14,37 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 	reqBody, _ := ioutil.ReadAll(r.Body)
+	isBatch := rpc.IsBatch(reqBody)
 	var reqRPCBody rpc.RPCRequest
 	var reqRPCBodies []rpc.RPCRequest
-	err := rpc.UnmarshalRequest(reqBody, &reqRPCBody, &reqRPCBodies)
+
+	err := rpc.UnmarshalRequest(reqBody, isBatch, &reqRPCBody, &reqRPCBodies)
 	if err != nil {
 		log.Errorf("Request failed because of: %v", err)
 		_ = json.NewEncoder(w).Encode(
-			rpc.CreateRPCError(reqRPCBody, reqRPCBodies, rpc.ParseError, err.Error()))
+			rpc.CreateRPCError(isBatch, reqRPCBody, reqRPCBodies, rpc.ParseError, "Parse error"))
 		return
 	}
 
-	nodes, _ := c.nodeRepo.GetActiveNodes()
-	if len(*nodes) == 0 {
+	if !isBatch && reqRPCBody == (rpc.RPCRequest{}) {
+		log.Errorf("Invalid request")
+		_ = json.NewEncoder(w).Encode(
+			rpc.CreateRPCError(isBatch, reqRPCBody, reqRPCBodies, rpc.InvalidRequest, "Invalid request"))
+		return
+	}
+
+	nodes, err := c.nodeRepo.GetActiveNodes()
+	if err != nil || len(*nodes) == 0 {
 		log.Error("Request failed because vedran has no available nodes")
 		_ = json.NewEncoder(w).Encode(
-			rpc.CreateRPCError(reqRPCBody, reqRPCBodies, rpc.InternalServerError, "No available nodes"))
+			rpc.CreateRPCError(isBatch, reqRPCBody, reqRPCBodies, rpc.InternalServerError, "No available nodes"))
 		return
 	}
 
 	// @TODO: Peer selection code
 
 	for _, node := range *nodes {
-		rpcResponse, err := rpc.SendRequestToNode(node, reqBody, reqRPCBody)
+		rpcResponse, err := rpc.SendRequestToNode(isBatch, node, reqBody)
 		if err != nil {
 			log.Errorf("Request failed to node %s because of: %v", node.ID, err)
 			continue
@@ -47,5 +56,5 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Error("Request failed because all nodes returned invalid rpc response")
 	_ = json.NewEncoder(w).Encode(
-		rpc.CreateRPCError(reqRPCBody, reqRPCBodies, rpc.InternalServerError, "Internal Server Error"))
+		rpc.CreateRPCError(isBatch, reqRPCBody, reqRPCBodies, rpc.InternalServerError, "Internal Server Error"))
 }
