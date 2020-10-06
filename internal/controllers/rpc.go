@@ -17,8 +17,13 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 	isBatch := rpc.IsBatch(reqBody)
 	var reqRPCBody rpc.RPCRequest
 	var reqRPCBodies []rpc.RPCRequest
+	var err error
+	if isBatch {
+		err = json.Unmarshal(reqBody, &reqRPCBodies)
+	} else {
+		err = json.Unmarshal(reqBody, &reqRPCBody)
+	}
 
-	err := rpc.UnmarshalRequest(reqBody, isBatch, &reqRPCBody, &reqRPCBodies)
 	if err != nil {
 		log.Errorf("Request failed because of: %v", err)
 		_ = json.NewEncoder(w).Encode(

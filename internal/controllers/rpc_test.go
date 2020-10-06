@@ -81,8 +81,7 @@ func TestApiController_RPCHandler(t *testing.T) {
 				JSONRPC: "2.0",
 				Error:   &rpc.RPCError{Code: -32603, Message: "Internal Server Error"},
 			},
-			nodes: []models.Node{{ID: "test-id", NodeUrl: "invalid"}},
-		},
+			nodes: []models.Node{{ID: "test-id", NodeUrl: "invalid"}}},
 		{
 			name:       "Returns response if node returnes valid rpc response",
 			rpcRequest: `{"jsonrpc": "2.0", "id": 1, "method": "system"}`,
@@ -118,8 +117,70 @@ func TestApiController_RPCHandler(t *testing.T) {
 
 			var body rpc.RPCResponse
 			_ = json.Unmarshal(rr.Body.Bytes(), &body)
-			if !reflect.DeepEqual(body, test.rpcResponse) {
+
+			if test.rpcResponse != (rpc.RPCResponse{}) && !reflect.DeepEqual(body, test.rpcResponse) {
 				t.Errorf("SendRequestToNode() body = %v, want %v", body, test.rpcResponse)
+				return
+			}
+
+			teardown()
+		})
+	}
+}
+
+func TestApiController_BatchRPCHandler(t *testing.T) {
+	setup()
+	defer teardown()
+
+	nodeRepoMock := mocks.NodeRepository{}
+	pingRepoMock := mocks.PingRepository{}
+	metricsRepoMock := mocks.MetricsRepository{}
+	apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock)
+	handler := http.HandlerFunc(apiController.RPCHandler)
+
+	tests := []struct {
+		name         string
+		rpcRequest   string
+		rpcResponses []rpc.RPCResponse
+		nodes        []models.Node
+		handleFunc   handleFnMock
+	}{
+		{
+			name:       "Returns batch server error if all nodes return invalid rpc response",
+			rpcRequest: `[{"jsonrpc": "2.0", "id": 1, "method": "system"}]`,
+			rpcResponses: []rpc.RPCResponse{
+				{
+					ID:      1,
+					JSONRPC: "2.0",
+					Error:   &rpc.RPCError{Code: -32603, Message: "Internal Server Error"}},
+			},
+			nodes: []models.Node{{ID: "test-id", NodeUrl: "invalid"}}},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			setup()
+
+			if test.handleFunc != nil {
+				mux.HandleFunc("/", test.handleFunc)
+			}
+			if len(test.nodes) > 0 && test.nodes[0].NodeUrl == "valid" {
+				test.nodes[0].NodeUrl = server.URL
+			} else if len(test.nodes) > 0 {
+				test.nodes[0].NodeUrl = "INVALID"
+			}
+
+			nodeRepoMock.On("GetActiveNodes").Return(&test.nodes, nil)
+			req, _ := http.NewRequest("POST", "/", bytes.NewReader([]byte(test.rpcRequest)))
+			rr := httptest.NewRecorder()
+
+			handler.ServeHTTP(rr, req)
+
+			var body []rpc.RPCResponse
+			_ = json.Unmarshal(rr.Body.Bytes(), &body)
+
+			if !reflect.DeepEqual(body, test.rpcResponses) {
+				t.Errorf("SendRequestToNode() body = %v, want %v", body, test.rpcResponses)
 				return
 			}
 
