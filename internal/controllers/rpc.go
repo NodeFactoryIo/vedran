@@ -18,7 +18,7 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 	var reqRPCBodies []rpc.RPCRequest
 	err := rpc.UnmarshalRequest(reqBody, &reqRPCBody, &reqRPCBodies)
 	if err != nil {
-		log.Error("Request failed because of: %v", err)
+		log.Errorf("Request failed because of: %v", err)
 		_ = json.NewEncoder(w).Encode(
 			rpc.CreateRPCError(reqRPCBody, reqRPCBodies, rpc.ParseError, err.Error()))
 		return
