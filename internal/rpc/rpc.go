@@ -87,7 +87,6 @@ func CreateRPCError(isBatch bool, reqRPCBody RPCRequest, reqRPCBodies []RPCReque
 				Message: message,
 			},
 			JSONRPC: "2.0"}
-		i++
 	}
 	return rpcResponses
 }
