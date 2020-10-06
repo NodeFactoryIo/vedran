@@ -54,60 +54,6 @@ func TestIsBatch(t *testing.T) {
 	}
 }
 
-func TestUnmarshalRequest(t *testing.T) {
-	var reqRPCBody RPCRequest
-	var reqRPCBodies []RPCRequest
-
-	type args struct {
-		body         []byte
-		isBatch      bool
-		reqRPCBody   *RPCRequest
-		reqRPCBodies *[]RPCRequest
-	}
-
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-		batch   bool
-	}{
-		{
-			name:    "Returns error if request if not single or batch",
-			args:    args{[]byte(`invalid`), false, &reqRPCBody, &reqRPCBodies},
-			wantErr: true},
-		{
-			name:    "Unmarshals to reqRPCBody if request is a single rpc request",
-			args:    args{[]byte(`{"id": 33}`), false, &reqRPCBody, &reqRPCBodies},
-			wantErr: false,
-			batch:   false},
-		{
-			name:    "Unmarshals to reqRPCBodies if request is a batch rpc request",
-			args:    args{[]byte(`[{"id": 33}, {"id": 34}]`), true, &reqRPCBody, &reqRPCBodies},
-			wantErr: false,
-			batch:   true},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := UnmarshalRequest(tt.args.body, tt.args.isBatch, tt.args.reqRPCBody, tt.args.reqRPCBodies)
-
-			if (err != nil) != tt.wantErr {
-				t.Errorf("UnmarshalRequest() error = %v, wantErr %v", err, tt.wantErr)
-			}
-
-			if err == nil && !tt.batch {
-				if reqRPCBody.ID != 33 {
-					t.Errorf("UnmarshalRequest() wrong unmarshal")
-				}
-			} else if err == nil && tt.batch {
-				if reqRPCBodies[1].ID != 34 {
-					t.Errorf("UnmarshalRequest() wrong unmarshal")
-				}
-			}
-		})
-	}
-}
-
 func TestSendRequestToNode(t *testing.T) {
 	setup()
 	defer teardown()

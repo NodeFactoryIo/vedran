@@ -45,26 +45,6 @@ func IsBatch(reqBody []byte) bool {
 	return false
 }
 
-// UnmarshalRequest stores json data in appropriate interface reqRPCBody if it is not batch
-// and reqRPCBodies if request is batched
-func UnmarshalRequest(body []byte, isBatch bool, reqRPCBody *RPCRequest, reqRPCBodies *[]RPCRequest) error {
-	if !isBatch {
-		err := json.Unmarshal(body, &reqRPCBody)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	}
-
-	err := json.Unmarshal(body, &reqRPCBodies)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func createSingleRPCError(id uint64, code int, message string) RPCResponse {
 	return RPCResponse{
 		ID: id,
