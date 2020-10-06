@@ -32,34 +32,42 @@ type RPCRequest struct {
 const (
 	InternalServerError = -32603
 	ParseError          = -32700
+	InvalidRequest      = -32600
 )
 
-// IsBatch returns if requst contains batch rpc requests
-func IsBatch(reqBody RPCRequest) bool {
-	if reqBody != (RPCRequest{}) {
-		return false
+// IsBatch returns if request contains batch rpc requests
+func IsBatch(reqBody []byte) bool {
+	x := bytes.TrimLeft(reqBody, " \t\r\n")
+	if len(x) > 0 && x[0] == '[' {
+		return true
 	}
 
-	return true
+	return false
 }
 
 // UnmarshalRequest stores json data in appropriate interface reqRPCBody if it is not batch
 // and reqRPCBodies if request is batched
-func UnmarshalRequest(body []byte, reqRPCBody *RPCRequest, reqRPCBodies *[]RPCRequest) error {
-	err := json.Unmarshal(body, &reqRPCBody)
-	if err != nil {
-		err = json.Unmarshal(body, &reqRPCBodies)
+func UnmarshalRequest(body []byte, isBatch bool, reqRPCBody *RPCRequest, reqRPCBodies *[]RPCRequest) error {
+	if !isBatch {
+		err := json.Unmarshal(body, &reqRPCBody)
 		if err != nil {
 			return err
 		}
+
+		return nil
+	}
+
+	err := json.Unmarshal(body, &reqRPCBodies)
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
 // CreateRPCError returns rpc errors for appropriate request ids
-func CreateRPCError(reqRPCBody RPCRequest, reqRPCBodies []RPCRequest, code int, message string) interface{} {
-	if !IsBatch(reqRPCBody) {
+func CreateRPCError(isBatch bool, reqRPCBody RPCRequest, reqRPCBodies []RPCRequest, code int, message string) interface{} {
+	if !isBatch {
 		return RPCResponse{
 			ID: reqRPCBody.ID,
 			Error: &RPCError{
@@ -113,7 +121,7 @@ func CheckBatchRPCResponse(body []byte) ([]RPCResponse, error) {
 }
 
 // SendRequestToNode routes request to node and checks responss
-func SendRequestToNode(node models.Node, reqBody []byte, reqRPCBody RPCRequest) (interface{}, error) {
+func SendRequestToNode(isBatch bool, node models.Node, reqBody []byte) (interface{}, error) {
 	resp, err := http.Post(node.NodeUrl, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, err
@@ -124,7 +132,7 @@ func SendRequestToNode(node models.Node, reqBody []byte, reqRPCBody RPCRequest) 
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
 	var rpcResponse interface{}
-	if IsBatch(reqRPCBody) {
+	if isBatch {
 		rpcResponse, err = CheckBatchRPCResponse(body)
 	} else {
 		rpcResponse, err = CheckSingleRPCResponse(body)
