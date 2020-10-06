@@ -1,11 +1,30 @@
 package rpc
 
 import (
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"testing"
 
 	"github.com/NodeFactoryIo/vedran/internal/models"
 )
+
+var (
+	mux    *http.ServeMux
+	server *httptest.Server
+)
+
+type handleFnMock func(http.ResponseWriter, *http.Request)
+
+func setup() {
+	mux = http.NewServeMux()
+	server = httptest.NewServer(mux)
+}
+
+func teardown() {
+	server.Close()
+}
 
 func TestIsBatch(t *testing.T) {
 	type args struct {
@@ -89,29 +108,86 @@ func TestUnmarshalRequest(t *testing.T) {
 }
 
 func TestSendRequestToNode(t *testing.T) {
+	setup()
+	defer teardown()
+
 	type args struct {
 		node       models.Node
 		reqBody    []byte
 		reqRPCBody RPCRequest
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    interface{}
-		wantErr bool
+		name       string
+		args       args
+		want       interface{}
+		wantErr    bool
+		handleFunc handleFnMock
 	}{
-		// TODO: Add test cases.
+		{
+			name:    "Returns error if node url invalid",
+			args:    args{models.Node{NodeUrl: "invalid"}, []byte("{}"), RPCRequest{}},
+			wantErr: true,
+			want:    nil,
+			handleFunc: func(w http.ResponseWriter, r *http.Request) {
+				_, _ = io.WriteString(w, `{}`)
+			}},
+		{
+			name:    "Returns error if node returns invalid status code",
+			args:    args{models.Node{NodeUrl: "valid"}, []byte("{}"), RPCRequest{}},
+			wantErr: true,
+			want:    nil,
+			handleFunc: func(w http.ResponseWriter, r *http.Request) {
+				http.Error(w, "Error", 404)
+			}},
+		{
+			name:    "Returns error if check batch rpc response returns error",
+			args:    args{models.Node{NodeUrl: "valid"}, []byte(`{}`), RPCRequest{}},
+			wantErr: true,
+			want:    nil,
+			handleFunc: func(w http.ResponseWriter, r *http.Request) {
+				_, _ = io.WriteString(w, `{}`)
+			}},
+		{
+			name:    "Returns error if check single rpc response returns error",
+			args:    args{models.Node{NodeUrl: "valid"}, []byte(`{}`), RPCRequest{ID: 1}},
+			wantErr: true,
+			want:    nil,
+			handleFunc: func(w http.ResponseWriter, r *http.Request) {
+				_, _ = io.WriteString(w, `{"error": {"code": -32603}}`)
+			}},
+		{
+			name:    "Returns unmarshaled response if rpc response valid",
+			args:    args{models.Node{NodeUrl: "valid"}, []byte(`{}`), RPCRequest{ID: 1}},
+			wantErr: false,
+			want:    RPCResponse{ID: 1},
+			handleFunc: func(w http.ResponseWriter, r *http.Request) {
+				_, _ = io.WriteString(w, `{"id": 1}`)
+			}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			setup()
+
+			if tt.args.node.NodeUrl == "valid" {
+				tt.args.node.NodeUrl = server.URL
+			} else {
+				tt.args.node.NodeUrl = "INVALID"
+			}
+
+			mux.HandleFunc("/", tt.handleFunc)
+
 			got, err := SendRequestToNode(tt.args.node, tt.args.reqBody, tt.args.reqRPCBody)
+
 			if (err != nil) != tt.wantErr {
 				t.Errorf("SendRequestToNode() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("SendRequestToNode() = %v, want %v", got, tt.want)
 			}
+
+			teardown()
 		})
 	}
 }
