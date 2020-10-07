@@ -103,8 +103,8 @@ func TestApiController_RPCHandler(t *testing.T) {
 			}
 
 			nodeRepoMock.On("GetActiveNodes", mock.Anything).Return(&test.nodes, nil)
-			nodeRepoMock.On("RewardNode", mock.Anything).Maybe().Return()
-			nodeRepoMock.On("PenalizeNode", mock.Anything).Maybe().Return()
+			nodeRepoMock.On("RewardNode", mock.Anything).Return()
+			nodeRepoMock.On("PenalizeNode", mock.Anything).Return()
 
 			req, _ := http.NewRequest("POST", "/", bytes.NewReader([]byte(test.rpcRequest)))
 			rr := httptest.NewRecorder()
@@ -167,6 +167,8 @@ func TestApiController_BatchRPCHandler(t *testing.T) {
 			}
 
 			nodeRepoMock.On("GetActiveNodes", mock.Anything).Return(&test.nodes, nil)
+			nodeRepoMock.On("PenalizeNode", mock.Anything).Return()
+
 			req, _ := http.NewRequest("POST", "/", bytes.NewReader([]byte(test.rpcRequest)))
 			rr := httptest.NewRecorder()
 
