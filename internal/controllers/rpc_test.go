@@ -3,6 +3,7 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -178,5 +179,52 @@ func TestApiController_BatchRPCHandler(t *testing.T) {
 
 			teardown()
 		})
+	}
+}
+
+type errReader int
+
+func (errReader) Read(p []byte) (n int, err error) {
+	return 0, errors.New("test error")
+}
+
+func TestApiController_RPCHandler_InvalidBody(t *testing.T) {
+	setup()
+	defer teardown()
+	tests := []struct {
+		name        string
+		rpcResponse rpc.RPCResponse
+	}{
+		{
+			name: "Returns parse error if reading request body fails",
+			rpcResponse: rpc.RPCResponse{
+				ID:      0,
+				JSONRPC: "2.0",
+				Error:   &rpc.RPCError{Code: -32700, Message: "Parse error"}}},
+	}
+
+	nodeRepoMock := mocks.NodeRepository{}
+	pingRepoMock := mocks.PingRepository{}
+	metricsRepoMock := mocks.MetricsRepository{}
+	apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock)
+	handler := http.HandlerFunc(apiController.RPCHandler)
+
+	for _, test := range tests {
+		setup()
+
+		req, _ := http.NewRequest("POST", "/", errReader(0))
+		rr := httptest.NewRecorder()
+
+		handler.ServeHTTP(rr, req)
+
+		var body rpc.RPCResponse
+		_ = json.Unmarshal(rr.Body.Bytes(), &body)
+
+		if !reflect.DeepEqual(body, test.rpcResponse) {
+			t.Errorf("SendRequestToNode() body = %v, want %v", body, test.rpcResponse)
+			return
+		}
+
+		teardown()
 	}
 }
