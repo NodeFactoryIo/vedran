@@ -25,6 +25,6 @@ var (
 	DefaultKeepAliveInterval = 5 * time.Second
 )
 
-func keepAlive(conn net.Conn) error {
+func KeepAlive(conn net.Conn) error {
 	return tcpkeepalive.SetKeepAlive(conn, DefaultKeepAliveIdleTime, DefaultKeepAliveCount, DefaultKeepAliveInterval)
 }

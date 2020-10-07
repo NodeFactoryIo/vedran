@@ -2,11 +2,12 @@
 // Use of this source code is governed by an AGPL-style
 // license that can be found in the LICENSE file.
 
-package tunnel
+package server
 
 import (
 	"context"
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunel"
 	"net"
 	"net/http"
 	"sync"
@@ -122,7 +123,7 @@ func (p *connPool) Ping(identifier string) (time.Duration, error) {
 }
 
 func (p *connPool) ping(cp connPair) error {
-	ctx, cancel := context.WithTimeout(context.Background(), DefaultPingTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), tunnel.DefaultPingTimeout)
 	defer cancel()
 
 	return cp.clientConn.Ping(ctx)

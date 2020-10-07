@@ -2,7 +2,7 @@
 // Use of this source code is governed by an AGPL-style
 // license that can be found in the LICENSE file.
 
-package tunnel
+package server
 
 import (
 	"context"
@@ -10,7 +10,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	proto "github.com/NodeFactoryIo/vedran/pkg/http-tunel/proto"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunel"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/proto"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net"
@@ -104,7 +105,7 @@ func NewServer(config *ServerConfig) (*Server, error) {
 		if err != nil {
 			return nil, err
 		}
-		mux, err := vhost.NewTLSMuxer(l, DefaultTimeout)
+		mux, err := vhost.NewTLSMuxer(l, tunnel.DefaultTimeout)
 		if err != nil {
 			return nil, fmt.Errorf("SNI Muxer creation failed: %s", err)
 		}
@@ -194,12 +195,17 @@ func (s *Server) Start() {
 			continue
 		}
 
-		if err := keepAlive(conn); err != nil {
+		if err := tunnel.KeepAlive(conn); err != nil {
 			alogger.Error("TCP keepalive for control connection failed", err)
 		}
 
 		go s.handleClient(tls.Server(conn, s.config.TLSConfig))
 	}
+}
+
+type TunnelExt struct {
+	IdName  string
+	Tunnels map[string]*proto.Tunnel
 }
 
 func (s *Server) handleClient(conn net.Conn) {
@@ -239,7 +245,7 @@ func (s *Server) handleClient(conn net.Conn) {
 	}
 
 	{
-		ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
+		ctx, cancel := context.WithTimeout(context.Background(), tunnel.DefaultTimeout)
 		defer cancel()
 		req = req.WithContext(ctx)
 	}
@@ -328,7 +334,7 @@ func (s *Server) notifyError(serverError error, conid string) {
 
 	req.Header.Set(proto.HeaderError, serverError.Error())
 
-	ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), tunnel.DefaultTimeout)
 	defer cancel()
 
 	s.httpClient.Do(req.WithContext(ctx))
@@ -465,12 +471,12 @@ func (s *Server) listen(l net.Listener, cname string, pname string) {
 		tlsConn, ok := conn.(*vhost.TLSConn)
 		if ok {
 			msg.ForwardedHost = tlsConn.Host()
-			err = keepAlive(tlsConn.Conn)
+			err = tunnel.KeepAlive(tlsConn.Conn)
 
 		} else {
 			msg.ForwardedId = pname
 			msg.ForwardedHost = l.Addr().String()
-			err = keepAlive(conn)
+			err = tunnel.KeepAlive(conn)
 		}
 
 		cpclogger := cplogger.WithFields(log.Fields{"ctrl-msg": msg})
@@ -606,7 +612,7 @@ func (s *Server) proxyConn(identifier string, conn net.Conn, msg *proto.ControlM
 
 	select {
 	case <-done:
-	case <-time.After(DefaultTimeout):
+	case <-time.After(tunnel.DefaultTimeout):
 	}
 
 	s.logger.WithFields(log.Fields{

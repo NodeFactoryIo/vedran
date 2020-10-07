@@ -2,10 +2,11 @@
 // Use of this source code is governed by an AGPL-style
 // license that can be found in the LICENSE file.
 
-package tunnel
+package server
 
 import (
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunel"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/proto"
 	log "github.com/sirupsen/logrus"
 	"io"
@@ -80,7 +81,7 @@ func (p *TCPProxy) Proxy(w io.Writer, r io.ReadCloser, msg *proto.ControlMessage
 		return
 	}*/
 
-	local, err := net.DialTimeout("tcp", target, DefaultTimeout)
+	local, err := net.DialTimeout("tcp", target, tunnel.DefaultTimeout)
 	if err != nil {
 		clogger.WithFields(log.Fields{
 			"target": target,
@@ -89,7 +90,7 @@ func (p *TCPProxy) Proxy(w io.Writer, r io.ReadCloser, msg *proto.ControlMessage
 	}
 	defer local.Close()
 
-	if err := keepAlive(local); err != nil {
+	if err := tunnel.KeepAlive(local); err != nil {
 		clogger.WithFields(log.Fields{
 			"target": target,
 		}).Error("TCP keepalive for tunneled connection failed", err)
