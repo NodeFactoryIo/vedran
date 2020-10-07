@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/pkg/util"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
 
 type RegisterRequest struct {
@@ -64,6 +66,7 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		NodeUrl:       registerRequest.NodeUrl,
 		PayoutAddress: registerRequest.PayoutAddress,
 		Token:         token,
+		LastUsed:      time.Now(),
 	}
 	err = c.nodeRepo.Save(node)
 	if err != nil {
