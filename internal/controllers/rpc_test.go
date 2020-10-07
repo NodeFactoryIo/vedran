@@ -13,6 +13,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/rpc"
 	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
+	"github.com/stretchr/testify/mock"
 )
 
 var (
@@ -42,11 +43,13 @@ func TestApiController_RPCHandler(t *testing.T) {
 	handler := http.HandlerFunc(apiController.RPCHandler)
 
 	tests := []struct {
-		name        string
-		rpcRequest  string
-		rpcResponse rpc.RPCResponse
-		nodes       []models.Node
-		handleFunc  handleFnMock
+		name                  string
+		rpcRequest            string
+		rpcResponse           rpc.RPCResponse
+		nodes                 []models.Node
+		handleFunc            handleFnMock
+		PenalizeNodeCallCount int
+		RewardNodeCallCount   int
 	}{
 		{
 			name:       "Returns parse error if json invalid",
@@ -54,8 +57,10 @@ func TestApiController_RPCHandler(t *testing.T) {
 			rpcResponse: rpc.RPCResponse{
 				ID:      0,
 				JSONRPC: "2.0",
-				Error:   &rpc.RPCError{Code: -32700, Message: "Parse error"}},
-		},
+				Error:   &rpc.RPCError{Code: -32700, Message: "Parse error"},
+			},
+			PenalizeNodeCallCount: 0,
+			RewardNodeCallCount:   0},
 		{
 			name:       "Returns server error if no available nodes",
 			rpcRequest: `{"jsonrpc": "2.0", "id": 1, "method": "system"}`,
@@ -64,8 +69,9 @@ func TestApiController_RPCHandler(t *testing.T) {
 				JSONRPC: "2.0",
 				Error:   &rpc.RPCError{Code: -32603, Message: "No available nodes"},
 			},
-			nodes: []models.Node{},
-		},
+			nodes:                 []models.Node{},
+			PenalizeNodeCallCount: 0,
+			RewardNodeCallCount:   0},
 		{
 			name:       "Returns server error if all nodes return invalid rpc response",
 			rpcRequest: `{"jsonrpc": "2.0", "id": 1, "method": "system"}`,
@@ -74,7 +80,9 @@ func TestApiController_RPCHandler(t *testing.T) {
 				JSONRPC: "2.0",
 				Error:   &rpc.RPCError{Code: -32603, Message: "Internal Server Error"},
 			},
-			nodes: []models.Node{{ID: "test-id", NodeUrl: "invalid"}}},
+			nodes:                 []models.Node{{ID: "test-id", NodeUrl: "invalid"}},
+			PenalizeNodeCallCount: 1,
+			RewardNodeCallCount:   0},
 		{
 			name:       "Returns response if node returnes valid rpc response",
 			rpcRequest: `{"jsonrpc": "2.0", "id": 1, "method": "system"}`,
@@ -86,7 +94,9 @@ func TestApiController_RPCHandler(t *testing.T) {
 			nodes: []models.Node{{ID: "test-id", NodeUrl: "valid"}},
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
 				_, _ = io.WriteString(w, `{"id": 1, "jsonrpc": "2.0"}`)
-			}},
+			},
+			PenalizeNodeCallCount: 0,
+			RewardNodeCallCount:   1},
 	}
 
 	for _, test := range tests {
@@ -102,7 +112,10 @@ func TestApiController_RPCHandler(t *testing.T) {
 				test.nodes[0].NodeUrl = "INVALID"
 			}
 
-			nodeRepoMock.On("GetActiveNodes").Return(&test.nodes, nil)
+			nodeRepoMock.On("GetActiveNodes", mock.Anything).Return(&test.nodes, nil)
+			nodeRepoMock.On("RewardNode", mock.Anything).Return(nil)
+			nodeRepoMock.On("PenalizeNode", mock.Anything).Return(nil)
+
 			req, _ := http.NewRequest("POST", "/", bytes.NewReader([]byte(test.rpcRequest)))
 			rr := httptest.NewRecorder()
 
@@ -163,7 +176,7 @@ func TestApiController_BatchRPCHandler(t *testing.T) {
 				test.nodes[0].NodeUrl = "INVALID"
 			}
 
-			nodeRepoMock.On("GetActiveNodes").Return(&test.nodes, nil)
+			nodeRepoMock.On("GetActiveNodes", mock.Anything).Return(&test.nodes, nil)
 			req, _ := http.NewRequest("POST", "/", bytes.NewReader([]byte(test.rpcRequest)))
 			rr := httptest.NewRecorder()
 
