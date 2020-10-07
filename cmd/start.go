@@ -3,6 +3,8 @@ package cmd
 import (
 	"errors"
 	"fmt"
+
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/loadbalancer"
 	"github.com/NodeFactoryIo/vedran/pkg/logger"
 	"github.com/NodeFactoryIo/vedran/pkg/util/random"
@@ -95,7 +97,7 @@ func init() {
 		&selection,
 		"selection",
 		"round-robin",
-		"[OPTIONAL] Type of selection used for choosing nodes")
+		"[OPTIONAL] Type of selection used for choosing nodes (round-robin, random)")
 
 	startCmd.Flags().Int32Var(
 		&port,
@@ -120,7 +122,7 @@ func init() {
 
 func startCommand(_ *cobra.Command, _ []string) {
 	DisplayBanner()
-	loadbalancer.StartLoadBalancerServer(loadbalancer.Properties{
+	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
 		AuthSecret: authSecret,
 		Name:       name,
 		Capacity:   capacity,

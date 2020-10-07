@@ -2,25 +2,19 @@ package loadbalancer
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/NodeFactoryIo/vedran/internal/auth"
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/router"
 	"github.com/asdine/storm/v3"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
 
-type Properties struct {
-	AuthSecret string
-	Name       string
-	Capacity   int64
-	Whitelist  []string
-	Fee        float32
-	Selection  string
-	Port       int32
-}
+func StartLoadBalancerServer(props configuration.Configuration) {
+	configuration.Config = props
 
-func StartLoadBalancerServer(props Properties) {
 	// set auth secret
 	err := auth.SetAuthSecret(props.AuthSecret)
 	if err != nil {
