@@ -8,8 +8,9 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
-	tunnel "github.com/NodeFactoryIo/vedran/pkg/http-tunel"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/client"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/proto"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/server"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
@@ -88,8 +89,8 @@ func makeEcho(t testing.TB) (http net.Listener, tcp net.Listener) {
 	return
 }
 
-func makeTunnelServer(t testing.TB) *tunnel.Server {
-	s, err := tunnel.NewServer(&tunnel.ServerConfig{
+func makeTunnelServer(t testing.TB) *server.Server {
+	s, err := server.NewServer(&server.ServerConfig{
 		Addr:      ":0",
 		PortRange: "10000:50000",
 		TLSConfig: tlsConfig(),
@@ -103,15 +104,15 @@ func makeTunnelServer(t testing.TB) *tunnel.Server {
 	return s
 }
 
-func makeTunnelClient(t testing.TB, serverAddr string, httpLocalAddr, httpAddr, tcpLocalAddr, tcpAddr net.Addr) *tunnel.Client {
-	httpProxy := tunnel.NewMultiHTTPProxy(map[string]*url.URL{
+func makeTunnelClient(t testing.TB, serverAddr string, httpLocalAddr, httpAddr, tcpLocalAddr, tcpAddr net.Addr) *client.Client {
+	httpProxy := server.NewMultiHTTPProxy(map[string]*url.URL{
 		"localhost:" + port(httpLocalAddr): {
 			Scheme: "http",
 			Host:   "127.0.0.1:" + port(httpAddr),
 		},
 	}, log.NewEntry(log.StandardLogger()))
 
-	tcpProxy := tunnel.NewMultiTCPProxy(map[string]string{
+	tcpProxy := server.NewMultiTCPProxy(map[string]string{
 		port(tcpLocalAddr): tcpAddr.String(),
 	}, log.NewEntry(log.StandardLogger()))
 
@@ -127,11 +128,11 @@ func makeTunnelClient(t testing.TB, serverAddr string, httpLocalAddr, httpAddr, 
 		},
 	}
 
-	c, err := tunnel.NewClient(&tunnel.ClientConfig{
+	c, err := client.NewClient(&client.ClientConfig{
 		ServerAddr:      serverAddr,
 		TLSClientConfig: tlsConfig(),
 		Tunnels:         tunnels,
-		Proxy: tunnel.Proxy(tunnel.ProxyFuncs{
+		Proxy: client.Proxy(client.ProxyFuncs{
 			HTTP: httpProxy.Proxy,
 			TCP:  tcpProxy.Proxy,
 		}),

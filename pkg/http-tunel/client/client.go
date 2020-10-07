@@ -2,13 +2,14 @@
 // Use of this source code is governed by an AGPL-style
 // license that can be found in the LICENSE file.
 
-package tunnel
+package client
 
 import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunel"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/proto"
 	log "github.com/sirupsen/logrus"
 	"net"
@@ -167,12 +168,12 @@ func (c *Client) dial() (net.Conn, error) {
 			conn, err = c.config.DialTLS(network, addr, tlsConfig)
 		} else {
 			d := &net.Dialer{
-				Timeout: DefaultTimeout,
+				Timeout: tunnel.DefaultTimeout,
 			}
 			conn, err = d.Dial(network, addr)
 
 			if err == nil {
-				err = keepAlive(conn)
+				err = tunnel.KeepAlive(conn)
 			}
 			if err == nil {
 				conn = tls.Client(conn, tlsConfig)

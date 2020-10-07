@@ -2,7 +2,7 @@
 // Use of this source code is governed by an AGPL-style
 // license that can be found in the LICENSE file.
 
-package tunnel
+package server
 
 import (
 	"fmt"
@@ -233,7 +233,7 @@ func (r *registry) clear(identifier string) *RegistryItem {
 	if i.Hosts != nil {
 		for _, h := range i.Hosts {
 			iccloger.WithFields(log.Fields{
-				"host": h.Host,
+				"host":     h.Host,
 				"trimport": trimPort(h.Host),
 			}).Debug("REGISTRI CLEAR (delete hosts)")
 			delete(r.hosts, trimPort(h.Host))

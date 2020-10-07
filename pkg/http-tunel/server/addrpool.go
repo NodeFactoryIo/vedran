@@ -1,4 +1,4 @@
-package tunnel
+package server
 
 import (
 	"fmt"
