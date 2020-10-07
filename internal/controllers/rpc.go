@@ -13,11 +13,17 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	defer r.Body.Close()
-	reqBody, _ := ioutil.ReadAll(r.Body)
-	isBatch := rpc.IsBatch(reqBody)
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Errorf("Request failed because of: %v", err)
+		_ = json.NewEncoder(w).Encode(
+			rpc.CreateRPCError(false, rpc.RPCRequest{}, nil, rpc.ParseError, "Parse error"))
+		return
+	}
+
 	var reqRPCBody rpc.RPCRequest
 	var reqRPCBodies []rpc.RPCRequest
-	var err error
+	isBatch := rpc.IsBatch(reqBody)
 	if isBatch {
 		err = json.Unmarshal(reqBody, &reqRPCBodies)
 	} else {
