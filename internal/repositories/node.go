@@ -57,7 +57,7 @@ func (r *NodeRepo) getRoundRobinNodes() (*[]models.Node, error) {
 	var nodes []models.Node
 
 	q := r.db.Select(q.Lte("Cooldown", 0))
-	err := q.OrderBy("LastUsed").Reverse().Find(&nodes)
+	err := q.OrderBy("LastUsed").Find(&nodes)
 
 	return &nodes, err
 }
@@ -71,11 +71,11 @@ func (r *NodeRepo) GetActiveNodes(selection string) (*[]models.Node, error) {
 }
 
 func (r *NodeRepo) PenalizeNode(node *models.Node) error {
-	node.LastUsed = time.Now()
+	node.LastUsed = time.Now().Unix()
 	return r.db.Update(node)
 }
 
 func (r *NodeRepo) RewardNode(node *models.Node) error {
-	node.LastUsed = time.Now()
+	node.LastUsed = time.Now().Unix()
 	return r.db.Update(node)
 }

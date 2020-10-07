@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 type Node struct {
 	ID            string `storm:"id"`
 	ConfigHash    string
@@ -9,7 +7,7 @@ type Node struct {
 	PayoutAddress string
 	Token         string
 	Cooldown      int
-	LastUsed      time.Time
+	LastUsed      int64
 }
 
 type NodeRepository interface {

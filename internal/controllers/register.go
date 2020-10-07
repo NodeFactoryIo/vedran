@@ -66,7 +66,7 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		NodeUrl:       registerRequest.NodeUrl,
 		PayoutAddress: registerRequest.PayoutAddress,
 		Token:         token,
-		LastUsed:      time.Now(),
+		LastUsed:      time.Now().Unix(),
 	}
 	err = c.nodeRepo.Save(node)
 	if err != nil {
