@@ -189,11 +189,11 @@ func TestIntegration(t *testing.T) {
 			p := payload[i]
 			r := repeat
 
-			wg.Add(1)
-			go func() {
-				testHTTP(t, h.Listener.Addr(), p, r)
-				wg.Done()
-			}()
+			//wg.Add(1)
+			//go func() {
+			//	testHTTP(t, h.Listener.Addr(), p, r)
+			//	wg.Done()
+			//}()
 			wg.Add(1)
 			go func() {
 				testTCP(t, tcpLocalAddr, p, r)
