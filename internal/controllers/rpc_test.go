@@ -102,9 +102,9 @@ func TestApiController_RPCHandler(t *testing.T) {
 				test.nodes[0].NodeUrl = "INVALID"
 			}
 
-			nodeRepoMock.On("GetActiveNodes", mock.Anything).Once().Return(&test.nodes, nil)
-			nodeRepoMock.On("RewardNode", mock.Anything).Once().Return()
-			nodeRepoMock.On("PenalizeNode", mock.Anything).Once().Return()
+			nodeRepoMock.On("GetActiveNodes", mock.Anything).Return(&test.nodes, nil)
+			nodeRepoMock.On("RewardNode", mock.Anything).Maybe().Return()
+			nodeRepoMock.On("PenalizeNode", mock.Anything).Maybe().Return()
 
 			req, _ := http.NewRequest("POST", "/", bytes.NewReader([]byte(test.rpcRequest)))
 			rr := httptest.NewRecorder()
