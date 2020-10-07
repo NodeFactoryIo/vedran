@@ -56,14 +56,6 @@ func TestApiController_RPCHandler(t *testing.T) {
 				Error:   &rpc.RPCError{Code: -32700, Message: "Parse error"}},
 		},
 		{
-			name:       "Returns invalid request if rpc request is invalid rpc request",
-			rpcRequest: `{}`,
-			rpcResponse: rpc.RPCResponse{
-				ID:      0,
-				JSONRPC: "2.0",
-				Error:   &rpc.RPCError{Code: -32600, Message: "Invalid request"}},
-		},
-		{
 			name:       "Returns server error if no available nodes",
 			rpcRequest: `{"jsonrpc": "2.0", "id": 1, "method": "system"}`,
 			rpcResponse: rpc.RPCResponse{
