@@ -79,6 +79,14 @@ func TestSendRequestToNode(t *testing.T) {
 				_, _ = io.WriteString(w, `{}`)
 			}},
 		{
+			name:    "Returns error if it cannot read response",
+			args:    args{true, models.Node{NodeUrl: "valid"}, []byte("{}")},
+			wantErr: true,
+			want:    nil,
+			handleFunc: func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Length", "1")
+			}},
+		{
 			name:    "Returns error if node returns invalid status code",
 			args:    args{true, models.Node{NodeUrl: "valid"}, []byte("{}")},
 			wantErr: true,

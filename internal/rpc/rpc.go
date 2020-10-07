@@ -107,7 +107,11 @@ func SendRequestToNode(isBatch bool, node models.Node, reqBody []byte) (interfac
 	}
 
 	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
 	var rpcResponse interface{}
 	if isBatch {
 		rpcResponse, err = CheckBatchRPCResponse(body)
