@@ -7,6 +7,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/asdine/storm/v3"
 	"github.com/asdine/storm/v3/q"
+	log "github.com/sirupsen/logrus"
 )
 
 type NodeRepo struct {
@@ -70,12 +71,18 @@ func (r *NodeRepo) GetActiveNodes(selection string) (*[]models.Node, error) {
 	return r.getRandomNodes()
 }
 
-func (r *NodeRepo) PenalizeNode(node *models.Node) error {
+func (r *NodeRepo) PenalizeNode(node *models.Node) {
 	node.LastUsed = time.Now().Unix()
-	return r.db.Update(node)
+	err := r.db.Update(node)
+	if err != nil {
+		log.Errorf("Failed saving node request because of: %v", err)
+	}
 }
 
-func (r *NodeRepo) RewardNode(node *models.Node) error {
+func (r *NodeRepo) RewardNode(node *models.Node) {
 	node.LastUsed = time.Now().Unix()
-	return r.db.Update(node)
+	err := r.db.Update(node)
+	if err != nil {
+		log.Errorf("Failed penalizing node because of: %v", err)
+	}
 }

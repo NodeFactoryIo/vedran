@@ -16,6 +16,6 @@ type NodeRepository interface {
 	GetAll() (*[]Node, error)
 	GetActiveNodes(selection string) (*[]Node, error)
 	IsNodeWhitelisted(ID string) (bool, error)
-	PenalizeNode(node *Node) error
-	RewardNode(node *Node) error
+	PenalizeNode(node *Node)
+	RewardNode(node *Node)
 }
