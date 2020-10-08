@@ -12,69 +12,120 @@ import (
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunel"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/proto"
+	"github.com/inconshreveable/go-vhost"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/net/http2"
 	"io"
 	"net"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
-
-	"golang.org/x/net/http2"
-
-	"github.com/inconshreveable/go-vhost"
-	//	"github.com/mmatczuk/go-http-tunnel/id"
 )
-
-// ServerConfig defines configuration for the Server.
-type ServerConfig struct {
-	// Addr is TCP address to listen for client connections. If empty ":0"
-	// is used.
-	Addr string
-	// Address Pool enables Port AutoAssignation.
-	PortRange string
-	// TLSConfig specifies the tls configuration to use with tls.Listener.
-	TLSConfig *tls.Config
-	// Listener specifies optional listener for client connections. If nil
-	// tls.Listen("tcp", Addr, TLSConfig) is used.
-	Listener net.Listener
-	// Logger is optional logger. If nil logging is disabled.
-	Logger *log.Entry
-	// Addr is TCP address to listen for TLS SNI connections
-	SNIAddr string
-	// AuthHandler is function validates provided auth token
-	AuthHandler func(string) bool
-}
 
 // Server is responsible for proxying public connections to the client over a
 // tunnel connection.
 type Server struct {
 	*registry
-	config *ServerConfig
+	config *serverData
 
-	listener   net.Listener
-	connPool   *connPool
-	httpClient *http.Client
-	logger     *log.Entry
-	vhostMuxer *vhost.TLSMuxer
-	PortPool   *AddrPool
+	listener    net.Listener
+	connPool    *connPool
+	httpClient  *http.Client
+	logger      *log.Entry
+	vhostMuxer  *vhost.TLSMuxer
+	PortPool    *AddrPool
+	authHandler func(string) bool
+}
+
+// ServerConfig defines all data needed for running the Server.
+type ServerConfig struct {
+	TlsCrtFilePath string
+	TlsKeyFilePath string
+	// Address is TCP address to listen for client connections. If empty ":0"
+	// is used.
+	Address        string
+	// Address Pool enables Port AutoAssignation.
+	PortRange      string `default:"10000:50000"`
+	// AuthHandler is function validates provided auth token
+	AuthHandler    func(string) bool
+	// Logger is optional logger. If nil logging is disabled.
+	Logger         *log.Entry
+	// SNIAddress is TCP address to listen for TLS SNI connections
+	SNIAddress string
+}
+
+type serverData struct {
+	addr string
+	portRange string
+	tlsConfig *tls.Config
+	listener net.Listener
+	logger *log.Entry
+	sniAddr string
 	authHandler func(string) bool
 }
 
 // NewServer creates a new Server.
 func NewServer(config *ServerConfig) (*Server, error) {
+	serverData := &serverData{}
+
+	if config.Address == "" {
+		return nil, errors.New("provided empty address")
+	}
+	serverData.addr = config.Address
+
+	if config.PortRange == "" {
+		config.PortRange = "10000:50000"
+	}
+	serverData.portRange = config.PortRange
+
+	if config.TlsKeyFilePath == "" {
+		return nil, errors.New("provided tls key file path empty")
+	}
+	if config.TlsCrtFilePath == "" {
+		return nil, errors.New("provided tls cert file path empty")
+	}
+	tlsConfig, err := TlsServerConfig(
+		config.TlsCrtFilePath,
+		config.TlsKeyFilePath,
+		"")
+	if err != nil {
+		return nil, err
+	}
+	serverData.tlsConfig = tlsConfig
+
+	logger := config.Logger
+	if logger == nil {
+		l := log.New()
+		l.SetLevel(log.ErrorLevel)
+		logger = log.NewEntry(l)
+	}
+	serverData.logger = logger
+
+	if config.AuthHandler == nil {
+		return nil, errors.New("provided auth handler is nil")
+	}
+	serverData.authHandler = config.AuthHandler
+
+	serverData.sniAddr = config.SNIAddress
+
+	return newServer(serverData)
+}
+
+
+func newServer(serverData *serverData) (*Server, error) {
 	pPool := &AddrPool{}
-	err := pPool.Init(config.PortRange)
+	err := pPool.Init(serverData.portRange)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create port range pool: %s", err)
 	}
 
-	listener, err := listener(config)
+	listener, err := listener(serverData)
 	if err != nil {
 		return nil, fmt.Errorf("listener failed: %s", err)
 	}
 
-	logger := config.Logger
+	logger := serverData.logger
 	if logger == nil {
 		logger = log.NewEntry(log.StandardLogger())
 	}
@@ -82,12 +133,12 @@ func NewServer(config *ServerConfig) (*Server, error) {
 	s := &Server{
 		registry: newRegistry(logger),
 		PortPool: pPool,
-		config:   config,
+		config:   serverData,
 		listener: listener,
 		logger:   logger,
 	}
 
-	s.authHandler = config.AuthHandler
+	s.authHandler = serverData.authHandler
 
 	t := &http2.Transport{}
 	pool := newConnPool(t, s.disconnected)
@@ -100,8 +151,8 @@ func NewServer(config *ServerConfig) (*Server, error) {
 		},
 	}
 
-	if config.SNIAddr != "" {
-		l, err := net.Listen("tcp", config.SNIAddr)
+	if serverData.sniAddr != "" {
+		l, err := net.Listen("tcp", serverData.sniAddr)
 		if err != nil {
 			return nil, err
 		}
@@ -138,19 +189,19 @@ func NewServer(config *ServerConfig) (*Server, error) {
 	return s, nil
 }
 
-func listener(config *ServerConfig) (net.Listener, error) {
-	if config.Listener != nil {
-		return config.Listener, nil
+func listener(config *serverData) (net.Listener, error) {
+	if config.listener != nil {
+		return config.listener, nil
 	}
 
-	if config.Addr == "" {
-		return nil, errors.New("missing Addr")
+	if config.addr == "" {
+		return nil, errors.New("missing addr")
 	}
-	if config.TLSConfig == nil {
-		return nil, errors.New("missing TLSConfig")
+	if config.tlsConfig == nil {
+		return nil, errors.New("missing tlsConfig")
 	}
 
-	return net.Listen("tcp", config.Addr)
+	return net.Listen("tcp", config.addr)
 }
 
 // disconnected clears resources used by client, it's invoked by connection pool
@@ -199,7 +250,7 @@ func (s *Server) Start() {
 			alogger.Error("TCP keepalive for control connection failed", err)
 		}
 
-		go s.handleClient(tls.Server(conn, s.config.TLSConfig))
+		go s.handleClient(tls.Server(conn, s.config.tlsConfig))
 	}
 }
 
@@ -220,7 +271,7 @@ func (s *Server) handleClient(conn net.Conn) {
 		err     error
 
 		inConnPool bool
-		token string
+		token      string
 	)
 
 	conid = conn.RemoteAddr().String()
@@ -353,8 +404,8 @@ func (s *Server) adrListenRegister(in string, cid string, portname string) (stri
 
 		s.logger.WithFields(log.Fields{
 			"client-id": cid,
-			"portname": portname,
-			"address": addr,
+			"portname":  portname,
+			"address":   addr,
 		}).Info("address auto assign")
 
 		return addr, nil
@@ -454,7 +505,7 @@ func (s *Server) listen(l net.Listener, cname string, pname string) {
 		conn, err := l.Accept()
 		if err != nil {
 			if strings.Contains(err.Error(), "use of closed network connection") ||
-				strings.Contains(err.Error(), "Listener closed") {
+				strings.Contains(err.Error(), "listener closed") {
 				cplogger.Errorf("listener closed for address %s", addr)
 				return
 			}
@@ -504,7 +555,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.logger.WithFields(log.Fields{
 			"addr": r.RemoteAddr,
 			"host": r.Host,
-			"url": r.URL,
+			"url":  r.URL,
 		}).Error("round trip failed", err)
 
 		http.Error(w, err.Error(), http.StatusBadGateway)
@@ -570,7 +621,7 @@ func (s *Server) RoundTrip(r *http.Request) (*http.Response, error) {
 func (s *Server) proxyConn(identifier string, conn net.Conn, msg *proto.ControlMessage) error {
 	s.logger.WithFields(log.Fields{
 		"identifier": identifier,
-		"ctrlMsg": msg,
+		"ctrlMsg":    msg,
 	}).Debug("proxy connection")
 
 	defer conn.Close()
@@ -617,7 +668,7 @@ func (s *Server) proxyConn(identifier string, conn net.Conn, msg *proto.ControlM
 
 	s.logger.WithFields(log.Fields{
 		"identifier": identifier,
-		"ctrlMsg": msg,
+		"ctrlMsg":    msg,
 	}).Debug("proxy connection done")
 
 	return nil
@@ -626,7 +677,7 @@ func (s *Server) proxyConn(identifier string, conn net.Conn, msg *proto.ControlM
 func (s *Server) proxyHTTP(identifier string, r *http.Request, msg *proto.ControlMessage) (*http.Response, error) {
 	s.logger.WithFields(log.Fields{
 		"identifier": identifier,
-		"ctrlMsg": msg,
+		"ctrlMsg":    msg,
 	}).Info("proxy HTTP request")
 
 	pr, pw := io.Pipe()
@@ -644,16 +695,16 @@ func (s *Server) proxyHTTP(identifier string, r *http.Request, msg *proto.Contro
 		if err != nil {
 			s.logger.WithFields(log.Fields{
 				"identifier": identifier,
-				"ctrlMsg": msg,
+				"ctrlMsg":    msg,
 			}).Error("proxy error", err)
 		}
 
 		s.logger.WithFields(log.Fields{
 			"identifier": identifier,
-			"bytes": cw.count,
-			"dir": "user to client",
-			"dst": r.Host,
-			"src": r.RemoteAddr,
+			"bytes":      cw.count,
+			"dir":        "user to client",
+			"dst":        r.Host,
+			"src":        r.RemoteAddr,
 		}).Info("transferred")
 
 		if r.Body != nil {
@@ -667,8 +718,8 @@ func (s *Server) proxyHTTP(identifier string, r *http.Request, msg *proto.Contro
 	}
 
 	s.logger.WithFields(log.Fields{
-		"identifier": identifier,
-		"ctrlMsg": msg,
+		"identifier":  identifier,
+		"ctrlMsg":     msg,
 		"status code": resp.StatusCode,
 	}).Info("proxy HTTP done")
 

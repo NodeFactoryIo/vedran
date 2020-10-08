@@ -91,10 +91,13 @@ func makeEcho(t testing.TB) (http net.Listener, tcp net.Listener) {
 
 func makeTunnelServer(t testing.TB) *server.Server {
 	s, err := server.NewServer(&server.ServerConfig{
-		Addr:      ":0",
+		Address:      ":0",
 		PortRange: "10000:50000",
-		TLSConfig: tlsConfig(),
-		Logger:    log.NewEntry(log.StandardLogger()),
+		TlsCrtFilePath: "./testdata/selfsigned.crt",
+		TlsKeyFilePath: "./testdata/selfsigned.key",
+		AuthHandler: func(s string) bool {
+			return true
+		},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -191,7 +194,7 @@ func TestIntegration(t *testing.T) {
 
 			//wg.Add(1)
 			//go func() {
-			//	testHTTP(t, h.Listener.Addr(), p, r)
+			//	testHTTP(t, h.listener.addr(), p, r)
 			//	wg.Done()
 			//}()
 			wg.Add(1)
