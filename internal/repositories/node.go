@@ -68,20 +68,28 @@ func (r *NodeRepo) IsNodeWhitelisted(ID string) (bool, error) {
 }
 
 func (r *NodeRepo) getRandomNodes() *[]models.Node {
+	nodes := make([]models.Node, len(memoryNodes))
+
+	_ = copy(nodes[:], memoryNodes)
+
 	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(memoryNodes), func(i, j int) {
-		memoryNodes[i], memoryNodes[j] = memoryNodes[j], memoryNodes[i]
+	rand.Shuffle(len(nodes), func(i, j int) {
+		nodes[i], nodes[j] = nodes[j], nodes[i]
 	})
 
-	return &memoryNodes
+	return &nodes
 }
 
 func (r *NodeRepo) getRoundRobinNodes() *[]models.Node {
-	sort.Slice(memoryNodes[:], func(i, j int) bool {
-		return memoryNodes[i].LastUsed < memoryNodes[j].LastUsed
+	nodes := make([]models.Node, len(memoryNodes))
+
+	_ = copy(nodes[:], memoryNodes)
+
+	sort.Slice(nodes[:], func(i, j int) bool {
+		return nodes[i].LastUsed < nodes[j].LastUsed
 	})
 
-	return &memoryNodes
+	return &nodes
 }
 
 func (r *NodeRepo) GetActiveNodes(selection string) *[]models.Node {
