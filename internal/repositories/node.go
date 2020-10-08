@@ -8,6 +8,7 @@ import (
 
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/asdine/storm/v3"
+	"github.com/asdine/storm/v3/q"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -23,8 +24,17 @@ func NewNodeRepo(db *storm.DB) *NodeRepo {
 	}
 }
 
+func (r *NodeRepo) getValidNodes() (*[]models.Node, error) {
+	var nodes []models.Node
+
+	q := r.db.Select(q.Lte("Cooldown", 0))
+	err := q.Find(&nodes)
+
+	return &nodes, err
+}
+
 func (r *NodeRepo) InitNodeRepo() error {
-	nodes, err := r.GetAll()
+	nodes, err := r.getValidNodes()
 	if err != nil {
 		return err
 	}
@@ -82,16 +92,14 @@ func (r *NodeRepo) GetActiveNodes(selection string) *[]models.Node {
 	return r.getRandomNodes()
 }
 
-func (r *NodeRepo) updateMemoryLastUsedTime(targetNode *models.Node) error {
+func (r *NodeRepo) updateMemoryLastUsedTime(targetNode *models.Node) {
 	for i, node := range memoryNodes {
 		if targetNode.ID == node.ID {
 			tempNode := &memoryNodes[i]
 			tempNode.LastUsed = time.Now().Unix()
-			return nil
+			break
 		}
 	}
-
-	return fmt.Errorf("No target node in memory")
 }
 
 func (r *NodeRepo) RemoveNodeFromActive(targetNode *models.Node) error {
@@ -113,15 +121,18 @@ func (r *NodeRepo) AddNodeToActive(node *models.Node) {
 }
 
 func (r *NodeRepo) PenalizeNode(node *models.Node) {
-	_ = r.RemoveNodeFromActive(node)
+	err := r.RemoveNodeFromActive(node)
+	if err != nil {
+		log.Errorf("Failed penalizing node because of: %v", err)
+	}
 }
 
 func (r *NodeRepo) RewardNode(node *models.Node) {
-	_ = r.updateMemoryLastUsedTime(node)
+	r.updateMemoryLastUsedTime(node)
 
 	node.LastUsed = time.Now().Unix()
 	err := r.db.Update(node)
 	if err != nil {
-		log.Errorf("Failed penalizing node because of: %v", err)
+		log.Errorf("Failed updating node last used time because of: %v", err)
 	}
 }
