@@ -17,19 +17,20 @@ type NodeRepo struct {
 	db *storm.DB
 }
 
-func NewNodeRepo(db *storm.DB) (*NodeRepo, error) {
-	memoryNodes = make([]models.Node, 0)
-	repo := NodeRepo{
+func NewNodeRepo(db *storm.DB) *NodeRepo {
+	return &NodeRepo{
 		db: db,
 	}
+}
 
-	nodes, err := repo.GetAll()
+func (r *NodeRepo) InitNodeRepo() error {
+	nodes, err := r.GetAll()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	memoryNodes = *nodes
-	return &repo, nil
+	return nil
 }
 
 func (r *NodeRepo) FindByID(ID string) (*models.Node, error) {
