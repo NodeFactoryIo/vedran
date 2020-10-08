@@ -38,8 +38,8 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nodes, err := c.nodeRepo.GetActiveNodes(configuration.Config.Selection)
-	if err != nil || len(*nodes) == 0 {
+	nodes := c.nodeRepo.GetActiveNodes(configuration.Config.Selection)
+	if len(*nodes) == 0 {
 		log.Error("Request failed because vedran has no available nodes")
 		_ = json.NewEncoder(w).Encode(
 			rpc.CreateRPCError(isBatch, reqRPCBody, reqRPCBodies, rpc.InternalServerError, "No available nodes"))

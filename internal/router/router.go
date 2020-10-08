@@ -13,7 +13,11 @@ import (
 func CreateNewApiRouter(db *storm.DB, whitelistEnabled bool) *mux.Router {
 	router := mux.NewRouter()
 	// initialize repos
-	nodeRepo := repositories.NewNodeRepo(db)
+	nodeRepo, err := repositories.NewNodeRepo(db)
+	if err != nil {
+		panic(err)
+	}
+
 	pingRepo := repositories.NewPingRepo(db)
 	metricsRepo := repositories.NewMetricsRepo(db)
 	// initialize controllers
