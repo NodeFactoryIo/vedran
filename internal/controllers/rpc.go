@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/rpc"
 	log "github.com/sirupsen/logrus"
 )
@@ -37,7 +38,7 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nodes, err := c.nodeRepo.GetActiveNodes()
+	nodes, err := c.nodeRepo.GetActiveNodes(configuration.Config.Selection)
 	if err != nil || len(*nodes) == 0 {
 		log.Error("Request failed because vedran has no available nodes")
 		_ = json.NewEncoder(w).Encode(
@@ -45,15 +46,15 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// @TODO: Peer selection code
-
 	for _, node := range *nodes {
 		rpcResponse, err := rpc.SendRequestToNode(isBatch, node, reqBody)
 		if err != nil {
 			log.Errorf("Request failed to node %s because of: %v", node.ID, err)
+			go c.nodeRepo.PenalizeNode(&node)
 			continue
 		}
 
+		go c.nodeRepo.RewardNode(&node)
 		_ = json.NewEncoder(w).Encode(rpcResponse)
 		return
 	}

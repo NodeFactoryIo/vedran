@@ -5,13 +5,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/internal/models"
-	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
+
+	"github.com/NodeFactoryIo/vedran/internal/models"
+	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestApiController_RegisterHandler(t *testing.T) {
@@ -94,6 +96,7 @@ func TestApiController_RegisterHandler(t *testing.T) {
 				NodeUrl:       test.registerRequest.NodeUrl,
 				PayoutAddress: test.registerRequest.PayoutAddress,
 				Token:         test.registerResponse.Token,
+				LastUsed:      time.Now().Unix(),
 			}).Return(test.saveMockReturns)
 			nodeRepoMock.On("IsNodeWhitelisted", test.registerRequest.Id).Return(true, test.isNodeWhitelistedMockReturns)
 			apiController := NewApiController(test.isWhitelisted, &nodeRepoMock, &pingRepoMock, &metricsRepoMock)

@@ -35,13 +35,13 @@ func (_m *NodeRepository) FindByID(ID string) (*models.Node, error) {
 	return r0, r1
 }
 
-// GetActiveNodes provides a mock function with given fields:
-func (_m *NodeRepository) GetActiveNodes() (*[]models.Node, error) {
-	ret := _m.Called()
+// GetActiveNodes provides a mock function with given fields: selection
+func (_m *NodeRepository) GetActiveNodes(selection string) (*[]models.Node, error) {
+	ret := _m.Called(selection)
 
 	var r0 *[]models.Node
-	if rf, ok := ret.Get(0).(func() *[]models.Node); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(string) *[]models.Node); ok {
+		r0 = rf(selection)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*[]models.Node)
@@ -49,8 +49,8 @@ func (_m *NodeRepository) GetActiveNodes() (*[]models.Node, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(selection)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -100,6 +100,16 @@ func (_m *NodeRepository) IsNodeWhitelisted(ID string) (bool, error) {
 	}
 
 	return r0, r1
+}
+
+// PenalizeNode provides a mock function with given fields: node
+func (_m *NodeRepository) PenalizeNode(node *models.Node) {
+	_m.Called(node)
+}
+
+// RewardNode provides a mock function with given fields: node
+func (_m *NodeRepository) RewardNode(node *models.Node) {
+	_m.Called(node)
 }
 
 // Save provides a mock function with given fields: node
