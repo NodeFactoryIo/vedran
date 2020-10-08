@@ -19,7 +19,7 @@ func transfer(dst io.Writer, src io.Reader, logger *log.Entry) {
 	n, err := io.Copy(dst, src)
 	if err != nil {
 		if !strings.Contains(err.Error(), "context canceled") && !strings.Contains(err.Error(), "CANCEL") {
-			logger.Error("copy error", err)
+			logger.Error("copy error ", err)
 		}
 	}
 	log.Debugf("transferred %d bytes", n)
