@@ -67,8 +67,11 @@ func (p *TCPProxy) Proxy(w io.Writer, r io.ReadCloser, msg *proto.ControlMessage
 
 	target := p.localAddrFor(msg.ForwardedHost)
 	if target == "" {
-		clogger.Error("no target")
-		return
+		target = p.localAddrFor(msg.ForwardedId)
+		if target == "" {
+			clogger.Error("no target")
+			return
+		}
 	}
 
 	/*target := p.localAddrFor(msg.ForwardedHost)
