@@ -8,7 +8,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/proto"
-	"github.com/mmatczuk/go-http-tunnel/tunnelmock"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/tunnelmock"
 	"net"
 	"net/http/httptest"
 	"testing"
