@@ -12,6 +12,11 @@ type NodeRepository struct {
 	mock.Mock
 }
 
+// AddNodeToActive provides a mock function with given fields: node
+func (_m *NodeRepository) AddNodeToActive(node *models.Node) {
+	_m.Called(node)
+}
+
 // FindByID provides a mock function with given fields: ID
 func (_m *NodeRepository) FindByID(ID string) (*models.Node, error) {
 	ret := _m.Called(ID)
@@ -36,7 +41,7 @@ func (_m *NodeRepository) FindByID(ID string) (*models.Node, error) {
 }
 
 // GetActiveNodes provides a mock function with given fields: selection
-func (_m *NodeRepository) GetActiveNodes(selection string) (*[]models.Node, error) {
+func (_m *NodeRepository) GetActiveNodes(selection string) *[]models.Node {
 	ret := _m.Called(selection)
 
 	var r0 *[]models.Node
@@ -48,14 +53,7 @@ func (_m *NodeRepository) GetActiveNodes(selection string) (*[]models.Node, erro
 		}
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(selection)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // GetAll provides a mock function with given fields:
@@ -105,6 +103,20 @@ func (_m *NodeRepository) IsNodeWhitelisted(ID string) (bool, error) {
 // PenalizeNode provides a mock function with given fields: node
 func (_m *NodeRepository) PenalizeNode(node *models.Node) {
 	_m.Called(node)
+}
+
+// RemoveNodeFromActive provides a mock function with given fields: node
+func (_m *NodeRepository) RemoveNodeFromActive(node *models.Node) error {
+	ret := _m.Called(node)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*models.Node) error); ok {
+		r0 = rf(node)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // RewardNode provides a mock function with given fields: node
