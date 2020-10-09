@@ -89,21 +89,10 @@ func (r *registry) GetID(cname string) string {
 	defer r.mu.RUnlock()
 	v, ok := r.items[cname]
 	if !ok {
-		fmt.Errorf("NO ID in %s\n", cname)
 		return ""
 	}
 	return v.ClientID
 }
-
-// IsSubscribed returns true if client is subscribed.
-/*func (r *registry) IsSubscribed(identifier string) bool {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	fmt.Printf("IS SUBSCRIBED REGISTRY [%s] \n", identifier)
-
-	_, ok := r.items[identifier]
-	return ok
-}*/
 
 // Subscriber returns client identifier assigned to given host.
 func (r *registry) Subscriber(hostPort string) (string, *Auth, bool) {
