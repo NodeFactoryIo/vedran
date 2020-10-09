@@ -357,7 +357,10 @@ func (c *Client) handleHandshake(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Datadope function
-	w.Write(b)
+	_, err = w.Write(b)
+	if err != nil {
+		c.logger.Error("handshake failed", err)
+	}
 }
 
 // Stop disconnects client from server.

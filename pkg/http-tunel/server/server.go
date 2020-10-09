@@ -223,8 +223,8 @@ func (s *Server) disconnected(identifier string) {
 
 	for _, l := range i.Listeners {
 		iclogger.Debugf("close listener for %v", l.Addr())
-		l.Close()
-		s.PortPool.Release(i.ClientName)
+		_ = l.Close()
+		_ = s.PortPool.Release(i.ClientName)
 	}
 }
 
@@ -390,7 +390,7 @@ func (s *Server) notifyError(serverError error, conid string) {
 	ctx, cancel := context.WithTimeout(context.Background(), tunnel.DefaultTimeout)
 	defer cancel()
 
-	s.httpClient.Do(req.WithContext(ctx))
+	_, _ = s.httpClient.Do(req.WithContext(ctx))
 }
 
 func (s *Server) adrListenRegister(in string, cid string, portname string) (string, error) {
@@ -733,6 +733,9 @@ func (s *Server) proxyHTTP(identifier string, r *http.Request, msg *proto.Contro
 // response the created request.
 func (s *Server) connectRequest(cname string, msg *proto.ControlMessage, r io.Reader) (*http.Request, error) {
 	conid := s.registry.GetID(cname)
+	if conid == "" {
+		return nil, errors.New("could not create request: ID not found")
+	}
 	req, err := http.NewRequest(http.MethodPut, s.connPool.URL(conid), r)
 	if err != nil {
 		return nil, fmt.Errorf("could not create request: %s", err)
