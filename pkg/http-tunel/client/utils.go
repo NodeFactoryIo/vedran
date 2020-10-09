@@ -39,7 +39,7 @@ func CreateProxy(m map[string]*Tunnel, logger *logrus.Entry) ProxyFunc {
 		case proto.HTTP:
 			u, err := url.Parse(t.Addr)
 			if err != nil {
-				logger.Fatal("invalid tunnel address: %s", err)
+				logger.Fatalf("invalid tunnel address: %v", err)
 			}
 			httpURL[t.Host] = u
 		case proto.TCP, proto.TCP4, proto.TCP6:

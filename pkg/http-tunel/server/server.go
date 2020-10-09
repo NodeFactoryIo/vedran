@@ -40,18 +40,19 @@ type Server struct {
 
 // ServerConfig defines all data needed for running the Server.
 type ServerConfig struct {
+	// TlsCrtFilePath specifies path to certificate file for tls connection
 	TlsCrtFilePath string
+	// TlsKeyFilePath specifies path to key file for tls connection
 	TlsKeyFilePath string
-	// Address is TCP address to listen for client connections. If empty ":0"
-	// is used.
+	// Address is TCP address to listen for client connections. If empty ":0" is used.
 	Address        string
-	// Address Pool enables Port AutoAssignation.
+	// Address Pool enables Port AutoAssignation. If empty "10000:50000" is used.
 	PortRange      string `default:"10000:50000"`
 	// AuthHandler is function validates provided auth token
 	AuthHandler    func(string) bool
 	// Logger is optional logger. If nil logging is disabled.
 	Logger         *log.Entry
-	// SNIAddress is TCP address to listen for TLS SNI connections
+	// SNIAddress is optional TCP address to listen for TLS SNI connections
 	SNIAddress string
 }
 
@@ -65,7 +66,8 @@ type serverData struct {
 	authHandler func(string) bool
 }
 
-// NewServer creates a new Server.
+// NewServer creates a new Server based on configuration.
+// Caller must invoke Start() on returned instance in order to start server
 func NewServer(config *ServerConfig) (*Server, error) {
 	serverData := &serverData{}
 
@@ -331,7 +333,7 @@ func (s *Server) handleClient(conn net.Conn) {
 	}
 
 	if resp.ContentLength == 0 {
-		err = fmt.Errorf("Tunnels Content-Legth: 0")
+		err = fmt.Errorf("tunnels Content-Legth: 0")
 		alogger.Error("handshake failed 3", err)
 		goto reject
 	}

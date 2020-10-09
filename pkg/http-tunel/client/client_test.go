@@ -23,13 +23,13 @@ func TestClient_Dial(t *testing.T) {
 	s := httptest.NewTLSServer(nil)
 	defer s.Close()
 
-	c, err := NewClient(&ClientConfig{
-		ServerAddr: s.Listener.Addr().String(),
-		TLSClientConfig: &tls.Config{
+	c, err := newClient(&clientData{
+		serverAddr: s.Listener.Addr().String(),
+		tlsClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
 		},
-		Tunnels: map[string]*proto.Tunnel{"test": {}},
-		Proxy:   Proxy(ProxyFuncs{}),
+		tunnels: map[string]*proto.Tunnel{"test": {}},
+		proxy:   Proxy(ProxyFuncs{}),
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -61,13 +61,13 @@ func TestClient_DialBackoff(t *testing.T) {
 		return nil, errors.New("foobar")
 	}
 
-	c, err := NewClient(&ClientConfig{
-		ServerAddr:      "8.8.8.8",
-		TLSClientConfig: &tls.Config{},
-		DialTLS:         d,
-		Backoff:         b,
-		Tunnels:         map[string]*proto.Tunnel{"test": {}},
-		Proxy:           Proxy(ProxyFuncs{}),
+	c, err := newClient(&clientData{
+		serverAddr:      "8.8.8.8",
+		tlsClientConfig: &tls.Config{},
+		dialTLS:         d,
+		backoff:         b,
+		tunnels:         map[string]*proto.Tunnel{"test": {}},
+		proxy:           Proxy(ProxyFuncs{}),
 	})
 	if err != nil {
 		t.Fatal(err)
