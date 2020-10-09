@@ -8,7 +8,6 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/router"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/server"
 	"github.com/asdine/storm/v3"
 	log "github.com/sirupsen/logrus"
 )
@@ -22,24 +21,6 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 		// terminate app: no auth secret provided
 		log.Fatalf("Unable to start vedran load balancer: %v", err)
 	}
-	// --------------------------------------------------------------------
-	l := log.New()
-	l.SetLevel(log.DebugLevel)
-	s, err := server.NewServer(&server.ServerConfig{
-		TlsCrtFilePath: "./pkg/http-tunel/testdata/selfsigned.crt",
-		TlsKeyFilePath: "./pkg/http-tunel/testdata/selfsigned.key",
-		Address:        ":5223",
-		PortRange:      "10000:50000",
-		AuthHandler: func(s string) bool {
-			return s == "test-token"
-		},
-		Logger: log.NewEntry(l),
-	})
-	if err != nil {
-		log.Error("SERVER ", err)
-	}
-	s.Start()
-	// --------------------------------------------------------------------
 
 	// init database
 	database, err := storm.Open("vedran-load-balancer.db")
