@@ -137,13 +137,3 @@ func (p *connPool) close(cp connPair, addr string) {
 		//p.free(p.identifier(addr))
 	}
 }
-
-/*func (p *connPool) addr(identifier id.ID) string {
-	return fmt.Sprint(identifier.String(), ":443")
-}*/
-
-/*func (p *connPool) identifier(addr string) id.ID {
-	var identifier id.ID
-	identifier.UnmarshalText([]byte(addr[:len(addr)-4]))
-	return identifier
-}*/
