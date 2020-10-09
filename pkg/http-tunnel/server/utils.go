@@ -114,6 +114,3 @@ func TlsServerConfig(tlsCrt string, tlsKey string, rootCA string) (*tls.Config, 
 		NextProtos:               []string{"h2"},
 	}, nil
 }
-
-
-

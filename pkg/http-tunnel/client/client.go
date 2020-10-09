@@ -9,8 +9,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunel"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/proto"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/proto"
 	log "github.com/sirupsen/logrus"
 	"net"
 	"net/http"
@@ -52,24 +52,24 @@ type ClientConfig struct {
 	// Tunnels specifies the tunnels client requests to be opened on server.
 	Tunnels map[string]*Tunnel
 	// Logger is optional logger. If nil logging is disabled.
-	Logger         *log.Entry
+	Logger *log.Entry
 	// AuthToken
 	AuthToken string
 }
 
 type clientData struct {
-	serverAddr string
+	serverAddr      string
 	tlsClientConfig *tls.Config
 	// dialTLS specifies an optional dial function that creates a tls
 	// connection to the server. If dialTLS is nil, tls.Dial is used.
 	dialTLS func(network, addr string, config *tls.Config) (net.Conn, error)
 	// backoff specifies backoff policy on server connection retry. If nil
 	// when dial fails it will not be retried.
-	backoff Backoff
-	tunnels map[string]*proto.Tunnel
-	proxy ProxyFunc
-	logger *log.Entry
-	idName string
+	backoff   Backoff
+	tunnels   map[string]*proto.Tunnel
+	proxy     ProxyFunc
+	logger    *log.Entry
+	idName    string
 	authToken string
 }
 
@@ -224,7 +224,7 @@ func (c *Client) dial() (net.Conn, error) {
 	doDial := func() (conn net.Conn, err error) {
 		c.logger.WithFields(log.Fields{
 			"network": network,
-			"addr": addr,
+			"addr":    addr,
 		}).Info("dial")
 
 		if c.config.dialTLS != nil {
@@ -254,7 +254,7 @@ func (c *Client) dial() (net.Conn, error) {
 
 			c.logger.WithFields(log.Fields{
 				"network": network,
-				"addr": addr,
+				"addr":    addr,
 			}).Error("dial failed", err)
 		}
 

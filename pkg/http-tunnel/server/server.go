@@ -10,8 +10,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunel"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/proto"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/proto"
 	"github.com/inconshreveable/go-vhost"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
@@ -45,24 +45,24 @@ type ServerConfig struct {
 	// TlsKeyFilePath specifies path to key file for tls connection
 	TlsKeyFilePath string
 	// Address is TCP address to listen for client connections. If empty ":0" is used.
-	Address        string
+	Address string
 	// Address Pool enables Port AutoAssignation. If empty "10000:50000" is used.
-	PortRange      string `default:"10000:50000"`
+	PortRange string `default:"10000:50000"`
 	// AuthHandler is function validates provided auth token
-	AuthHandler    func(string) bool
+	AuthHandler func(string) bool
 	// Logger is optional logger. If nil logging is disabled.
-	Logger         *log.Entry
+	Logger *log.Entry
 	// SNIAddress is optional TCP address to listen for TLS SNI connections
 	SNIAddress string
 }
 
 type serverData struct {
-	addr string
-	portRange string
-	tlsConfig *tls.Config
-	listener net.Listener
-	logger *log.Entry
-	sniAddr string
+	addr        string
+	portRange   string
+	tlsConfig   *tls.Config
+	listener    net.Listener
+	logger      *log.Entry
+	sniAddr     string
 	authHandler func(string) bool
 }
 
@@ -113,7 +113,6 @@ func NewServer(config *ServerConfig) (*Server, error) {
 
 	return newServer(serverData)
 }
-
 
 func newServer(serverData *serverData) (*Server, error) {
 	pPool := &AddrPool{}

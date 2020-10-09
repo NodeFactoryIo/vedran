@@ -5,7 +5,7 @@
 package client
 
 import (
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/proto"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/proto"
 	"io"
 )
 
