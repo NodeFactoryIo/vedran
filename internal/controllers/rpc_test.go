@@ -39,7 +39,8 @@ func TestApiController_RPCHandler(t *testing.T) {
 	nodeRepoMock := mocks.NodeRepository{}
 	pingRepoMock := mocks.PingRepository{}
 	metricsRepoMock := mocks.MetricsRepository{}
-	apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock)
+	recordRepoMock := mocks.RecordRepository{}
+	apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &recordRepoMock)
 	handler := http.HandlerFunc(apiController.RPCHandler)
 
 	tests := []struct {
@@ -131,7 +132,8 @@ func TestApiController_BatchRPCHandler(t *testing.T) {
 	nodeRepoMock := mocks.NodeRepository{}
 	pingRepoMock := mocks.PingRepository{}
 	metricsRepoMock := mocks.MetricsRepository{}
-	apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock)
+	recordRepoMock := mocks.RecordRepository{}
+	apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &recordRepoMock)
 	handler := http.HandlerFunc(apiController.RPCHandler)
 
 	tests := []struct {
@@ -211,7 +213,8 @@ func TestApiController_RPCHandler_InvalidBody(t *testing.T) {
 	nodeRepoMock := mocks.NodeRepository{}
 	pingRepoMock := mocks.PingRepository{}
 	metricsRepoMock := mocks.MetricsRepository{}
-	apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock)
+	recordRepoMock := mocks.RecordRepository{}
+	apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &recordRepoMock)
 	handler := http.HandlerFunc(apiController.RPCHandler)
 
 	for _, test := range tests {

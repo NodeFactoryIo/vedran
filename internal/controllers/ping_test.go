@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/internal/auth"
-	"github.com/NodeFactoryIo/vedran/internal/models"
-	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/NodeFactoryIo/vedran/internal/auth"
+	"github.com/NodeFactoryIo/vedran/internal/models"
+	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestApiController_PingHandler(t *testing.T) {
@@ -27,11 +28,12 @@ func TestApiController_PingHandler(t *testing.T) {
 			nodeRepoMock := mocks.NodeRepository{}
 			pingRepoMock := mocks.PingRepository{}
 			metricsRepoMock := mocks.MetricsRepository{}
+			recordRepoMock := mocks.RecordRepository{}
 			pingRepoMock.On("Save", &models.Ping{
 				NodeId:    "1",
 				Timestamp: timestamp,
 			}).Return(nil)
-			apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock)
+			apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &recordRepoMock)
 			handler := http.HandlerFunc(apiController.PingHandler)
 
 			// create test request and populate context

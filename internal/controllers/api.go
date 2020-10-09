@@ -9,6 +9,7 @@ type ApiController struct {
 	nodeRepo         models.NodeRepository
 	pingRepo         models.PingRepository
 	metricsRepo      models.MetricsRepository
+	recordRepo       models.RecordRepository
 }
 
 func NewApiController(
@@ -16,11 +17,13 @@ func NewApiController(
 	nodeRepo models.NodeRepository,
 	pingRepo models.PingRepository,
 	metricsRepo models.MetricsRepository,
+	recordRepo models.RecordRepository,
 ) *ApiController {
 	return &ApiController{
 		whitelistEnabled: whitelistEnabled,
 		nodeRepo:         nodeRepo,
 		pingRepo:         pingRepo,
 		metricsRepo:      metricsRepo,
+		recordRepo:       recordRepo,
 	}
 }
