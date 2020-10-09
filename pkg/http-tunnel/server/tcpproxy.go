@@ -6,8 +6,8 @@ package server
 
 import (
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunel"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/proto"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/proto"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net"

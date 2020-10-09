@@ -7,7 +7,7 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunel"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel"
 	"net"
 	"net/http"
 	"sync"

@@ -7,8 +7,8 @@ package client
 import (
 	"crypto/tls"
 	"errors"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/proto"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/tunnelmock"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/proto"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/tunnelmock"
 	"net"
 	"net/http/httptest"
 	"testing"

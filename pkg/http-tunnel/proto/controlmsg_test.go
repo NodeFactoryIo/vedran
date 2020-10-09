@@ -23,7 +23,7 @@ func TestControlMessageWriteRead(t *testing.T) {
 				Action:         "action",
 				ForwardedHost:  "forwarded_host",
 				ForwardedProto: "forwarded_proto",
-				ForwardedId: "forwarded_id",
+				ForwardedId:    "forwarded_id",
 			},
 			nil,
 		},
@@ -31,7 +31,7 @@ func TestControlMessageWriteRead(t *testing.T) {
 			&ControlMessage{
 				ForwardedHost:  "forwarded_host",
 				ForwardedProto: "forwarded_proto",
-				ForwardedId: "forwarded_id",
+				ForwardedId:    "forwarded_id",
 			},
 			errors.New("missing headers: [X-Action]"),
 		},
@@ -39,7 +39,7 @@ func TestControlMessageWriteRead(t *testing.T) {
 			&ControlMessage{
 				Action:        "action",
 				ForwardedHost: "forwarded_host",
-				ForwardedId: "forwarded_id",
+				ForwardedId:   "forwarded_id",
 			},
 			errors.New("missing headers: [X-Forwarded-Proto]"),
 		},
@@ -47,7 +47,7 @@ func TestControlMessageWriteRead(t *testing.T) {
 			&ControlMessage{
 				Action:         "action",
 				ForwardedProto: "forwarded_proto",
-				ForwardedId: "forwarded_id",
+				ForwardedId:    "forwarded_id",
 			},
 			errors.New("missing headers: [X-Forwarded-Host]"),
 		},

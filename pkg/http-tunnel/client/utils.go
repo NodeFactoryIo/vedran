@@ -4,8 +4,8 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/proto"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/server"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/proto"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/server"
 	"github.com/cenkalti/backoff"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
@@ -112,6 +112,3 @@ type Tunnel struct {
 	Host       string `yaml:"host,omitempty"`
 	RemoteAddr string `yaml:"remote_addr,omitempty"`
 }
-
-
-

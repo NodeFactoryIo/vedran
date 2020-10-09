@@ -7,7 +7,7 @@ package server
 import (
 	"bufio"
 	"context"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunel/proto"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/proto"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net"
@@ -128,7 +128,7 @@ func (p *HTTPProxy) Director(req *http.Request) {
 
 	p.logger.WithFields(log.Fields{
 		"from": &orig,
-		"to": req.URL,
+		"to":   req.URL,
 	}).Debug("url rewrite")
 }
 
