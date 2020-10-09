@@ -134,6 +134,7 @@ func TestApiController_BatchRPCHandler(t *testing.T) {
 	pingRepoMock := mocks.PingRepository{}
 	metricsRepoMock := mocks.MetricsRepository{}
 	recordRepoMock := mocks.RecordRepository{}
+	recordRepoMock.On("Save", mock.Anything).Return(nil)
 	apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &recordRepoMock)
 	handler := http.HandlerFunc(apiController.RPCHandler)
 
