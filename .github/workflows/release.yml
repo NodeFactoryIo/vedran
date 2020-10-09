@@ -49,6 +49,15 @@ jobs:
         shell: bash
         run: |
           make buildAll
+
+      - name: Generate changelog
+        uses: heinrichreimer/github-changelog-generator-action@v2.1.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          output: CHANGELOG.md
+          addSections: |
+            {"removal":{"prefix":"**Removal**","labels":["removal"]}}
+
       - name: Get Changelog Entry
         id: changelog_reader
         uses: mindsers/changelog-reader-action@v2
@@ -110,6 +119,16 @@ jobs:
           asset_path: ./vedran-darwin-amd64
           asset_name: vedran-macos
           asset_content_type: application/x-binary
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v5
+        with:
+          author_name: CI
+          author_email: ci@ci.com
+          message: "Update CHANGELOG"
+          add: "CHANGELOG.md"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       #in case of failure
       - name: Rollback on failure
