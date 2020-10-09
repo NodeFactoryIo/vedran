@@ -3,7 +3,8 @@ package models
 import "time"
 
 type Record struct {
-	NodeId    string `storm:"id"`
+	ID        int `storm:"id,increment"`
+	NodeId    string
 	Status    string
 	Timestamp time.Time
 }

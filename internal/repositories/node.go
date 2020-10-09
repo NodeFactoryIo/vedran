@@ -50,7 +50,7 @@ func (r *NodeRepo) FindByID(ID string) (*models.Node, error) {
 }
 
 func (r *NodeRepo) Save(node *models.Node) error {
-	r.AddNodeToActive(node)
+	r.AddNodeToActive(*node)
 
 	return r.db.Save(node)
 }
@@ -100,7 +100,7 @@ func (r *NodeRepo) GetActiveNodes(selection string) *[]models.Node {
 	return r.getRandomNodes()
 }
 
-func (r *NodeRepo) updateMemoryLastUsedTime(targetNode *models.Node) {
+func (r *NodeRepo) updateMemoryLastUsedTime(targetNode models.Node) {
 	for i, node := range memoryNodes {
 		if targetNode.ID == node.ID {
 			tempNode := &memoryNodes[i]
@@ -110,7 +110,7 @@ func (r *NodeRepo) updateMemoryLastUsedTime(targetNode *models.Node) {
 	}
 }
 
-func (r *NodeRepo) RemoveNodeFromActive(targetNode *models.Node) error {
+func (r *NodeRepo) RemoveNodeFromActive(targetNode models.Node) error {
 	for i, node := range memoryNodes {
 
 		if targetNode.ID == node.ID {
@@ -121,21 +121,21 @@ func (r *NodeRepo) RemoveNodeFromActive(targetNode *models.Node) error {
 
 	}
 
-	return fmt.Errorf("No target node in memory")
+	return fmt.Errorf("No target node %s in memory", targetNode.ID)
 }
 
-func (r *NodeRepo) AddNodeToActive(node *models.Node) {
-	memoryNodes = append(memoryNodes, *node)
+func (r *NodeRepo) AddNodeToActive(node models.Node) {
+	memoryNodes = append(memoryNodes, node)
 }
 
-func (r *NodeRepo) PenalizeNode(node *models.Node) {
+func (r *NodeRepo) PenalizeNode(node models.Node) {
 	err := r.RemoveNodeFromActive(node)
 	if err != nil {
 		log.Errorf("Failed penalizing node because of: %v", err)
 	}
 }
 
-func (r *NodeRepo) RewardNode(node *models.Node) {
+func (r *NodeRepo) RewardNode(node models.Node) {
 	r.updateMemoryLastUsedTime(node)
 
 	node.LastUsed = time.Now().Unix()
