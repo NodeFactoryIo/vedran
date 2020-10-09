@@ -78,8 +78,8 @@ func (r *registry) Subscribe(cname string, origaddr string) {
 	r.items[cname] = reg
 	r.logger.WithFields(log.Fields{
 		"client-name": cname,
-		"client-id": origaddr,
-		"data": reg,
+		"client-id":   origaddr,
+		"data":        reg,
 	}).Info("REGISTRY SUBSCRIBE")
 }
 
@@ -121,8 +121,8 @@ func (r *registry) Unsubscribe(identifier string, idname string) *RegistryItem {
 
 	r.logger.WithFields(log.Fields{
 		"identifier": identifier,
-		"id-name": idname,
-		"data": i,
+		"id-name":    idname,
+		"data":       i,
 	}).Info("REGISTRY UNSUBSCRIBE")
 
 	if i.Hosts != nil {
@@ -145,8 +145,8 @@ func (r *registry) set(i *RegistryItem, identifier string) error {
 	if !ok {
 		r.logger.WithFields(log.Fields{
 			"client-name": identifier,
-			"client-id": i.ClientID,
-			"data": i,
+			"client-id":   i.ClientID,
+			"data":        i,
 		}).Error("REGISTRY SET ERROR: client-name not found")
 
 		return errClientNotSubscribed
@@ -154,8 +154,8 @@ func (r *registry) set(i *RegistryItem, identifier string) error {
 
 	r.logger.WithFields(log.Fields{
 		"client-name": identifier,
-		"client-id": j.ClientID,
-		"data": j,
+		"client-id":   j.ClientID,
+		"data":        j,
 	}).Info("REGISTRY SET (OLD FOUND)")
 
 	//fmt.Printf("OLD REGISTRY Identifier [%s] value : %+v \n", identifier, j)
@@ -163,8 +163,8 @@ func (r *registry) set(i *RegistryItem, identifier string) error {
 
 	r.logger.WithFields(log.Fields{
 		"client-name": identifier,
-		"client-id": i.ClientID,
-		"data": i,
+		"client-id":   i.ClientID,
+		"data":        i,
 	}).Info("REGISTRY SET (NEW SET)")
 
 	if i.Hosts != nil {
@@ -212,7 +212,7 @@ func (r *registry) clear(identifier string) *RegistryItem {
 
 	iccloger := ilogger.WithFields(log.Fields{
 		"client-name": i.ClientName,
-		"client-id": i.ClientID,
+		"client-id":   i.ClientID,
 	})
 
 	iccloger.WithFields(log.Fields{
