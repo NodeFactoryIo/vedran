@@ -758,29 +758,3 @@ func (s *Server) Stop() {
 		s.listener.Close()
 	}
 }
-
-type PortInfo struct {
-	Name      string
-	LocalAddr string
-}
-
-type ClientInfo struct {
-	Name   string
-	Source string
-	Ports  []*PortInfo
-}
-
-func (s *Server) GetClientInfo() []*ClientInfo {
-	s.registry.mu.Lock()
-	defer s.registry.mu.Unlock()
-	ret := []*ClientInfo{}
-	for _, v := range s.registry.items {
-		c := &ClientInfo{Name: v.ClientName, Source: v.ClientID}
-		ret = append(ret, c)
-		for k, l := range v.ListenerNames {
-			p := &PortInfo{Name: l, LocalAddr: v.Listeners[k].Addr().String()}
-			c.Ports = append(c.Ports, p)
-		}
-	}
-	return ret
-}
