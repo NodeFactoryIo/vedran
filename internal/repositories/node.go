@@ -114,7 +114,7 @@ func (r *NodeRepo) RemoveNodeFromActive(targetNode *models.Node) error {
 	for i, node := range memoryNodes {
 
 		if targetNode.ID == node.ID {
-			memoryNodes[len(memoryNodes)-1], memoryNodes[i] = memoryNodes[i], memoryNodes[len(memoryNodes)-1]
+			memoryNodes[i] = memoryNodes[len(memoryNodes)-1]
 			memoryNodes = memoryNodes[:len(memoryNodes)-1]
 			return nil
 		}
