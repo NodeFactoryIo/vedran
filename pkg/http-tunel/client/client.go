@@ -20,42 +20,18 @@ import (
 	"golang.org/x/net/http2"
 )
 
-// ClientConfig is configuration of the Client.
-type ClientConfig struct {
-	// ServerAddr specifies TCP address of the tunnel server.
-	ServerAddr string
-	// TLSClientConfig specifies the tls configuration to use with
-	// tls.Client.
-	TLSClientConfig *tls.Config
-	// DialTLS specifies an optional dial function that creates a tls
-	// connection to the server. If DialTLS is nil, tls.Dial is used.
-	DialTLS func(network, addr string, config *tls.Config) (net.Conn, error)
-	// Backoff specifies backoff policy on server connection retry. If nil
-	// when dial fails it will not be retried.
-	Backoff Backoff
-	// Tunnels specifies the tunnels client requests to be opened on server.
-	Tunnels map[string]*proto.Tunnel
-	// Proxy is ProxyFunc responsible for transferring data between server
-	// and local services.
-	Proxy ProxyFunc
-	// Logger is optional logger. If nil logging is disabled.
-	Logger *log.Entry
-	// Idname is optional easy-identifier.
-	IdName string
-	// Auth token
-	AuthToken string
-}
-
-type TunnelExt struct {
-	IdName  string
-	Tunnels map[string]*proto.Tunnel
-}
+const (
+	DefaultBackoffInterval    = 500 * time.Millisecond
+	DefaultBackoffMultiplier  = 1.5
+	DefaultBackoffMaxInterval = 60 * time.Second
+	DefaultBackoffMaxTime     = 15 * time.Minute
+)
 
 // Client is responsible for creating connection to the server, handling control
 // messages. It uses ProxyFunc for transferring data between server and local
 // services.
 type Client struct {
-	config *ClientConfig
+	config *clientData
 
 	conn           net.Conn
 	connMu         sync.Mutex
@@ -65,23 +41,110 @@ type Client struct {
 	logger         *log.Entry
 }
 
+// ClientConfig is configuration of the Client.
+type ClientConfig struct {
+	// TlsCrtFilePath specifies path to certificate file for tls connection
+	TlsCrtFilePath string
+	// TlsKeyFilePath specifies path to key file for tls connection
+	TlsKeyFilePath string
+	// ServerAddress specifies TCP address of the tunnel server.
+	ServerAddress string
+	// Tunnels specifies the tunnels client requests to be opened on server.
+	Tunnels map[string]*Tunnel
+	// Logger is optional logger. If nil logging is disabled.
+	Logger         *log.Entry
+	// AuthToken
+	AuthToken string
+}
+
+type clientData struct {
+	serverAddr string
+	tlsClientConfig *tls.Config
+	// dialTLS specifies an optional dial function that creates a tls
+	// connection to the server. If dialTLS is nil, tls.Dial is used.
+	dialTLS func(network, addr string, config *tls.Config) (net.Conn, error)
+	// backoff specifies backoff policy on server connection retry. If nil
+	// when dial fails it will not be retried.
+	backoff Backoff
+	tunnels map[string]*proto.Tunnel
+	proxy ProxyFunc
+	logger *log.Entry
+	idName string
+	authToken string
+}
+
 // NewClient creates a new unconnected Client based on configuration. Caller
 // must invoke Start() on returned instance in order to connect server.
 func NewClient(config *ClientConfig) (*Client, error) {
-	if config.ServerAddr == "" {
-		return nil, errors.New("missing ServerAddr")
+	clientData := &clientData{}
+
+	if config.ServerAddress == "" {
+		return nil, errors.New("provided empty server address")
 	}
-	if config.TLSClientConfig == nil {
-		return nil, errors.New("missing TLSClientConfig")
+	clientData.serverAddr = config.ServerAddress
+
+	if config.AuthToken == "" {
+		return nil, errors.New("provided empty auth token")
 	}
-	if len(config.Tunnels) == 0 {
-		return nil, errors.New("missing Tunnels")
+	clientData.authToken = config.AuthToken
+
+	if config.TlsKeyFilePath == "" {
+		return nil, errors.New("provided tls key file path empty")
 	}
-	if config.Proxy == nil {
-		return nil, errors.New("missing Proxy")
+	if config.TlsCrtFilePath == "" {
+		return nil, errors.New("provided tls cert file path empty")
 	}
+	tlsconf, err := TlsClientConfig(
+		config.TlsCrtFilePath,
+		config.TlsKeyFilePath,
+		"",
+		config.ServerAddress)
+	if err != nil {
+		log.Error("TLS ", err)
+	}
+	clientData.tlsClientConfig = tlsconf
 
 	logger := config.Logger
+	if logger == nil {
+		l := log.New()
+		l.SetLevel(log.ErrorLevel)
+		logger = log.NewEntry(l)
+	}
+	clientData.logger = logger
+
+	if config.Tunnels == nil {
+		return nil, errors.New("tunnels maping is nil")
+	}
+	clientData.tunnels = MapTunnels(config.Tunnels)
+	clientData.proxy = CreateProxy(config.Tunnels, logger)
+
+	clientData.backoff = ExpBackoff(BackoffConfig{
+		Interval:    DefaultBackoffInterval,
+		Multiplier:  DefaultBackoffMultiplier,
+		MaxInterval: DefaultBackoffMaxInterval,
+		MaxTime:     DefaultBackoffMaxTime,
+	})
+
+	clientData.idName = "" // TODO
+
+	return newClient(clientData)
+}
+
+func newClient(config *clientData) (*Client, error) {
+	if config.serverAddr == "" {
+		return nil, errors.New("missing serverAddr")
+	}
+	if config.tlsClientConfig == nil {
+		return nil, errors.New("missing tlsClientConfig")
+	}
+	if len(config.tunnels) == 0 {
+		return nil, errors.New("missing tunnels")
+	}
+	if config.proxy == nil {
+		return nil, errors.New("missing proxy")
+	}
+
+	logger := config.logger
 	if logger == nil {
 		logger = log.NewEntry(log.StandardLogger())
 	}
@@ -154,8 +217,8 @@ func (c *Client) connect() (net.Conn, error) {
 func (c *Client) dial() (net.Conn, error) {
 	var (
 		network   = "tcp"
-		addr      = c.config.ServerAddr
-		tlsConfig = c.config.TLSClientConfig
+		addr      = c.config.serverAddr
+		tlsConfig = c.config.tlsClientConfig
 	)
 
 	doDial := func() (conn net.Conn, err error) {
@@ -164,8 +227,8 @@ func (c *Client) dial() (net.Conn, error) {
 			"addr": addr,
 		}).Info("dial")
 
-		if c.config.DialTLS != nil {
-			conn, err = c.config.DialTLS(network, addr, tlsConfig)
+		if c.config.dialTLS != nil {
+			conn, err = c.config.dialTLS(network, addr, tlsConfig)
 		} else {
 			d := &net.Dialer{
 				Timeout: tunnel.DefaultTimeout,
@@ -198,7 +261,7 @@ func (c *Client) dial() (net.Conn, error) {
 		return
 	}
 
-	b := c.config.Backoff
+	b := c.config.backoff
 	if b == nil {
 		return doDial()
 	}
@@ -248,7 +311,7 @@ func (c *Client) serveHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch msg.Action {
 	case proto.ActionProxy:
-		c.config.Proxy(w, r.Body, msg)
+		c.config.proxy(w, r.Body, msg)
 	default:
 		clogger.Error("unknown action")
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -266,23 +329,28 @@ func (c *Client) handleHandshakeError(w http.ResponseWriter, r *http.Request) {
 	c.connMu.Unlock()
 }
 
+type TunnelExt struct {
+	IdName  string
+	Tunnels map[string]*proto.Tunnel
+}
+
 func (c *Client) handleHandshake(w http.ResponseWriter, r *http.Request) {
 	c.logger.Infof("handshake for address %s", r.RemoteAddr)
 
-	w.Header().Add("X-Auth-Header", c.config.AuthToken)
+	w.Header().Add("X-Auth-Header", c.config.authToken)
 	w.WriteHeader(http.StatusOK)
 
 	// te := TunnelExt{
-	// 	IdName:  "pepito",
-	// 	Tunnels: c.config.Tunnels,
+	// 	idName:  "pepito",
+	// 	tunnels: c.config.tunnels,
 	// }
 
 	te := TunnelExt{
-		IdName:  c.config.IdName,
-		Tunnels: c.config.Tunnels,
+		IdName:  c.config.idName,
+		Tunnels: c.config.tunnels,
 	}
 
-	// b, err := json.Marshal(c.config.Tunnels)
+	// b, err := json.Marshal(c.config.tunnels)
 	b, err := json.Marshal(te)
 	if err != nil {
 		c.logger.Error("handshake failed", err)
