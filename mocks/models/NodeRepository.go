@@ -13,7 +13,7 @@ type NodeRepository struct {
 }
 
 // AddNodeToActive provides a mock function with given fields: node
-func (_m *NodeRepository) AddNodeToActive(node *models.Node) {
+func (_m *NodeRepository) AddNodeToActive(node models.Node) {
 	_m.Called(node)
 }
 
@@ -101,16 +101,16 @@ func (_m *NodeRepository) IsNodeWhitelisted(ID string) (bool, error) {
 }
 
 // PenalizeNode provides a mock function with given fields: node
-func (_m *NodeRepository) PenalizeNode(node *models.Node) {
+func (_m *NodeRepository) PenalizeNode(node models.Node) {
 	_m.Called(node)
 }
 
 // RemoveNodeFromActive provides a mock function with given fields: node
-func (_m *NodeRepository) RemoveNodeFromActive(node *models.Node) error {
+func (_m *NodeRepository) RemoveNodeFromActive(node models.Node) error {
 	ret := _m.Called(node)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Node) error); ok {
+	if rf, ok := ret.Get(0).(func(models.Node) error); ok {
 		r0 = rf(node)
 	} else {
 		r0 = ret.Error(0)
@@ -120,7 +120,7 @@ func (_m *NodeRepository) RemoveNodeFromActive(node *models.Node) error {
 }
 
 // RewardNode provides a mock function with given fields: node
-func (_m *NodeRepository) RewardNode(node *models.Node) {
+func (_m *NodeRepository) RewardNode(node models.Node) {
 	_m.Called(node)
 }
 

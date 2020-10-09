@@ -7,6 +7,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// FailedRequest should be called when rpc response is invalid to penalize node.
+// It does not return value as it should be called in separate goroutine
 func FailedRequest(node models.Node, nodeRepo models.NodeRepository, recordRepo models.RecordRepository) {
 	nodeRepo.PenalizeNode(node)
 
@@ -20,6 +22,8 @@ func FailedRequest(node models.Node, nodeRepo models.NodeRepository, recordRepo 
 	}
 }
 
+// SuccessfulRequest should be called when rpc response is valid to reward node.
+// It does not return value as it should be called in separate goroutine
 func SuccessfulRequest(node models.Node, nodeRepo models.NodeRepository, recordRepo models.RecordRepository) {
 	nodeRepo.RewardNode(node)
 
