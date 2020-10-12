@@ -1,7 +1,6 @@
 package client
 
 import (
-	"fmt"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/proto"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/server"
 	"github.com/cenkalti/backoff"
@@ -30,7 +29,7 @@ func CreateProxy(m map[string]*Tunnel, logger *logrus.Entry) ProxyFunc {
 	tcpAddr := make(map[string]string)
 
 	for v, t := range m {
-		fmt.Printf("Creating proxy for %#+v/%#+v\n", v, t)
+		logger.Debugf("Creating proxy for %#+v/%#+v\n", v, t)
 		switch t.Protocol {
 		case proto.HTTP:
 			u, err := url.Parse(t.Addr)
@@ -39,7 +38,7 @@ func CreateProxy(m map[string]*Tunnel, logger *logrus.Entry) ProxyFunc {
 			}
 			httpURL[t.Host] = u
 		case proto.TCP, proto.TCP4, proto.TCP6:
-			fmt.Printf("Setting config for %s | REMOTE: %s | LOCAL: %s\n", v, t.RemoteAddr, t.Addr)
+			logger.Debugf("Setting config for %s | REMOTE: %s | LOCAL: %s\n", v, t.RemoteAddr, t.Addr)
 			tcpAddr[v] = t.Addr
 		case proto.SNI:
 			tcpAddr[t.Host] = t.Addr

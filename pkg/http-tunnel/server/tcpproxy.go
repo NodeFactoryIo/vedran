@@ -43,10 +43,10 @@ func NewTCPProxy(localAddr string, logger *log.Entry) *TCPProxy {
 // NewMultiTCPProxy creates a new dispatching TCPProxy, connections may go to
 // different backends based on localAddrMap.
 func NewMultiTCPProxy(localAddrMap map[string]string, logger *log.Entry) *TCPProxy {
-	fmt.Printf("Creating New TCPProxy %+v\n", localAddrMap)
 	if logger == nil {
 		logger = log.NewEntry(log.StandardLogger())
 	}
+	logger.Debugf("Creating New TCPProxy %+v\n", localAddrMap)
 	return &TCPProxy{
 		localAddrMap: localAddrMap,
 		logger:       logger,
@@ -110,32 +110,27 @@ func (p *TCPProxy) Proxy(w io.Writer, r io.ReadCloser, msg *proto.ControlMessage
 func (p *TCPProxy) localAddrFor(hostPort string) string {
 
 	if len(p.localAddrMap) == 0 {
-		//		fmt.Printf("TCPPROXY localAddrFor Len Map %d: %s\n ", len(p.localAddrMap), p.localAddr)
 		return p.localAddr
 	}
 
 	// try hostPort
 	if addr := p.localAddrMap[hostPort]; addr != "" {
-		//		fmt.Printf("TCPPROXY Try HostPort Address %s\n ", addr)
 		return addr
 	}
 
 	// try port
 	host, port, _ := net.SplitHostPort(hostPort)
 	if addr := p.localAddrMap[port]; addr != "" {
-		//		fmt.Printf("TCPPROXY Try PORT Address %s\n ", addr)
 		return addr
 	}
 
 	// try 0.0.0.0:port
 	if addr := p.localAddrMap[fmt.Sprintf("0.0.0.0:%s", port)]; addr != "" {
-		//		fmt.Printf("TCPPROXY Try 0.0.0.0:PORT HostPort Address %s\n ", addr)
 		return addr
 	}
 
 	// try host
 	if addr := p.localAddrMap[host]; addr != "" {
-		//		fmt.Printf("TCPPROXY Try HOST HostPort Address %s\n ", addr)
 		return addr
 	}
 
