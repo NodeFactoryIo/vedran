@@ -109,8 +109,6 @@ func (p *TCPProxy) Proxy(w io.Writer, r io.ReadCloser, msg *proto.ControlMessage
 
 func (p *TCPProxy) localAddrFor(hostPort string) string {
 
-	//	fmt.Printf("TCPPROXY localAddrFor GET FROM %s: %#+v\n ", hostPort, p.localAddrMap)
-
 	if len(p.localAddrMap) == 0 {
 		//		fmt.Printf("TCPPROXY localAddrFor Len Map %d: %s\n ", len(p.localAddrMap), p.localAddr)
 		return p.localAddr
