@@ -11,7 +11,7 @@ import (
 	"net"
 )
 
-func keepAlive(conn net.Conn) error {
+func KeepAlive(conn net.Conn) error {
 	c, ok := conn.(*net.TCPConn)
 	if !ok {
 		return fmt.Errorf("Bad connection type: %T", c)
