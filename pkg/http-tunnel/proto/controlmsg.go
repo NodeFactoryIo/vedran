@@ -68,9 +68,9 @@ func ReadControlMessage(r *http.Request) (*ControlMessage, error) {
 	if msg.ForwardedProto == "" {
 		missing = append(missing, HeaderForwardedProto)
 	}
-	//if msg.ForwardedId == "" {
-	//	missing = append(missing, HeaderForwardedId)
-	//}
+	if msg.ForwardedId == "" {
+		missing = append(missing, HeaderForwardedId)
+	}
 
 	if len(missing) != 0 {
 		return nil, fmt.Errorf("missing headers: %s", missing)
@@ -81,7 +81,7 @@ func ReadControlMessage(r *http.Request) (*ControlMessage, error) {
 
 // WriteToHeader writes ControlMessage to HTTP header.
 func (c *ControlMessage) WriteToHeader(h http.Header) {
-	h.Set(HeaderAction, string(c.Action))
+	h.Set(HeaderAction, c.Action)
 	h.Set(HeaderForwardedHost, c.ForwardedHost)
 	h.Set(HeaderForwardedProto, c.ForwardedProto)
 	h.Set(HeaderForwardedId, c.ForwardedId)

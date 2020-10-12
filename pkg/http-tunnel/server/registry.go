@@ -74,7 +74,6 @@ func (r *registry) Subscribe(cname string, origaddr string) {
 	}
 	reg := r.source[origaddr]
 	reg.ClientName = cname
-	//fmt.Printf("SUBSCRIBE REGISTRY Client Name: [%s] Client ID: [%s] value : %+v \n", cname, origaddr, reg)
 	r.items[cname] = reg
 	r.logger.WithFields(log.Fields{
 		"client-name": cname,
@@ -158,7 +157,6 @@ func (r *registry) set(i *RegistryItem, identifier string) error {
 		"data":        j,
 	}).Info("REGISTRY SET (OLD FOUND)")
 
-	//fmt.Printf("OLD REGISTRY Identifier [%s] value : %+v \n", identifier, j)
 	i.ClientID = j.ClientID
 
 	r.logger.WithFields(log.Fields{
@@ -184,7 +182,6 @@ func (r *registry) set(i *RegistryItem, identifier string) error {
 			}
 		}
 	}
-	//fmt.Printf("SET REGISTRY Identifier [%s] value : %+v \n", identifier, i)
 	r.items[identifier] = i
 	r.source[i.ClientID] = i
 
@@ -200,7 +197,6 @@ func (r *registry) clear(identifier string) *RegistryItem {
 		"identifier": identifier,
 	})
 
-	//i, ok := r.items[identifier]
 	i, ok := r.source[identifier]
 	if !ok || i == nil {
 		ilogger.WithFields(log.Fields{
@@ -208,7 +204,6 @@ func (r *registry) clear(identifier string) *RegistryItem {
 		}).Error("error on clear register")
 		return nil
 	}
-	//fmt.Printf("CLEAR REGISTRY Identifier [%s] value : %+v \n", identifier, i)
 
 	iccloger := ilogger.WithFields(log.Fields{
 		"client-name": i.ClientName,

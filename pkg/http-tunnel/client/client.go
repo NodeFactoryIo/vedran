@@ -323,17 +323,11 @@ func (c *Client) handleHandshake(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("X-Auth-Header", c.config.authToken)
 	w.WriteHeader(http.StatusOK)
 
-	// te := TunnelExt{
-	// 	idName:  "pepito",
-	// 	tunnels: c.config.tunnels,
-	// }
-
 	te := TunnelExt{
 		IdName:  c.config.idName,
 		Tunnels: c.config.tunnels,
 	}
 
-	// b, err := json.Marshal(c.config.tunnels)
 	b, err := json.Marshal(te)
 	if err != nil {
 		c.logger.Error("handshake failed", err)

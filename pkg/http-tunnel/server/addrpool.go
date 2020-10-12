@@ -8,7 +8,6 @@ import (
 )
 
 type RemoteID struct {
-	//ConnID   id.ID
 	ClientID string
 	PortName string
 }

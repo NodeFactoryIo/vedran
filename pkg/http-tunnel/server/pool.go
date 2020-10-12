@@ -8,12 +8,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel"
+	"golang.org/x/net/http2"
 	"net"
 	"net/http"
 	"sync"
 	"time"
-
-	"golang.org/x/net/http2"
 )
 
 type connPair struct {
@@ -36,10 +35,6 @@ func newConnPool(t *http2.Transport, f func(identifier string)) *connPool {
 	}
 }
 
-/*func (p *connPool) URL(identifier id.ID) string {
-	return fmt.Sprint("https://", identifier)
-}*/
-
 func (p *connPool) URL(identifier string) string {
 	return fmt.Sprint("https://", identifier)
 }
@@ -47,12 +42,9 @@ func (p *connPool) URL(identifier string) string {
 func (p *connPool) GetClientConn(req *http.Request, addr string) (*http2.ClientConn, error) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
-	//fmt.Printf("GET CLIENNNNNNNNT CONNNNNNNN---------%s : ", addr)
 	if cp, ok := p.conns[addr]; ok && cp.clientConn.CanTakeNewRequest() {
-		//fmt.Printf(" OK --------%#+v\n", cp)
 		return cp.clientConn, nil
 	}
-	//fmt.Printf(" ERROR--------%s\n", errClientNotConnected.Error())
 	return nil, errClientNotConnected
 }
 
@@ -98,7 +90,6 @@ func (p *connPool) DeleteConn(identifier string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	//addr := p.addr(identifier)
 	addr := identifier
 
 	if cp, ok := p.conns[addr]; ok {
@@ -110,7 +101,6 @@ func (p *connPool) Ping(identifier string) (time.Duration, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	//addr := p.addr(identifier)
 	addr := identifier
 
 	if cp, ok := p.conns[addr]; ok {
@@ -134,6 +124,5 @@ func (p *connPool) close(cp connPair, addr string) {
 	delete(p.conns, addr)
 	if p.free != nil {
 		p.free(addr)
-		//p.free(p.identifier(addr))
 	}
 }
