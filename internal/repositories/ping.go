@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"time"
+
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/asdine/storm/v3"
 )
@@ -29,4 +31,13 @@ func (r PingRepo) GetAll() (*[]models.Ping, error) {
 	var pings []models.Ping
 	err := r.db.All(&pings)
 	return &pings, err
+}
+
+func (r PingRepo) CalculateDowntime(nodeId string) (time.Time, time.Duration, error) {
+	lastPing, err := r.FindByNodeID(nodeId)
+	if err != nil {
+		return time.Now(), time.Duration(0), err
+	}
+
+	return lastPing.Timestamp, lastPing.Timestamp.Sub(time.Now()), nil
 }
