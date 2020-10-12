@@ -2,8 +2,6 @@ package auth
 
 import (
 	"context"
-	"fmt"
-	"github.com/dgrijalva/jwt-go"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"time"
@@ -21,14 +19,7 @@ type RequestContext struct {
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		jwtToken := r.Header.Get("X-Auth-Header")
-
-		token, err := jwt.ParseWithClaims(jwtToken, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-			}
-			return []byte(authSecret), nil
-		})
-
+		token, err := ParseJwtTokenWithCustomClaims(jwtToken)
 		if err == nil {
 			if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 				c := &RequestContext{

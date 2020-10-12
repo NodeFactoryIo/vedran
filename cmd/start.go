@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/httptunnel"
 
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/loadbalancer"
@@ -122,6 +123,7 @@ func init() {
 
 func startCommand(_ *cobra.Command, _ []string) {
 	DisplayBanner()
+	httptunnel.StartHttpTunnelServer()
 	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
 		AuthSecret: authSecret,
 		Name:       name,
