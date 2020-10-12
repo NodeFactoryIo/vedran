@@ -2,14 +2,13 @@ package loadbalancer
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/router"
 	"github.com/asdine/storm/v3"
 	log "github.com/sirupsen/logrus"
+	"net/http"
 )
 
 func StartLoadBalancerServer(props configuration.Configuration) {
