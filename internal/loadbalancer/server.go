@@ -2,14 +2,15 @@ package loadbalancer
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/router"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/server"
 	"github.com/asdine/storm/v3"
+	"github.com/dgrijalva/jwt-go"
 	log "github.com/sirupsen/logrus"
+	"net/http"
 )
 
 func StartLoadBalancerServer(props configuration.Configuration) {
@@ -21,7 +22,35 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 		// terminate app: no auth secret provided
 		log.Fatalf("Unable to start vedran load balancer: %v", err)
 	}
+	// ---------------------------------------------
+	l := log.New()
+	l.SetLevel(log.DebugLevel)
+	s, err := server.NewServer(&server.ServerConfig{
+		Address:        ":5223",
+		PortRange:      "10000:50000",
+		AuthHandler: func(s string) bool {
+			token, err := jwt.ParseWithClaims(s, &auth.CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+				}
+				return []byte("authsecret"), nil
+			})
 
+			if err == nil {
+				if _, ok := token.Claims.(*auth.CustomClaims); ok && token.Valid {
+					return true
+				}
+			}
+
+			return false
+		},
+		Logger: log.NewEntry(l),
+	})
+	if err != nil {
+		log.Error("SERVER ", err)
+	}
+	go s.Start()
+	// ---------------------------------------------
 	// init database
 	database, err := storm.Open("vedran-load-balancer.db")
 	if err != nil {
