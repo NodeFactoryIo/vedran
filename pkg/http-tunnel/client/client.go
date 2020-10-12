@@ -11,12 +11,11 @@ import (
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/proto"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/net/http2"
 	"net"
 	"net/http"
 	"sync"
 	"time"
-
-	"golang.org/x/net/http2"
 )
 
 const (
