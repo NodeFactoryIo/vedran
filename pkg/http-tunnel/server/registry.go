@@ -101,8 +101,7 @@ func (r *registry) Subscriber(hostPort string) (string, *Auth, bool) {
 	if !ok {
 		return "", nil, false
 	}
-	fmt.Printf("SUBSCRIBER REGISTRY [%s] value : %+v \n", hostPort, h)
-
+	r.logger.Debugf("SUBSCRIBER REGISTRY [%s] value : %+v \n", hostPort, h)
 	return h.identifier, h.auth, ok
 }
 
@@ -113,11 +112,10 @@ func (r *registry) Unsubscribe(identifier string, idname string) *RegistryItem {
 
 	i, ok := r.items[identifier]
 	if !ok {
-		fmt.Printf("UNSUBSCRIBE REGISTRY error not found ID [%s] Idname [%s] value : %+v \n", identifier, idname, i)
+		r.logger.Debugf("UNSUBSCRIBE REGISTRY error not found ID [%s] Idname [%s] value : %+v \n", identifier, idname, i)
 		return nil
 	}
-	fmt.Printf("UNSUBSCRIBE REGISTRY Identifier [%s] Idname [%s] value : %+v \n", identifier, idname, i)
-
+	r.logger.Debugf("UNSUBSCRIBE REGISTRY Identifier [%s] Idname [%s] value : %+v \n", identifier, idname, i)
 	r.logger.WithFields(log.Fields{
 		"identifier": identifier,
 		"id-name":    idname,
