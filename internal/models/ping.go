@@ -12,5 +12,5 @@ type PingRepository interface {
 	Save(ping *Ping) error
 	GetAll() (*[]Ping, error)
 	// Calculates last ping time and downtime duration
-	CalculateDowntime(nodeId string) (time.Time, time.Duration, error)
+	CalculateDowntime(nodeId string, pingTime time.Time) (time.Time, time.Duration, error)
 }

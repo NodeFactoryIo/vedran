@@ -33,11 +33,11 @@ func (r PingRepo) GetAll() (*[]models.Ping, error) {
 	return &pings, err
 }
 
-func (r PingRepo) CalculateDowntime(nodeId string) (time.Time, time.Duration, error) {
+func (r PingRepo) CalculateDowntime(nodeId string, pingTime time.Time) (time.Time, time.Duration, error) {
 	lastPing, err := r.FindByNodeID(nodeId)
 	if err != nil {
-		return time.Now(), time.Duration(0), err
+		return pingTime, time.Duration(0), err
 	}
 
-	return lastPing.Timestamp, lastPing.Timestamp.Sub(time.Now()), nil
+	return lastPing.Timestamp, lastPing.Timestamp.Sub(pingTime), nil
 }
