@@ -53,8 +53,10 @@ type ClientConfig struct {
 	Tunnels map[string]*Tunnel
 	// Logger is optional logger. If nil logging is disabled.
 	Logger *log.Entry
-	// AuthToken
+	// AuthToken authentication token used to establish http tunnel
 	AuthToken string
+	// IdName optional name for client
+	IdName string
 }
 
 type clientData struct {
@@ -125,36 +127,17 @@ func NewClient(config *ClientConfig) (*Client, error) {
 		MaxTime:     DefaultBackoffMaxTime,
 	})
 
-	clientData.idName = "" // TODO
+	clientData.idName = config.IdName
 
 	return newClient(clientData)
 }
 
 func newClient(config *clientData) (*Client, error) {
-	if config.serverAddr == "" {
-		return nil, errors.New("missing serverAddr")
-	}
-	if config.tlsClientConfig == nil {
-		return nil, errors.New("missing tlsClientConfig")
-	}
-	if len(config.tunnels) == 0 {
-		return nil, errors.New("missing tunnels")
-	}
-	if config.proxy == nil {
-		return nil, errors.New("missing proxy")
-	}
-
-	logger := config.logger
-	if logger == nil {
-		logger = log.NewEntry(log.StandardLogger())
-	}
-
 	c := &Client{
 		config:     config,
 		httpServer: &http2.Server{},
-		logger:     logger,
+		logger:     config.logger,
 	}
-
 	return c, nil
 }
 
