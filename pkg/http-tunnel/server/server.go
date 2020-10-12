@@ -47,8 +47,6 @@ type ServerConfig struct {
 	AuthHandler func(string) bool
 	// Logger is optional logger. If nil logging is disabled.
 	Logger *log.Entry
-	// SNIAddress is optional TCP address to listen for TLS SNI connections
-	SNIAddress string
 }
 
 type serverData struct {
@@ -56,7 +54,6 @@ type serverData struct {
 	portRange   string
 	listener    net.Listener
 	logger      *log.Entry
-	sniAddr     string
 	authHandler func(string) bool
 }
 
@@ -88,8 +85,6 @@ func NewServer(config *ServerConfig) (*Server, error) {
 		return nil, errors.New("provided auth handler is nil")
 	}
 	serverData.authHandler = config.AuthHandler
-
-	serverData.sniAddr = config.SNIAddress
 
 	return newServer(serverData)
 }
@@ -125,41 +120,6 @@ func newServer(serverData *serverData) (*Server, error) {
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
-	}
-
-	if serverData.sniAddr != "" {
-		l, err := net.Listen("tcp", serverData.sniAddr)
-		if err != nil {
-			return nil, err
-		}
-		mux, err := vhost.NewTLSMuxer(l, tunnel.DefaultTimeout)
-		if err != nil {
-			return nil, fmt.Errorf("SNI Muxer creation failed: %s", err)
-		}
-		s.vhostMuxer = mux
-		go func() {
-			for {
-				conn, err := mux.NextError()
-				vhostName := ""
-				tlsConn, ok := conn.(*vhost.TLSConn)
-				if ok {
-					vhostName = tlsConn.Host()
-				}
-
-				switch err.(type) {
-				case vhost.BadRequest:
-					serverData.logger.Errorf("got a bad request for address %v", conn.RemoteAddr())
-				case vhost.NotFound:
-					serverData.logger.Errorf("got a connection for an unknown vhost %s", vhostName)
-				case vhost.Closed:
-					serverData.logger.Errorf("closed connection for vhost %s", vhostName)
-				}
-
-				if conn != nil {
-					conn.Close()
-				}
-			}
-		}()
 	}
 
 	return s, nil
@@ -492,16 +452,9 @@ func (s *Server) listen(l net.Listener, cname string, pname string) {
 			ForwardedProto: l.Addr().Network(),
 		}
 
-		tlsConn, ok := conn.(*vhost.TLSConn)
-		if ok {
-			msg.ForwardedHost = tlsConn.Host()
-			err = tunnel.KeepAlive(tlsConn.Conn)
-
-		} else {
-			msg.ForwardedId = pname
-			msg.ForwardedHost = l.Addr().String()
-			err = tunnel.KeepAlive(conn)
-		}
+		msg.ForwardedId = pname
+		msg.ForwardedHost = l.Addr().String()
+		err = tunnel.KeepAlive(conn)
 
 		cpclogger := cplogger.WithFields(log.Fields{"ctrl-msg": msg})
 		if err != nil {

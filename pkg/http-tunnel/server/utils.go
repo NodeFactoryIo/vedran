@@ -5,11 +5,8 @@
 package server
 
 import (
-	"crypto/tls"
-	"crypto/x509"
 	log "github.com/sirupsen/logrus"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"strings"
@@ -77,40 +74,4 @@ func (fw flushWriter) Write(p []byte) (n int, err error) {
 		f.Flush()
 	}
 	return
-}
-
-func TlsServerConfig(tlsCrt string, tlsKey string, rootCA string) (*tls.Config, error) {
-	// load certs
-	cert, err := tls.LoadX509KeyPair(tlsCrt, tlsKey)
-	if err != nil {
-		return nil, err
-	}
-
-	// load root CA for client authentication
-	clientAuth := tls.RequireAnyClientCert
-	var roots *x509.CertPool
-	if rootCA != "" {
-		roots = x509.NewCertPool()
-		rootPEM, err := ioutil.ReadFile(rootCA)
-		if err != nil {
-			return nil, err
-		}
-		if ok := roots.AppendCertsFromPEM(rootPEM); !ok {
-			return nil, err
-		}
-		clientAuth = tls.RequireAndVerifyClientCert
-	}
-
-	return &tls.Config{
-		Certificates:           []tls.Certificate{cert},
-		ClientAuth:             clientAuth,
-		ClientCAs:              roots,
-		SessionTicketsDisabled: true,
-		MinVersion:             tls.VersionTLS12,
-		CipherSuites: []uint16{
-			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256},
-		PreferServerCipherSuites: true,
-		NextProtos:               []string{"h2"},
-	}, nil
 }

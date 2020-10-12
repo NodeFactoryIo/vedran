@@ -1,15 +1,11 @@
 package client
 
 import (
-	"crypto/tls"
-	"crypto/x509"
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/proto"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/server"
 	"github.com/cenkalti/backoff"
 	"github.com/sirupsen/logrus"
-	"io/ioutil"
-	"net"
 	"net/url"
 	"time"
 )
@@ -54,37 +50,6 @@ func CreateProxy(m map[string]*Tunnel, logger *logrus.Entry) ProxyFunc {
 		HTTP: server.NewMultiHTTPProxy(httpURL, logger.WithField("proxy", "HTTP")).Proxy,
 		TCP:  server.NewMultiTCPProxy(tcpAddr, logger.WithField("proxy", "TCP")).Proxy,
 	})
-}
-
-func TlsClientConfig(TLSCrt string, TLSKey string, RootCA string, ServerAddr string) (*tls.Config, error) {
-	cert, err := tls.LoadX509KeyPair(TLSCrt, TLSKey)
-	if err != nil {
-		return nil, err
-	}
-
-	var roots *x509.CertPool
-	if RootCA != "" {
-		roots = x509.NewCertPool()
-		rootPEM, err := ioutil.ReadFile(RootCA)
-		if err != nil {
-			return nil, err
-		}
-		if ok := roots.AppendCertsFromPEM(rootPEM); !ok {
-			return nil, err
-		}
-	}
-
-	host, _, err := net.SplitHostPort(ServerAddr)
-	if err != nil {
-		return nil, err
-	}
-
-	return &tls.Config{
-		ServerName:         host,
-		Certificates:       []tls.Certificate{cert},
-		InsecureSkipVerify: roots == nil,
-		RootCAs:            roots,
-	}, nil
 }
 
 // BackoffConfig defines behavior of staggering reconnection retries.
