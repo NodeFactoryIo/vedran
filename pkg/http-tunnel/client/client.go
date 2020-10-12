@@ -121,7 +121,7 @@ func newClient(config *clientData) (*Client, error) {
 // error a backoff policy is used to reestablish the connection. When connected
 // HTTP/2 server is started to handle ControlMessages.
 func (c *Client) Start() error {
-	c.logger.Info("start http-tunnel client")
+	c.logger.Debug("start http-tunnel client")
 
 	for {
 		conn, err := c.connect()
@@ -133,7 +133,7 @@ func (c *Client) Start() error {
 			Handler: http.HandlerFunc(c.serveHTTP),
 		})
 
-		c.logger.Info("disconnected")
+		c.logger.Debug("disconnected")
 
 		c.connMu.Lock()
 		now := time.Now()
@@ -182,7 +182,7 @@ func (c *Client) dial() (net.Conn, error) {
 		c.logger.WithFields(log.Fields{
 			"network": network,
 			"addr":    addr,
-		}).Info("dial")
+		}).Debug("dial")
 
 		d := &net.Dialer{
 			Timeout: tunnel.DefaultTimeout,
@@ -282,7 +282,7 @@ type TunnelExt struct {
 }
 
 func (c *Client) handleHandshake(w http.ResponseWriter, r *http.Request) {
-	c.logger.Infof("handshake for address %s", r.RemoteAddr)
+	c.logger.Debugf("handshake for address %s", r.RemoteAddr)
 
 	w.Header().Add("X-Auth-Header", c.config.authToken)
 	w.WriteHeader(http.StatusOK)
@@ -309,7 +309,7 @@ func (c *Client) Stop() {
 	c.connMu.Lock()
 	defer c.connMu.Unlock()
 
-	c.logger.Info("stop http-tunnel client")
+	c.logger.Debug("stop http-tunnel client")
 
 	if c.conn != nil {
 		c.conn.Close()

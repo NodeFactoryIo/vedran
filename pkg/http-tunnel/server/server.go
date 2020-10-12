@@ -165,7 +165,7 @@ func (s *Server) Start() {
 	addr := s.listener.Addr().String()
 
 	alogger := s.logger.WithFields(log.Fields{"address": addr})
-	alogger.Info("start http-tunnel server")
+	alogger.Debug("start http-tunnel server")
 
 	for {
 		conn, err := s.listener.Accept()
@@ -194,7 +194,7 @@ type TunnelExt struct {
 
 func (s *Server) handleClient(conn net.Conn) {
 	alogger := s.logger.WithFields(log.Fields{"address": conn.RemoteAddr()})
-	alogger.Info("try connect")
+	alogger.Debug("try connect")
 
 	var (
 		conid   string
@@ -274,7 +274,7 @@ func (s *Server) handleClient(conn net.Conn) {
 		goto reject
 	}
 
-	alogger.Infof("client name has been set to %s and id %s", tunnels.IdName, conid)
+	alogger.Debugf("client name has been set to %s and id %s", tunnels.IdName, conid)
 
 	s.Subscribe(tunnels.IdName, conid)
 
@@ -289,12 +289,12 @@ func (s *Server) handleClient(conn net.Conn) {
 		goto reject
 	}
 
-	alogger.Infof("%s connected", tunnels.IdName)
+	alogger.Debugf("%s connected", tunnels.IdName)
 
 	return
 
 reject:
-	log.Info("rejected")
+	alogger.Debug("rejected")
 
 	if inConnPool {
 		s.notifyError(err, conid)
@@ -339,7 +339,7 @@ func (s *Server) adrListenRegister(in string, cid string, portname string) (stri
 			"client-id": cid,
 			"portname":  portname,
 			"address":   addr,
-		}).Info("address auto assign")
+		}).Debug("address auto assign")
 
 		return addr, nil
 	}
@@ -375,7 +375,7 @@ func (s *Server) addTunnels(cname string, tunnels map[string]*proto.Tunnel) erro
 				goto rollback
 			}
 
-			cplogger.Infof("open listener for address %v", l.Addr())
+			cplogger.Debugf("open listener for address %v", l.Addr())
 
 			i.Listeners = append(i.Listeners, l)
 		case proto.SNI:
@@ -389,7 +389,7 @@ func (s *Server) addTunnels(cname string, tunnels map[string]*proto.Tunnel) erro
 				goto rollback
 			}
 
-			cplogger.Infof("add SNI vhost for host %s", t.Host)
+			cplogger.Debugf("add SNI vhost for host %s", t.Host)
 
 			i.Listeners = append(i.Listeners, l)
 		default:
@@ -604,7 +604,7 @@ func (s *Server) proxyHTTP(identifier string, r *http.Request, msg *proto.Contro
 	s.logger.WithFields(log.Fields{
 		"identifier": identifier,
 		"ctrlMsg":    msg,
-	}).Info("proxy HTTP request")
+	}).Debug("proxy HTTP request")
 
 	pr, pw := io.Pipe()
 	defer pr.Close()
@@ -631,7 +631,7 @@ func (s *Server) proxyHTTP(identifier string, r *http.Request, msg *proto.Contro
 			"dir":        "user to client",
 			"dst":        r.Host,
 			"src":        r.RemoteAddr,
-		}).Info("transferred")
+		}).Debug("transferred")
 
 		if r.Body != nil {
 			r.Body.Close()
@@ -647,7 +647,7 @@ func (s *Server) proxyHTTP(identifier string, r *http.Request, msg *proto.Contro
 		"identifier":  identifier,
 		"ctrlMsg":     msg,
 		"status code": resp.StatusCode,
-	}).Info("proxy HTTP done")
+	}).Debug("proxy HTTP done")
 
 	return resp, nil
 }
@@ -679,7 +679,7 @@ func (s *Server) Addr() string {
 
 // Stop closes the server.
 func (s *Server) Stop() {
-	s.logger.Info("stop http-tunnel server")
+	s.logger.Debug("stop http-tunnel server")
 
 	if s.listener != nil {
 		s.listener.Close()
