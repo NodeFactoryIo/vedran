@@ -6,16 +6,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	DefaultServerAddress = ":5223"
-	DefaultPortRange = "10000:50000"
-)
-
-func StartHttpTunnelServer() {
+func StartHttpTunnelServer(serverAddress string, portRange string) {
 	logger := log.WithField("context", "http-tunnel")
 	s, err := server.NewServer(&server.ServerConfig{
-		Address:        DefaultServerAddress,
-		PortRange:      DefaultPortRange,
+		Address:   serverAddress,
+		PortRange: portRange,
 		AuthHandler: func(rawToken string) bool {
 			token, err := auth.ParseJwtTokenWithCustomClaims(rawToken)
 			if err == nil {

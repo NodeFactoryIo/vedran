@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/httptunnel"
+	"strings"
 
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/loadbalancer"
@@ -25,6 +26,9 @@ var (
 	// logging related flags
 	logLevel string
 	logFile  string
+	// http tunnel related flags
+	tunnelServerAddress string
+	tunnelPortRange     string
 )
 
 var startCmd = &cobra.Command{
@@ -58,6 +62,10 @@ var startCmd = &cobra.Command{
 		// well known ports and registered ports
 		if port <= 0 && port > 49151 {
 			return errors.New("invalid port number")
+		}
+		// valid format is PortMin:PortMax
+		if prt := strings.Split(tunnelPortRange, ":"); len(prt) != 2 {
+			return errors.New("invalid port range, should be defined as \"PortMin:PortMax\"")
 		}
 		return nil
 	},
@@ -118,12 +126,24 @@ func init() {
 		"",
 		"[OPTIONAL] Path to logfile (default stdout)")
 
+	startCmd.Flags().StringVar(
+		&tunnelServerAddress,
+		"tunnel-address",
+		":5223",
+		"[OPTIONAL] Address on which http tunnel server is running")
+
+	startCmd.Flags().StringVar(
+		&tunnelPortRange,
+		"tunnel-port-range",
+		"20000:30000",
+		"[OPTIONAL] Range of ports on which is used to open http tunnels")
+
 	RootCmd.AddCommand(startCmd)
 }
 
 func startCommand(_ *cobra.Command, _ []string) {
 	DisplayBanner()
-	httptunnel.StartHttpTunnelServer()
+	httptunnel.StartHttpTunnelServer(tunnelServerAddress, tunnelPortRange)
 	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
 		AuthSecret: authSecret,
 		Name:       name,

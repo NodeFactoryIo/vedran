@@ -165,7 +165,7 @@ func (s *Server) Start() {
 	addr := s.listener.Addr().String()
 
 	alogger := s.logger.WithFields(log.Fields{"address": addr})
-	alogger.Debug("start http-tunnel server")
+	alogger.Debugf("Start http-tunnel server with port range %s", s.config.portRange)
 
 	for {
 		conn, err := s.listener.Accept()
