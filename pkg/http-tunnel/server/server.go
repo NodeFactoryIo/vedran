@@ -126,17 +126,12 @@ func newServer(serverData *serverData) (*Server, error) {
 		return nil, fmt.Errorf("listener failed: %s", err)
 	}
 
-	logger := serverData.logger
-	if logger == nil {
-		logger = log.NewEntry(log.StandardLogger())
-	}
-
 	s := &Server{
-		registry: newRegistry(logger),
+		registry: newRegistry(serverData.logger),
 		PortPool: pPool,
 		config:   serverData,
 		listener: listener,
-		logger:   logger,
+		logger:   serverData.logger,
 	}
 
 	s.authHandler = serverData.authHandler
@@ -173,11 +168,11 @@ func newServer(serverData *serverData) (*Server, error) {
 
 				switch err.(type) {
 				case vhost.BadRequest:
-					logger.Errorf("got a bad request for address %v", conn.RemoteAddr())
+					serverData.logger.Errorf("got a bad request for address %v", conn.RemoteAddr())
 				case vhost.NotFound:
-					logger.Errorf("got a connection for an unknown vhost %s", vhostName)
+					serverData.logger.Errorf("got a connection for an unknown vhost %s", vhostName)
 				case vhost.Closed:
-					logger.Errorf("closed connection for vhost %s", vhostName)
+					serverData.logger.Errorf("closed connection for vhost %s", vhostName)
 				}
 
 				if conn != nil {
