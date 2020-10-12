@@ -43,10 +43,6 @@ type Client struct {
 
 // ClientConfig is configuration of the Client.
 type ClientConfig struct {
-	// TlsCrtFilePath specifies path to certificate file for tls connection
-	TlsCrtFilePath string
-	// TlsKeyFilePath specifies path to key file for tls connection
-	TlsKeyFilePath string
 	// ServerAddress specifies TCP address of the tunnel server.
 	ServerAddress string
 	// Tunnels specifies the tunnels client requests to be opened on server.
