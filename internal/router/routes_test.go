@@ -14,7 +14,8 @@ func TestApiRouter(t *testing.T) {
 	nodeRepoMock := mocks.NodeRepository{}
 	pingRepoMock := mocks.PingRepository{}
 	metricsRepoMock := mocks.MetricsRepository{}
-	apiController := controllers.NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock)
+	recordRepoMock := mocks.RecordRepository{}
+	apiController := controllers.NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &recordRepoMock)
 
 	tests := []struct {
 		name    string

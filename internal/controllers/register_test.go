@@ -90,6 +90,7 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			nodeRepoMock := mocks.NodeRepository{}
 			pingRepoMock := mocks.PingRepository{}
 			metricsRepoMock := mocks.MetricsRepository{}
+			recordRepoMock := mocks.RecordRepository{}
 			nodeRepoMock.On("Save", &models.Node{
 				ID:            test.registerRequest.Id,
 				ConfigHash:    test.registerRequest.ConfigHash,
@@ -99,7 +100,7 @@ func TestApiController_RegisterHandler(t *testing.T) {
 				LastUsed:      time.Now().Unix(),
 			}).Return(test.saveMockReturns)
 			nodeRepoMock.On("IsNodeWhitelisted", test.registerRequest.Id).Return(true, test.isNodeWhitelistedMockReturns)
-			apiController := NewApiController(test.isWhitelisted, &nodeRepoMock, &pingRepoMock, &metricsRepoMock)
+			apiController := NewApiController(test.isWhitelisted, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &recordRepoMock)
 			handler := http.HandlerFunc(apiController.RegisterHandler)
 
 			// create test request
