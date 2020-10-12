@@ -81,20 +81,6 @@ func NewServer(config *ServerConfig) (*Server, error) {
 	}
 	serverData.portRange = config.PortRange
 
-	if config.TlsKeyFilePath == "" {
-		return nil, errors.New("provided tls key file path empty")
-	}
-	if config.TlsCrtFilePath == "" {
-		return nil, errors.New("provided tls cert file path empty")
-	}
-	tlsConfig, err := TlsServerConfig(
-		config.TlsCrtFilePath,
-		config.TlsKeyFilePath,
-		"")
-	if err != nil {
-		return nil, err
-	}
-	serverData.tlsConfig = tlsConfig
 
 	logger := config.Logger
 	if logger == nil {
@@ -193,9 +179,6 @@ func listener(config *serverData) (net.Listener, error) {
 	if config.addr == "" {
 		return nil, errors.New("missing addr")
 	}
-	if config.tlsConfig == nil {
-		return nil, errors.New("missing tlsConfig")
-	}
 
 	return net.Listen("tcp", config.addr)
 }
@@ -246,7 +229,7 @@ func (s *Server) Start() {
 			alogger.Error("TCP keepalive for control connection failed", err)
 		}
 
-		go s.handleClient(tls.Server(conn, s.config.tlsConfig))
+		go s.handleClient(conn)
 	}
 }
 

@@ -90,22 +90,6 @@ func NewClient(config *ClientConfig) (*Client, error) {
 	}
 	clientData.authToken = config.AuthToken
 
-	if config.TlsKeyFilePath == "" {
-		return nil, errors.New("provided tls key file path empty")
-	}
-	if config.TlsCrtFilePath == "" {
-		return nil, errors.New("provided tls cert file path empty")
-	}
-	tlsconf, err := TlsClientConfig(
-		config.TlsCrtFilePath,
-		config.TlsKeyFilePath,
-		"",
-		config.ServerAddress)
-	if err != nil {
-		log.Error("TLS ", err)
-	}
-	clientData.tlsClientConfig = tlsconf
-
 	logger := config.Logger
 	if logger == nil {
 		l := log.New()
@@ -222,10 +206,10 @@ func (c *Client) dial() (net.Conn, error) {
 				err = tunnel.KeepAlive(conn)
 			}
 			if err == nil {
-				conn = tls.Client(conn, tlsConfig)
+				// conn = tls.Client(conn, tlsConfig)
 			}
 			if err == nil {
-				err = conn.(*tls.Conn).Handshake()
+				// err = conn.(*tls.Conn).Handshake()
 			}
 		}
 
