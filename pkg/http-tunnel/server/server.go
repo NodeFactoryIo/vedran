@@ -6,7 +6,6 @@ package server
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -40,10 +39,6 @@ type Server struct {
 
 // ServerConfig defines all data needed for running the Server.
 type ServerConfig struct {
-	// TlsCrtFilePath specifies path to certificate file for tls connection
-	TlsCrtFilePath string
-	// TlsKeyFilePath specifies path to key file for tls connection
-	TlsKeyFilePath string
 	// Address is TCP address to listen for client connections. If empty ":0" is used.
 	Address string
 	// Address Pool enables Port AutoAssignation. If empty "10000:50000" is used.
@@ -59,7 +54,6 @@ type ServerConfig struct {
 type serverData struct {
 	addr        string
 	portRange   string
-	tlsConfig   *tls.Config
 	listener    net.Listener
 	logger      *log.Entry
 	sniAddr     string
