@@ -5,12 +5,9 @@ import (
 	"net/http"
 
 	"github.com/NodeFactoryIo/vedran/internal/auth"
+	"github.com/NodeFactoryIo/vedran/internal/config"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	log "github.com/sirupsen/logrus"
-)
-
-const (
-	pingIntervalSeconds = 10
 )
 
 func (c ApiController) PingHandler(w http.ResponseWriter, r *http.Request) {
@@ -21,7 +18,7 @@ func (c ApiController) PingHandler(w http.ResponseWriter, r *http.Request) {
 		log.Errorf("Unable to calculate node downtime, error: %v", err)
 	}
 
-	if math.Abs(downtimeDuration.Seconds()) > pingIntervalSeconds {
+	if math.Abs(downtimeDuration.Seconds()) > config.PingIntervalSeconds {
 		downtime := models.Downtime{
 			Start:  lastPingTime,
 			End:    request.Timestamp,
