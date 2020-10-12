@@ -9,6 +9,7 @@ import (
 	"errors"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/proto"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/tunnelmock"
+	log "github.com/sirupsen/logrus"
 	"net"
 	"net/http/httptest"
 	"testing"
@@ -30,6 +31,7 @@ func TestClient_Dial(t *testing.T) {
 		},
 		tunnels: map[string]*proto.Tunnel{"test": {}},
 		proxy:   Proxy(ProxyFuncs{}),
+		logger:  log.NewEntry(log.StandardLogger()),
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -68,6 +70,7 @@ func TestClient_DialBackoff(t *testing.T) {
 		backoff:         b,
 		tunnels:         map[string]*proto.Tunnel{"test": {}},
 		proxy:           Proxy(ProxyFuncs{}),
+		logger:          log.NewEntry(log.StandardLogger()),
 	})
 	if err != nil {
 		t.Fatal(err)
