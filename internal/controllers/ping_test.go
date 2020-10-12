@@ -28,9 +28,9 @@ func TestApiController_PingHandler(t *testing.T) {
 		downtimeDuration      time.Duration
 	}{
 		{
-			name:                  "Returns 500 if downtime calculation fails",
-			statusCode:            500,
-			pingSaveCallCount:     0,
+			name:                  "Returns 200 if downtime calculation fails",
+			statusCode:            200,
+			pingSaveCallCount:     1,
 			pingSaveErr:           nil,
 			downtimeSaveErr:       nil,
 			downtimeSaveCallCount: 0,
@@ -38,9 +38,9 @@ func TestApiController_PingHandler(t *testing.T) {
 			calculateDowntimeErr:  fmt.Errorf("ERROR"),
 		},
 		{
-			name:                  "Returns 500 if donwtime save fails",
-			statusCode:            500,
-			pingSaveCallCount:     0,
+			name:                  "Returns 200 if donwtime save fails",
+			statusCode:            200,
+			pingSaveCallCount:     1,
 			pingSaveErr:           nil,
 			downtimeSaveErr:       fmt.Errorf("ERROR"),
 			downtimeSaveCallCount: 1,
@@ -69,9 +69,9 @@ func TestApiController_PingHandler(t *testing.T) {
 		},
 		{
 			name:                  "Returns 200 and does not save downtime if downtime duration less than 10 seconds",
-			statusCode:            500,
+			statusCode:            200,
 			pingSaveCallCount:     1,
-			pingSaveErr:           fmt.Errorf("ERROR"),
+			pingSaveErr:           nil,
 			downtimeSaveErr:       nil,
 			downtimeSaveCallCount: 0,
 			downtimeDuration:      time.Duration(time.Second * 9),

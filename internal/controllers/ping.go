@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"math"
 	"net/http"
 
 	"github.com/NodeFactoryIo/vedran/internal/auth"
@@ -18,11 +19,9 @@ func (c ApiController) PingHandler(w http.ResponseWriter, r *http.Request) {
 	lastPingTime, downtimeDuration, err := c.pingRepo.CalculateDowntime(request.NodeId, request.Timestamp)
 	if err != nil {
 		log.Errorf("Unable to calculate node downtime, error: %v", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
 	}
 
-	if downtimeDuration.Seconds() > pingIntervalSeconds {
+	if math.Abs(downtimeDuration.Seconds()) > pingIntervalSeconds {
 		downtime := models.Downtime{
 			Start:  lastPingTime,
 			End:    request.Timestamp,
@@ -31,9 +30,9 @@ func (c ApiController) PingHandler(w http.ResponseWriter, r *http.Request) {
 		err = c.downtimeRepo.Save(&downtime)
 		if err != nil {
 			log.Errorf("Unable to save node downtime, error: %v", err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
 		}
+
+		log.Debugf("Saved node %s downtime of: %f", request.NodeId, math.Abs(downtimeDuration.Seconds()))
 	}
 
 	// save ping to database
