@@ -5,7 +5,6 @@
 package client
 
 import (
-	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -57,10 +56,6 @@ type ClientConfig struct {
 
 type clientData struct {
 	serverAddr      string
-	tlsClientConfig *tls.Config
-	// dialTLS specifies an optional dial function that creates a tls
-	// connection to the server. If dialTLS is nil, tls.Dial is used.
-	dialTLS func(network, addr string, config *tls.Config) (net.Conn, error)
 	// backoff specifies backoff policy on server connection retry. If nil
 	// when dial fails it will not be retried.
 	backoff   Backoff
@@ -179,9 +174,8 @@ func (c *Client) connect() (net.Conn, error) {
 
 func (c *Client) dial() (net.Conn, error) {
 	var (
-		network   = "tcp"
-		addr      = c.config.serverAddr
-		tlsConfig = c.config.tlsClientConfig
+		network = "tcp"
+		addr    = c.config.serverAddr
 	)
 
 	doDial := func() (conn net.Conn, err error) {
@@ -190,23 +184,13 @@ func (c *Client) dial() (net.Conn, error) {
 			"addr":    addr,
 		}).Info("dial")
 
-		if c.config.dialTLS != nil {
-			conn, err = c.config.dialTLS(network, addr, tlsConfig)
-		} else {
-			d := &net.Dialer{
-				Timeout: tunnel.DefaultTimeout,
-			}
-			conn, err = d.Dial(network, addr)
+		d := &net.Dialer{
+			Timeout: tunnel.DefaultTimeout,
+		}
+		conn, err = d.Dial(network, addr)
 
-			if err == nil {
-				err = tunnel.KeepAlive(conn)
-			}
-			if err == nil {
-				// conn = tls.Client(conn, tlsConfig)
-			}
-			if err == nil {
-				// err = conn.(*tls.Conn).Handshake()
-			}
+		if err == nil {
+			err = tunnel.KeepAlive(conn)
 		}
 
 		if err != nil {
