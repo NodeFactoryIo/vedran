@@ -79,7 +79,7 @@ func (r *registry) Subscribe(cname string, origaddr string) {
 		"client-name": cname,
 		"client-id":   origaddr,
 		"data":        reg,
-	}).Info("REGISTRY SUBSCRIBE")
+	}).Debug("REGISTRY SUBSCRIBE")
 }
 
 // GetID returns the ID for this client
@@ -122,7 +122,7 @@ func (r *registry) Unsubscribe(identifier string, idname string) *RegistryItem {
 		"identifier": identifier,
 		"id-name":    idname,
 		"data":       i,
-	}).Info("REGISTRY UNSUBSCRIBE")
+	}).Debug("REGISTRY UNSUBSCRIBE")
 
 	if i.Hosts != nil {
 		for _, h := range i.Hosts {
@@ -155,7 +155,7 @@ func (r *registry) set(i *RegistryItem, identifier string) error {
 		"client-name": identifier,
 		"client-id":   j.ClientID,
 		"data":        j,
-	}).Info("REGISTRY SET (OLD FOUND)")
+	}).Debug("REGISTRY SET (OLD FOUND)")
 
 	i.ClientID = j.ClientID
 
@@ -163,7 +163,7 @@ func (r *registry) set(i *RegistryItem, identifier string) error {
 		"client-name": identifier,
 		"client-id":   i.ClientID,
 		"data":        i,
-	}).Info("REGISTRY SET (NEW SET)")
+	}).Debug("REGISTRY SET (NEW SET)")
 
 	if i.Hosts != nil {
 		for _, h := range i.Hosts {
