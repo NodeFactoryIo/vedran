@@ -16,17 +16,17 @@ func NewMetricsRepo(db *storm.DB) *MetricsRepo {
 }
 
 func (r *MetricsRepo) FindByID(ID string) (*models.Metrics, error) {
-	var metrics *models.Metrics
-	err := r.db.One("ID", ID, metrics)
-	return metrics, err
+	var metrics models.Metrics
+	err := r.db.One("ID", ID, &metrics)
+	return &metrics, err
 }
 
 func (r *MetricsRepo) Save(metrics *models.Metrics) error {
 	return r.db.Save(metrics)
 }
 
-func (r MetricsRepo) GetAll() (*[]models.Metrics, error) {
-	var metrics *[]models.Metrics
-	err := r.db.All(metrics)
-	return metrics, err
+func (r *MetricsRepo) GetAll() (*[]models.Metrics, error) {
+	var metrics []models.Metrics
+	err := r.db.All(&metrics)
+	return &metrics, err
 }

@@ -6,14 +6,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/internal/auth"
-	"github.com/NodeFactoryIo/vedran/internal/models"
-	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/NodeFactoryIo/vedran/internal/auth"
+	"github.com/NodeFactoryIo/vedran/internal/models"
+	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestApiController_SaveMetricsHandler(t *testing.T) {
@@ -71,7 +72,8 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 				FinalizedBlockHeight:  100,
 				ReadyTransactionCount: 10,
 			}).Return(test.repoReturn)
-			apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock)
+			downtimeRepoMock := mocks.DowntimeRepository{}
+			apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &downtimeRepoMock)
 			handler := http.HandlerFunc(apiController.SaveMetricsHandler)
 
 			// create test request
