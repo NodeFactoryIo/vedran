@@ -6,14 +6,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/internal/auth"
-	"github.com/NodeFactoryIo/vedran/internal/models"
-	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/NodeFactoryIo/vedran/internal/auth"
+	"github.com/NodeFactoryIo/vedran/internal/models"
+	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestApiController_SaveMetricsHandler(t *testing.T) {
@@ -64,6 +65,7 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 			nodeRepoMock := mocks.NodeRepository{}
 			pingRepoMock := mocks.PingRepository{}
 			metricsRepoMock := mocks.MetricsRepository{}
+			recordRepoMock := mocks.RecordRepository{}
 			metricsRepoMock.On("Save", &models.Metrics{
 				NodeId:                "1",
 				PeerCount:             10,
@@ -71,7 +73,7 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 				FinalizedBlockHeight:  100,
 				ReadyTransactionCount: 10,
 			}).Return(test.repoReturn)
-			apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock)
+			apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &recordRepoMock)
 			handler := http.HandlerFunc(apiController.SaveMetricsHandler)
 
 			// create test request

@@ -18,9 +18,16 @@ func CreateNewApiRouter(db *storm.DB, whitelistEnabled bool) *mux.Router {
 	}
 	pingRepo := repositories.NewPingRepo(db)
 	metricsRepo := repositories.NewMetricsRepo(db)
+	recordRepo := repositories.NewRecordRepo(db)
 
 	// initialize controllers
-	apiController := controllers.NewApiController(whitelistEnabled, nodeRepo, pingRepo, metricsRepo)
+	apiController := controllers.NewApiController(
+		whitelistEnabled,
+		nodeRepo,
+		pingRepo,
+		metricsRepo,
+		recordRepo,
+	)
 
 	createRoutes(apiController, router)
 

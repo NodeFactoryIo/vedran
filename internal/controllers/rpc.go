@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	record "github.com/NodeFactoryIo/vedran/internal/records"
 	"github.com/NodeFactoryIo/vedran/internal/rpc"
 	log "github.com/sirupsen/logrus"
 )
@@ -50,11 +51,11 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 		rpcResponse, err := rpc.SendRequestToNode(isBatch, node, reqBody)
 		if err != nil {
 			log.Errorf("Request failed to node %s because of: %v", node.ID, err)
-			go c.nodeRepo.PenalizeNode(&node)
+			go record.FailedRequest(node, c.nodeRepo, c.recordRepo)
 			continue
 		}
 
-		go c.nodeRepo.RewardNode(&node)
+		go record.SuccessfulRequest(node, c.nodeRepo, c.recordRepo)
 		_ = json.NewEncoder(w).Encode(rpcResponse)
 		return
 	}
