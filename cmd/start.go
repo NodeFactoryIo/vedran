@@ -156,7 +156,7 @@ func startCommand(_ *cobra.Command, _ []string) {
 	if publicIP == "" {
 		IP, err := ip.Get()
 		if err != nil {
-			log.Fatalf("Unable to fetch public IP address. Please set one explicitly!", err)
+			log.Fatal("Unable to fetch public IP address. Please set one explicitly!", err)
 		}
 		tunnelURL = fmt.Sprintf("%s:%s", IP.String(), tunnelServerPort)
 		log.Infof("Tunnel server will listen on %s and connect tunnels on port range %s", tunnelURL, tunnelPortRange)
