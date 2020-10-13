@@ -136,7 +136,7 @@ func init() {
 
 	startCmd.Flags().StringVar(
 		&tunnelServerPort,
-		"tunnel-address",
+		"tunnel-port",
 		"5223",
 		"[OPTIONAL] Address on which http tunnel server is running")
 
