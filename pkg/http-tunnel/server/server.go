@@ -113,6 +113,18 @@ func newServer(serverData *serverData, pPool *AddrPool) (*Server, error) {
 	return s, nil
 }
 
+func listener(config *serverData) (net.Listener, error) {
+	if config.listener != nil {
+		return config.listener, nil
+	}
+
+	if config.addr == "" {
+		return nil, errors.New("missing addr")
+	}
+
+	return net.Listen("tcp", config.addr)
+}
+
 // disconnected clears resources used by client, it's invoked by connection pool
 // when client goes away.
 func (s *Server) disconnected(identifier string) {
@@ -141,7 +153,6 @@ func (s *Server) Start() {
 	addr := s.listener.Addr().String()
 
 	alogger := s.logger.WithFields(log.Fields{"address": addr})
-	alogger.Debugf("Start http-tunnel server with port range %s", s.config.portRange)
 
 	for {
 		conn, err := s.listener.Accept()
