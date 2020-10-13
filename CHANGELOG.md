@@ -1,5 +1,17 @@
 # Changelog
 
+## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
+
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v.0.1.0...HEAD)
+
+### Added
+- Implement tunnel server in load balancer [\#63](https://github.com/NodeFactoryIo/vedran/pull/63) ([MakMuftic](https://github.com/MakMuftic))
+
+### Fix
+- Fix panic if no nodes in database after startup [\#62](https://github.com/NodeFactoryIo/vedran/pull/62) ([mpetrun5](https://github.com/mpetrun5))
+
+### Changed
+
 ## [v0.1.1]((https://github.com/NodeFactoryIo/vedran/tree/v0.1.1))
 
 [Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v.0.1.0...v.0.1.1)
