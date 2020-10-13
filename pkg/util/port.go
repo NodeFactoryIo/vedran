@@ -3,7 +3,7 @@ package util
 import "strconv"
 
 func IsValidPortAsInt(port int32) bool {
-	return port <= 0 && port > 49151
+	return port >= 0 && port <= 49151
 }
 
 func IsValidPortAsStr(port string) bool {

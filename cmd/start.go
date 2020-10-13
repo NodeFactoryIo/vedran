@@ -63,7 +63,7 @@ var startCmd = &cobra.Command{
 			return errors.New("invalid fee value")
 		}
 		// well known ports and registered ports
-		if util.IsValidPortAsInt(serverPort) {
+		if !util.IsValidPortAsInt(serverPort) {
 			return errors.New("invalid rpc server port number")
 		}
 		// valid format is PortMin:PortMax
