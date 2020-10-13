@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"net/http"
+	"strconv"
 	"time"
 
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
+
 	"github.com/NodeFactoryIo/vedran/internal/auth"
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/pkg/util"
 	log "github.com/sirupsen/logrus"
@@ -17,13 +20,13 @@ import (
 type RegisterRequest struct {
 	Id            string `json:"id"`
 	ConfigHash    string `json:"config_hash"`
-	NodeUrl       string `json:"node_url"`
 	PayoutAddress string `json:"payout_address"`
 }
 
 type RegisterResponse struct {
-	Token string `json:"token"`
+	Token     string `json:"token"`
 	TunnelURL string `json:"tunnel_url"`
+	Port      int    `json:"port"`
 }
 
 func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -61,11 +64,18 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	port, err := configuration.Config.PortPool.Acquire(registerRequest.Id, registerRequest.Id)
+	if err != nil {
+		log.Errorf("Unable to assign port, error: %v", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
 	// save node to database
 	node := &models.Node{
 		ID:            registerRequest.Id,
 		ConfigHash:    registerRequest.ConfigHash,
-		NodeUrl:       registerRequest.NodeUrl,
+		NodeUrl:       "http://127.0.0.1:" + strconv.Itoa(port),
 		PayoutAddress: registerRequest.PayoutAddress,
 		Token:         token,
 		LastUsed:      time.Now().Unix(),
@@ -84,5 +94,6 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(RegisterResponse{
 		Token:     token,
 		TunnelURL: configuration.Config.TunnelURL,
+		Port:      port,
 	})
 }
