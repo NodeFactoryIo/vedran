@@ -22,6 +22,7 @@ type RegisterRequest struct {
 
 type RegisterResponse struct {
 	Token string `json:"token"`
+	// TunnelURL string `json:"tunnel_url"`
 }
 
 func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
