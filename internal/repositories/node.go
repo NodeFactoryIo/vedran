@@ -56,9 +56,13 @@ func (r *NodeRepo) FindByID(ID string) (*models.Node, error) {
 }
 
 func (r *NodeRepo) Save(node *models.Node) error {
-	r.AddNodeToActive(*node)
+	err := r.db.Save(node)
+	if err != nil {
+		return err
+	}
 
-	return r.db.Save(node)
+	r.AddNodeToActive(*node)
+	return nil
 }
 
 func (r *NodeRepo) GetAll() (*[]models.Node, error) {
