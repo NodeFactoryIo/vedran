@@ -17,14 +17,14 @@ import (
 
 var (
 	// load balancer related flags
-	authSecret string
-	name       string
-	capacity   int64
-	whitelist  []string
-	fee        float32
-	selection  string
-	port       int32
-	publicIP   string
+	authSecret     string
+	name           string
+	capacity       int64
+	whitelist      []string
+	fee            float32
+	selection      string
+	httpServerPort int32
+	publicIP       string
 	// logging related flags
 	logLevel string
 	logFile  string
@@ -62,8 +62,8 @@ var startCmd = &cobra.Command{
 			return errors.New("invalid fee value")
 		}
 		// well known ports and registered ports
-		if port <= 0 && port > 49151 {
-			return errors.New("invalid port number")
+		if httpServerPort <= 0 && httpServerPort > 49151 {
+			return errors.New("invalid http server port number")
 		}
 		// valid format is PortMin:PortMax
 		if prt := strings.Split(tunnelPortRange, ":"); len(prt) != 2 {
@@ -111,8 +111,8 @@ func init() {
 		"[OPTIONAL] Type of selection used for choosing nodes (round-robin, random)")
 
 	startCmd.Flags().Int32Var(
-		&port,
-		"port",
+		&httpServerPort,
+		"http-server-port",
 		4000,
 		"[OPTIONAL] Port on which load balancer will be started")
 
@@ -156,11 +156,10 @@ func startCommand(_ *cobra.Command, _ []string) {
 	if publicIP == "" {
 		IP, err := ip.Get()
 		if err != nil {
-			log.Error("Unable to fetch public IP ", err)
-			return
+			log.Fatalf("Unable to fetch public IP address. Please set one explicitly!", err)
 		}
 		tunnelURL = fmt.Sprintf("%s:%s", IP.String(), tunnelServerPort)
-		log.Infof("HTTP tunnel will be started on %s with port range %s", tunnelURL, tunnelPortRange)
+		log.Infof("Tunnel server will listen on %s and connect tunnels on port range %s", tunnelURL, tunnelPortRange)
 	}
 
 	httptunnel.StartHttpTunnelServer(tunnelServerPort, tunnelPortRange)
@@ -172,7 +171,7 @@ func startCommand(_ *cobra.Command, _ []string) {
 		Whitelist:  whitelist,
 		Fee:        fee,
 		Selection:  selection,
-		Port:       port,
+		Port:       httpServerPort,
 		TunnelURL:  tunnelURL,
 	})
 }

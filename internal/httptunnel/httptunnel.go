@@ -8,7 +8,7 @@ import (
 )
 
 func StartHttpTunnelServer(serverPort string, portRange string) {
-	logger := log.WithField("context", "http-tunnel")
+	logger := log.WithField("context", "tunnel-server")
 	s, err := server.NewServer(&server.ServerConfig{
 		Address:   fmt.Sprintf(":%s", serverPort),
 		PortRange: portRange,
