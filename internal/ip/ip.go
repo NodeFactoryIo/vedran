@@ -9,7 +9,7 @@ import (
 const MaxTries = 3
 
 // Timeout after which result will be collected
-var Timeout = 2 * time.Second
+var Timeout = 1 * time.Second
 
 // APIURIs is list of services used to get IP address
 var APIURIs = []string{
