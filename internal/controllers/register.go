@@ -8,8 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/NodeFactoryIo/vedran/internal/configuration"
-
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
@@ -46,6 +44,13 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	port, err := configuration.Config.PortPool.Acquire(registerRequest.Id, registerRequest.Id)
+	if err != nil {
+		log.Errorf("Unable to assign port, error: %v", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
 	if c.whitelistEnabled {
 		_, err := c.nodeRepo.IsNodeWhitelisted(registerRequest.Id)
 		if err != nil {
@@ -60,13 +65,6 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// unknown error
 		log.Errorf("Unable to create auth token, error: %v", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	port, err := configuration.Config.PortPool.Acquire(registerRequest.Id, registerRequest.Id)
-	if err != nil {
-		log.Errorf("Unable to assign port, error: %v", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
