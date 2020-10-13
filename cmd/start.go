@@ -159,8 +159,7 @@ func startCommand(_ *cobra.Command, _ []string) {
 			log.Error("Unable to fetch public IP ", err)
 			return
 		}
-		publicIP = IP.String()
-		tunnelURL = fmt.Sprintf("%s:%s", publicIP, tunnelServerPort)
+		tunnelURL = fmt.Sprintf("%s:%s", IP.String(), tunnelServerPort)
 		log.Infof("HTTP tunnel will be started on %s with port range %s", tunnelURL, tunnelPortRange)
 	}
 
