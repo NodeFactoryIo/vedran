@@ -144,7 +144,7 @@ func init() {
 		&tunnelPortRange,
 		"tunnel-port-range",
 		"20000:30000",
-		"[OPTIONAL] Range of ports on which is used to open http tunnels")
+		"[OPTIONAL] Range of ports which is used to open http tunnels")
 
 	RootCmd.AddCommand(startCmd)
 }
