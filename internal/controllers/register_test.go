@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,6 +18,10 @@ import (
 )
 
 func TestApiController_RegisterHandler(t *testing.T) {
+	const TestTunnelURL = "test-tunnel-url:5533"
+	configuration.Config = configuration.Configuration{
+		TunnelURL: TestTunnelURL,
+	}
 	// define test cases
 	tests := []struct {
 		name                          string
@@ -40,6 +45,7 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			httpStatus: http.StatusOK,
 			registerResponse: RegisterResponse{
 				Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
+				TunnelURL: TestTunnelURL,
 			},
 			isWhitelisted:                 false,
 			saveMockReturns:               nil,
@@ -58,6 +64,7 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			httpStatus: http.StatusOK,
 			registerResponse: RegisterResponse{
 				Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
+				TunnelURL: TestTunnelURL,
 			},
 			isWhitelisted:                 true,
 			saveMockReturns:               nil,
@@ -83,6 +90,8 @@ func TestApiController_RegisterHandler(t *testing.T) {
 		},
 	}
 	_ = os.Setenv("AUTH_SECRET", "test-auth-secret")
+
+
 	// execute tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
