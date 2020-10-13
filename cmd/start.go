@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/httptunnel"
 	"github.com/NodeFactoryIo/vedran/internal/ip"
+	"github.com/NodeFactoryIo/vedran/pkg/util"
 	"strings"
 
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
@@ -62,12 +63,19 @@ var startCmd = &cobra.Command{
 			return errors.New("invalid fee value")
 		}
 		// well known ports and registered ports
-		if httpServerPort <= 0 && httpServerPort > 49151 {
+		if util.IsValidPortAsInt(httpServerPort) {
 			return errors.New("invalid http server port number")
 		}
 		// valid format is PortMin:PortMax
-		if prt := strings.Split(tunnelPortRange, ":"); len(prt) != 2 {
+		prt := strings.Split(tunnelPortRange, ":")
+		if len(prt) != 2 {
 			return errors.New("invalid port range, should be defined as \"PortMin:PortMax\"")
+		}
+		if !util.IsValidPortAsStr(prt[0]) {
+			return errors.New("invalid port number provided for min port inside port range")
+		}
+		if !util.IsValidPortAsStr(prt[1]) {
+			return errors.New("invalid port number provided for max port inside port range")
 		}
 		return nil
 	},
@@ -114,7 +122,7 @@ func init() {
 		&httpServerPort,
 		"http-server-port",
 		4000,
-		"[OPTIONAL] Port on which load balancer will be started")
+		"[OPTIONAL] Port on which load balancer rpc server will be started")
 
 	startCmd.Flags().StringVar(
 		&publicIP,
@@ -138,13 +146,13 @@ func init() {
 		&tunnelServerPort,
 		"tunnel-port",
 		"5223",
-		"[OPTIONAL] Address on which http tunnel server is running")
+		"[OPTIONAL] Address on which tunnel server is listening")
 
 	startCmd.Flags().StringVar(
 		&tunnelPortRange,
 		"tunnel-port-range",
 		"20000:30000",
-		"[OPTIONAL] Range of ports which is used to open http tunnels")
+		"[OPTIONAL] Range of ports which is used to open tunnels")
 
 	RootCmd.AddCommand(startCmd)
 }
