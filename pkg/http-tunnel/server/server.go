@@ -34,7 +34,7 @@ type Server struct {
 	httpClient  *http.Client
 	logger      *log.Entry
 	vhostMuxer  *vhost.TLSMuxer
-	PortPool    *AddrPool
+	PortPool    Pooler
 	authHandler func(string) bool
 }
 
@@ -42,8 +42,8 @@ type Server struct {
 type ServerConfig struct {
 	// Address is TCP address to listen for client connections. If empty ":0" is used.
 	Address string
-	// Address Pool assigns and release ports
-	PortPool *AddrPool
+	// PortPool assigns and release ports
+	PortPool Pooler
 	// AuthHandler is function validates provided auth token
 	AuthHandler func(string) bool
 	// Logger is optional logger. If nil logging is disabled.
@@ -83,7 +83,7 @@ func NewServer(config *ServerConfig) (*Server, error) {
 	return newServer(serverData, config.PortPool)
 }
 
-func newServer(serverData *serverData, pPool *AddrPool) (*Server, error) {
+func newServer(serverData *serverData, pPool Pooler) (*Server, error) {
 	listener, err := listener(serverData)
 	if err != nil {
 		return nil, fmt.Errorf("listener failed: %s", err)

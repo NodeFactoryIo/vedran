@@ -2,13 +2,16 @@ package tunnel_test
 
 import (
 	"bytes"
+	"strings"
+	"testing"
+	"time"
+
+	mocks "github.com/NodeFactoryIo/vedran/mocks/http-tunnel/server"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/client"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/server"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
-	"strings"
-	"testing"
-	"time"
+	"github.com/stretchr/testify/mock"
 )
 
 func Test_IntegrationTest(t *testing.T) {
@@ -16,9 +19,11 @@ func Test_IntegrationTest(t *testing.T) {
 	var str bytes.Buffer
 	l.SetOutput(&str)
 	l.SetLevel(log.DebugLevel)
+	poolerMock := &mocks.Pooler{}
+	poolerMock.On("Acquire", mock.Anything, mock.Anything).Return(33001, nil)
 	s, err := server.NewServer(&server.ServerConfig{
-		Address:        ":5223",
-		PortRange:      "10000:50000",
+		Address:  ":5223",
+		PortPool: poolerMock,
 		AuthHandler: func(s string) bool {
 			return s == "test-token"
 		},
@@ -31,7 +36,7 @@ func Test_IntegrationTest(t *testing.T) {
 	}()
 
 	c, err := client.NewClient(&client.ClientConfig{
-		ServerAddress:  "127.0.0.1:5223",
+		ServerAddress: "127.0.0.1:5223",
 		Tunnels: map[string]*client.Tunnel{
 			"": {
 				Protocol:   "tcp",
@@ -43,7 +48,7 @@ func Test_IntegrationTest(t *testing.T) {
 		},
 		Logger:    log.NewEntry(l),
 		AuthToken: "test-token",
-		IdName: "test-id",
+		IdName:    "test-id",
 	})
 
 	assert.Nil(t, err)

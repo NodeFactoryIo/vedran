@@ -10,8 +10,8 @@ type Configuration struct {
 	Fee        float32
 	Selection  string
 	Port       int32
+	PortPool   server.Pooler
 	TunnelURL  string
-	PortPool   *server.AddrPool
 }
 
 var Config Configuration

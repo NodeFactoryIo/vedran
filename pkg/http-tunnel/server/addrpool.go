@@ -20,6 +20,12 @@ type AddrPool struct {
 	addrMap map[int]*RemoteID
 }
 
+type Pooler interface {
+	Init(rang string) error
+	Acquire(cname string, pname string) (int, error)
+	Release(id string) error
+}
+
 func (ap *AddrPool) Init(rang string) error {
 	ap.mutex.Lock()
 	defer ap.mutex.Unlock()
