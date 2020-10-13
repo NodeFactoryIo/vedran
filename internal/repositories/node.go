@@ -145,7 +145,7 @@ func (r *NodeRepo) RewardNode(node models.Node) {
 	r.updateMemoryLastUsedTime(node)
 
 	node.LastUsed = time.Now().Unix()
-	err := r.db.Update(node)
+	err := r.db.Update(&node)
 	if err != nil {
 		log.Errorf("Failed updating node last used time because of: %v", err)
 	}
