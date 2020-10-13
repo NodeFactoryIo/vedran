@@ -1,4 +1,4 @@
-package httptunnel
+package tunnel
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func StartHttpTunnelServer(serverPort string, portRange string) {
+func StartTunnelServer(serverPort string, portRange string) {
 	logger := log.WithField("context", "tunnel-server")
 	s, err := server.NewServer(&server.ServerConfig{
 		Address:   fmt.Sprintf(":%s", serverPort),

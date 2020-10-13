@@ -3,7 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/internal/httptunnel"
+	"github.com/NodeFactoryIo/vedran/internal/tunnel"
 	"github.com/NodeFactoryIo/vedran/internal/ip"
 	"github.com/NodeFactoryIo/vedran/pkg/util"
 	"strings"
@@ -18,18 +18,18 @@ import (
 
 var (
 	// load balancer related flags
-	authSecret     string
-	name           string
-	capacity       int64
-	whitelist      []string
-	fee            float32
-	selection      string
-	httpServerPort int32
-	publicIP       string
+	authSecret string
+	name       string
+	capacity   int64
+	whitelist  []string
+	fee        float32
+	selection  string
+	serverPort int32
+	publicIP   string
 	// logging related flags
 	logLevel string
 	logFile  string
-	// http tunnel related flags
+	// tunnel related flags
 	tunnelServerPort string
 	tunnelPortRange  string
 )
@@ -63,8 +63,8 @@ var startCmd = &cobra.Command{
 			return errors.New("invalid fee value")
 		}
 		// well known ports and registered ports
-		if util.IsValidPortAsInt(httpServerPort) {
-			return errors.New("invalid http server port number")
+		if util.IsValidPortAsInt(serverPort) {
+			return errors.New("invalid rpc server port number")
 		}
 		// valid format is PortMin:PortMax
 		prt := strings.Split(tunnelPortRange, ":")
@@ -119,8 +119,8 @@ func init() {
 		"[OPTIONAL] Type of selection used for choosing nodes (round-robin, random)")
 
 	startCmd.Flags().Int32Var(
-		&httpServerPort,
-		"http-server-port",
+		&serverPort,
+		"server-port",
 		4000,
 		"[OPTIONAL] Port on which load balancer rpc server will be started")
 
@@ -170,7 +170,7 @@ func startCommand(_ *cobra.Command, _ []string) {
 		log.Infof("Tunnel server will listen on %s and connect tunnels on port range %s", tunnelURL, tunnelPortRange)
 	}
 
-	httptunnel.StartHttpTunnelServer(tunnelServerPort, tunnelPortRange)
+	tunnel.StartTunnelServer(tunnelServerPort, tunnelPortRange)
 
 	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
 		AuthSecret: authSecret,
@@ -179,7 +179,7 @@ func startCommand(_ *cobra.Command, _ []string) {
 		Whitelist:  whitelist,
 		Fee:        fee,
 		Selection:  selection,
-		Port:       httpServerPort,
+		Port:       serverPort,
 		TunnelURL:  tunnelURL,
 	})
 }
