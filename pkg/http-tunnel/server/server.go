@@ -9,17 +9,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/proto"
-	"github.com/inconshreveable/go-vhost"
-	log "github.com/sirupsen/logrus"
-	"golang.org/x/net/http2"
 	"io"
 	"net"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	tunnel "github.com/NodeFactoryIo/vedran/pkg/http-tunnel"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/proto"
+	"github.com/inconshreveable/go-vhost"
+	log "github.com/sirupsen/logrus"
+	"golang.org/x/net/http2"
 )
 
 // Server is responsible for proxying public connections to the client over a
@@ -41,8 +42,8 @@ type Server struct {
 type ServerConfig struct {
 	// Address is TCP address to listen for client connections. If empty ":0" is used.
 	Address string
-	// Address Pool enables Port AutoAssignation. If empty "10000:50000" is used.
-	PortRange string `default:"10000:50000"`
+	// Address Pool assigns and release ports
+	PortPool *AddrPool
 	// AuthHandler is function validates provided auth token
 	AuthHandler func(string) bool
 	// Logger is optional logger. If nil logging is disabled.
@@ -51,7 +52,6 @@ type ServerConfig struct {
 
 type serverData struct {
 	addr        string
-	portRange   string
 	listener    net.Listener
 	logger      *log.Entry
 	authHandler func(string) bool
@@ -67,12 +67,6 @@ func NewServer(config *ServerConfig) (*Server, error) {
 	}
 	serverData.addr = config.Address
 
-	if config.PortRange == "" {
-		config.PortRange = "10000:50000"
-	}
-	serverData.portRange = config.PortRange
-
-
 	logger := config.Logger
 	if logger == nil {
 		l := log.New()
@@ -86,16 +80,10 @@ func NewServer(config *ServerConfig) (*Server, error) {
 	}
 	serverData.authHandler = config.AuthHandler
 
-	return newServer(serverData)
+	return newServer(serverData, config.PortPool)
 }
 
-func newServer(serverData *serverData) (*Server, error) {
-	pPool := &AddrPool{}
-	err := pPool.Init(serverData.portRange)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create port range pool: %s", err)
-	}
-
+func newServer(serverData *serverData, pPool *AddrPool) (*Server, error) {
 	listener, err := listener(serverData)
 	if err != nil {
 		return nil, fmt.Errorf("listener failed: %s", err)
@@ -123,18 +111,6 @@ func newServer(serverData *serverData) (*Server, error) {
 	}
 
 	return s, nil
-}
-
-func listener(config *serverData) (net.Listener, error) {
-	if config.listener != nil {
-		return config.listener, nil
-	}
-
-	if config.addr == "" {
-		return nil, errors.New("missing addr")
-	}
-
-	return net.Listen("tcp", config.addr)
 }
 
 // disconnected clears resources used by client, it's invoked by connection pool

@@ -3,14 +3,15 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/internal/tunnel"
-	"github.com/NodeFactoryIo/vedran/internal/ip"
-	"github.com/NodeFactoryIo/vedran/pkg/util"
 	"strings"
 
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	"github.com/NodeFactoryIo/vedran/internal/ip"
 	"github.com/NodeFactoryIo/vedran/internal/loadbalancer"
+	"github.com/NodeFactoryIo/vedran/internal/tunnel"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/server"
 	"github.com/NodeFactoryIo/vedran/pkg/logger"
+	"github.com/NodeFactoryIo/vedran/pkg/util"
 	"github.com/NodeFactoryIo/vedran/pkg/util/random"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -172,6 +173,13 @@ func startCommand(_ *cobra.Command, _ []string) {
 
 	tunnel.StartTunnelServer(tunnelServerPort, tunnelPortRange)
 
+	pPool := &server.AddrPool{}
+	err := pPool.Init(tunnelPortRange)
+	if err != nil {
+		log.Fatal("Failed assigning port range because of: %v", err)
+	}
+
+	httptunnel.StartHttpTunnelServer(tunnelServerAddress, pPool)
 	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
 		AuthSecret: authSecret,
 		Name:       name,
@@ -181,5 +189,6 @@ func startCommand(_ *cobra.Command, _ []string) {
 		Selection:  selection,
 		Port:       serverPort,
 		TunnelURL:  tunnelURL,
+		PortPool:   pPool,
 	})
 }

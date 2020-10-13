@@ -1,5 +1,7 @@
 package configuration
 
+import "github.com/NodeFactoryIo/vedran/pkg/http-tunnel/server"
+
 type Configuration struct {
 	AuthSecret string
 	Name       string
@@ -9,6 +11,7 @@ type Configuration struct {
 	Selection  string
 	Port       int32
 	TunnelURL  string
+	PortPool   *server.AddrPool
 }
 
 var Config Configuration
