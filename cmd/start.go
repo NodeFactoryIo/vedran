@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/httptunnel"
+	"github.com/NodeFactoryIo/vedran/internal/ip"
 	"strings"
 
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
@@ -23,12 +24,13 @@ var (
 	fee        float32
 	selection  string
 	port       int32
+	publicIP   string
 	// logging related flags
 	logLevel string
 	logFile  string
 	// http tunnel related flags
-	tunnelServerAddress string
-	tunnelPortRange     string
+	tunnelServerPort string
+	tunnelPortRange  string
 )
 
 var startCmd = &cobra.Command{
@@ -115,6 +117,12 @@ func init() {
 		"[OPTIONAL] Port on which load balancer will be started")
 
 	startCmd.Flags().StringVar(
+		&publicIP,
+		"public-ip",
+		"",
+		"[OPTIONAL] Public ip of load balancer")
+
+	startCmd.Flags().StringVar(
 		&logLevel,
 		"log-level",
 		"error",
@@ -127,9 +135,9 @@ func init() {
 		"[OPTIONAL] Path to logfile (default stdout)")
 
 	startCmd.Flags().StringVar(
-		&tunnelServerAddress,
+		&tunnelServerPort,
 		"tunnel-address",
-		":5223",
+		"5223",
 		"[OPTIONAL] Address on which http tunnel server is running")
 
 	startCmd.Flags().StringVar(
@@ -143,7 +151,21 @@ func init() {
 
 func startCommand(_ *cobra.Command, _ []string) {
 	DisplayBanner()
-	httptunnel.StartHttpTunnelServer(tunnelServerAddress, tunnelPortRange)
+
+	var tunnelURL string
+	if publicIP == "" {
+		IP, err := ip.Get()
+		if err != nil {
+			log.Error("Unable to fetch public IP ", err)
+			return
+		}
+		publicIP = IP.String()
+		tunnelURL = fmt.Sprintf("%s:%s", publicIP, tunnelServerPort)
+		log.Infof("HTTP tunnel will be started on %s with port range %s", tunnelURL, tunnelPortRange)
+	}
+
+	httptunnel.StartHttpTunnelServer(tunnelServerPort, tunnelPortRange)
+
 	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
 		AuthSecret: authSecret,
 		Name:       name,
@@ -152,5 +174,6 @@ func startCommand(_ *cobra.Command, _ []string) {
 		Fee:        fee,
 		Selection:  selection,
 		Port:       port,
+		TunnelURL:  tunnelURL,
 	})
 }

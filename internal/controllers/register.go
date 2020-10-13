@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"net/http"
 	"time"
 
@@ -22,7 +23,7 @@ type RegisterRequest struct {
 
 type RegisterResponse struct {
 	Token string `json:"token"`
-	// TunnelURL string `json:"tunnel_url"`
+	TunnelURL string `json:"tunnel_url"`
 }
 
 func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -80,5 +81,8 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	// return generated token
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(RegisterResponse{token})
+	_ = json.NewEncoder(w).Encode(RegisterResponse{
+		Token:     token,
+		TunnelURL: configuration.Config.TunnelURL,
+	})
 }
