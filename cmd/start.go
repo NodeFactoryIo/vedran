@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	"github.com/NodeFactoryIo/vedran/internal/httptunnel"
 	"github.com/NodeFactoryIo/vedran/internal/ip"
 	"github.com/NodeFactoryIo/vedran/internal/loadbalancer"
 	"github.com/NodeFactoryIo/vedran/internal/tunnel"
@@ -179,7 +180,7 @@ func startCommand(_ *cobra.Command, _ []string) {
 		log.Fatal("Failed assigning port range because of: %v", err)
 	}
 
-	httptunnel.StartHttpTunnelServer(tunnelServerAddress, pPool)
+	httptunnel.StartHttpTunnelServer(tunnelServerPort, pPool)
 	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
 		AuthSecret: authSecret,
 		Name:       name,
