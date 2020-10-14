@@ -7,10 +7,9 @@
 package tunnel
 
 import (
+	"fmt"
 	"net"
 	"time"
-
-	"github.com/felixge/tcpkeepalive"
 )
 
 var (
@@ -26,5 +25,14 @@ var (
 )
 
 func KeepAlive(conn net.Conn) error {
-	return tcpkeepalive.SetKeepAlive(conn, DefaultKeepAliveIdleTime, DefaultKeepAliveCount, DefaultKeepAliveInterval)
+	c, ok := conn.(*net.TCPConn)
+	if !ok {
+		return fmt.Errorf("Bad connection type: %T", c)
+	}
+
+	if err := c.SetKeepAlive(true); err != nil {
+		return err
+	}
+
+	return nil
 }
