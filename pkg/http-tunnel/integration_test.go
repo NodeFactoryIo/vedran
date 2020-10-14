@@ -21,6 +21,7 @@ func Test_IntegrationTest(t *testing.T) {
 	l.SetLevel(log.DebugLevel)
 	poolerMock := &mocks.Pooler{}
 	poolerMock.On("Acquire", mock.Anything, mock.Anything).Return(33001, nil)
+	poolerMock.On("Release", mock.Anything).Return(nil)
 	s, err := server.NewServer(&server.ServerConfig{
 		Address:  ":5223",
 		PortPool: poolerMock,
