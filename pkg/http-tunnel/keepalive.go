@@ -7,19 +7,6 @@ package tunnel
 import (
 	"fmt"
 	"net"
-	"time"
-)
-
-var (
-	// DefaultKeepAliveIdleTime specifies how long connection can be idle
-	// before sending keepalive message.
-	DefaultKeepAliveIdleTime = 600 * time.Second
-	// DefaultKeepAliveCount specifies maximal number of keepalive messages
-	// sent before marking connection as dead.
-	DefaultKeepAliveCount = 20
-	// DefaultKeepAliveInterval specifies how often retry sending keepalive
-	// messages when no response is received.
-	DefaultKeepAliveInterval = 60 * time.Second
 )
 
 func KeepAlive(conn net.Conn) error {
