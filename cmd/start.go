@@ -186,7 +186,7 @@ func startCommand(_ *cobra.Command, _ []string) {
 		Fee:                 fee,
 		Selection:           selection,
 		Port:                serverPort,
-		tunnelServerAddress: tunnelServerAddress,
+		TunnelServerAddress: tunnelServerAddress,
 		PortPool:            pPool,
 	})
 }
