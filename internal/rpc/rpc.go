@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/NodeFactoryIo/vedran/internal/models"
 )
@@ -33,6 +34,8 @@ const (
 	InternalServerError = -32603
 	ParseError          = -32700
 	InvalidRequest      = -32600
+
+	RequestTimeout = 3 * time.Second
 )
 
 // IsBatch returns if request contains batch rpc requests
@@ -99,7 +102,10 @@ func CheckBatchRPCResponse(body []byte) ([]RPCResponse, error) {
 
 // SendRequestToNode routes request to node and checks response
 func SendRequestToNode(isBatch bool, node models.Node, reqBody []byte) (interface{}, error) {
-	resp, err := http.Post(node.NodeUrl, "application/json", bytes.NewBuffer(reqBody))
+	client := http.Client{
+		Timeout: RequestTimeout,
+	}
+	resp, err := client.Post(node.NodeUrl, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, err
 	} else if resp.StatusCode != http.StatusOK {
