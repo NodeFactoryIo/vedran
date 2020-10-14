@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"time"
 
-	"github.com/NodeFactoryIo/vedran/internal/models"
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
 )
 
 type RPCError struct {
@@ -101,11 +102,20 @@ func CheckBatchRPCResponse(body []byte) ([]RPCResponse, error) {
 }
 
 // SendRequestToNode routes request to node and checks response
-func SendRequestToNode(isBatch bool, node models.Node, reqBody []byte) (interface{}, error) {
+func SendRequestToNode(isBatch bool, nodeID string, reqBody []byte) (interface{}, error) {
+	port, err := configuration.Config.PortPool.GetPort(nodeID)
+	if err != nil {
+		return nil, err
+	}
+
 	client := http.Client{
 		Timeout: RequestTimeout,
 	}
-	resp, err := client.Post("127.0.0.1:2000", "application/json", bytes.NewBuffer(reqBody))
+	resp, err := client.Post(
+		"http://127.0.0.1:"+strconv.Itoa(port)+"/",
+		"application/json",
+		bytes.NewBuffer(reqBody),
+	)
 	if err != nil {
 		return nil, err
 	} else if resp.StatusCode != http.StatusOK {

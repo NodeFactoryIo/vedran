@@ -1,13 +1,19 @@
 package rpc
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"reflect"
+	"strconv"
 	"testing"
 
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
+	tunnelMocks "github.com/NodeFactoryIo/vedran/mocks/http-tunnel/server"
+	"github.com/stretchr/testify/mock"
 )
 
 var (
@@ -58,63 +64,83 @@ func TestSendRequestToNode(t *testing.T) {
 	setup()
 	defer teardown()
 
+	poolerMock := &tunnelMocks.Pooler{}
+	configuration.Config.PortPool = poolerMock
+
 	type args struct {
+		url     string
 		batch   bool
 		node    models.Node
 		reqBody []byte
 	}
 	tests := []struct {
 		name       string
+		portValid  bool
 		args       args
 		want       interface{}
 		wantErr    bool
 		handleFunc handleFnMock
 	}{
 		{
-			name:    "Returns error if node url invalid",
-			args:    args{true, models.Node{}, []byte("{}")},
-			wantErr: true,
-			want:    nil,
+			name:      "Returns error if getting port fails ",
+			args:      args{"valid", true, models.Node{}, []byte("{}")},
+			portValid: false,
+			wantErr:   true,
+			want:      nil,
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
 				_, _ = io.WriteString(w, `{}`)
 			}},
 		{
-			name:    "Returns error if it cannot read response",
-			args:    args{true, models.Node{}, []byte("{}")},
-			wantErr: true,
-			want:    nil,
+			name:      "Returns error if url invalid",
+			args:      args{"invalid", true, models.Node{}, []byte("{}")},
+			portValid: true,
+			wantErr:   true,
+			want:      nil,
+			handleFunc: func(w http.ResponseWriter, r *http.Request) {
+				_, _ = io.WriteString(w, `{}`)
+			}},
+		{
+			name:      "Returns error if it cannot read response",
+			args:      args{"valid", true, models.Node{}, []byte("{}")},
+			wantErr:   true,
+			portValid: true,
+			want:      nil,
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Length", "1")
 			}},
 		{
-			name:    "Returns error if node returns invalid status code",
-			args:    args{true, models.Node{}, []byte("{}")},
-			wantErr: true,
-			want:    nil,
+			name:      "Returns error if node returns invalid status code",
+			args:      args{"valid", true, models.Node{}, []byte("{}")},
+			wantErr:   true,
+			want:      nil,
+			portValid: true,
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Error", 404)
 			}},
 		{
-			name:    "Returns error if check batch rpc response returns error",
-			args:    args{true, models.Node{}, []byte(`{}`)},
-			wantErr: true,
-			want:    nil,
+			name:      "Returns error if check batch rpc response returns error",
+			args:      args{"valid", true, models.Node{}, []byte(`{}`)},
+			wantErr:   true,
+			want:      nil,
+			portValid: true,
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
 				_, _ = io.WriteString(w, `{}`)
 			}},
 		{
-			name:    "Returns error if check single rpc response returns error",
-			args:    args{false, models.Node{}, []byte(`{}`)},
-			wantErr: true,
-			want:    nil,
+			name:      "Returns error if check single rpc response returns error",
+			args:      args{"valid", false, models.Node{}, []byte(`{}`)},
+			wantErr:   true,
+			portValid: true,
+			want:      nil,
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
 				_, _ = io.WriteString(w, `{"error": {"code": -32603}}`)
 			}},
 		{
-			name:    "Returns unmarshaled response if rpc response valid",
-			args:    args{false, models.Node{}, []byte(`{}`)},
-			wantErr: false,
-			want:    RPCResponse{ID: 1},
+			name:      "Returns unmarshaled response if rpc response valid",
+			args:      args{"valid", false, models.Node{}, []byte(`{}`)},
+			wantErr:   false,
+			portValid: true,
+			want:      RPCResponse{ID: 1},
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
 				_, _ = io.WriteString(w, `{"id": 1}`)
 			}},
@@ -123,9 +149,19 @@ func TestSendRequestToNode(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			setup()
 
+			if tt.args.url == "valid" && tt.portValid {
+				serverURL, _ := url.Parse(server.URL)
+				port, _ := strconv.Atoi(serverURL.Port())
+				poolerMock.On("GetPort", mock.Anything).Once().Return(port, nil)
+			} else if tt.args.url == "invalid" && tt.portValid {
+				poolerMock.On("GetPort", mock.Anything).Once().Return(1331313, nil)
+			} else {
+				poolerMock.On("GetPort", mock.Anything).Once().Return(0, fmt.Errorf("ERROR"))
+			}
+
 			mux.HandleFunc("/", tt.handleFunc)
 
-			got, err := SendRequestToNode(tt.args.batch, tt.args.node, tt.args.reqBody)
+			got, err := SendRequestToNode(tt.args.batch, tt.args.node.ID, tt.args.reqBody)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("SendRequestToNode() error = %v, wantErr %v", err, tt.wantErr)
