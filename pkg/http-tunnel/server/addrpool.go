@@ -10,6 +10,7 @@ import (
 type RemoteID struct {
 	ClientID string
 	PortName string
+	Port     int
 }
 
 type AddrPool struct {
@@ -24,6 +25,7 @@ type Pooler interface {
 	Init(rang string) error
 	Acquire(cname string, pname string) (int, error)
 	Release(id string) error
+	GetPort(id string) (int, error)
 }
 
 func (ap *AddrPool) Init(rang string) error {
@@ -55,27 +57,27 @@ func (ap *AddrPool) Init(rang string) error {
 func (ap *AddrPool) Acquire(cname string, pname string) (int, error) {
 	ap.mutex.Lock()
 	defer ap.mutex.Unlock()
-	var assigned int
-	assigned = 0
+	var assignedPort int
+	assignedPort = 0
 	// search for the first unnused port
 	for i := ap.first; i < ap.last; i++ {
 		cur := ap.addrMap[i]
 		if cur == nil {
 			//empty
+			assignedPort = i
 			ap.used++
 			ap.addrMap[i] = &RemoteID{
 				ClientID: cname,
 				PortName: pname,
+				Port:     assignedPort,
 			}
-			assigned = i
 			break
 		}
 	}
-	if assigned == 0 {
+	if assignedPort == 0 {
 		return 0, fmt.Errorf("pool is full , can not assign any Port Address")
 	}
-	return assigned, nil
-
+	return assignedPort, nil
 }
 
 func (ap *AddrPool) Release(id string) error {
@@ -98,4 +100,14 @@ func (ap *AddrPool) Release(id string) error {
 	}
 
 	return nil
+}
+
+func (ap *AddrPool) GetPort(id string) (int, error) {
+	for i := ap.first; i < ap.last; i++ {
+		if ap.addrMap[i].ClientID == id {
+			return ap.addrMap[i].Port, nil
+		}
+	}
+
+	return 0, fmt.Errorf("No port for id %s in pool", id)
 }
