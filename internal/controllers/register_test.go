@@ -20,11 +20,11 @@ import (
 )
 
 func TestApiController_RegisterHandler(t *testing.T) {
-	const TestTunnelURL = "test-tunnel-url:5533"
+	const TestTunnelServerAddress = "test-tunnel-url:5533"
 	poolMock := &tunnelMocks.Pooler{}
 	configuration.Config = configuration.Configuration{
-		TunnelURL: TestTunnelURL,
-		PortPool:  poolMock,
+		TunnelServerAddress: TestTunnelServerAddress,
+		PortPool:            poolMock,
 	}
 
 	// define test cases
@@ -50,9 +50,9 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			},
 			httpStatus: http.StatusOK,
 			registerResponse: RegisterResponse{
-				Token:     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
-				TunnelURL: TestTunnelURL,
-				Port:      33333,
+				Token:               "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
+				TunnelServerAddress: TestTunnelServerAddress,
+				Port:                33333,
 			},
 			isWhitelisted:                 false,
 			saveMockReturns:               nil,
@@ -71,9 +71,9 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			},
 			httpStatus: http.StatusOK,
 			registerResponse: RegisterResponse{
-				Token:     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
-				TunnelURL: TestTunnelURL,
-				Port:      33333,
+				Token:               "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
+				TunnelServerAddress: TestTunnelServerAddress,
+				Port:                33333,
 			},
 			isWhitelisted:                 true,
 			saveMockReturns:               nil,

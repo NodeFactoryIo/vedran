@@ -167,26 +167,26 @@ func startCommand(_ *cobra.Command, _ []string) {
 		log.Fatalf("Failed assigning port range because of: %v", err)
 	}
 
-	var tunnelURL string
+	var tunnelServerAddress string
 	if publicIP == "" {
 		IP, err := ip.Get()
 		if err != nil {
 			log.Fatal("Unable to fetch public IP address. Please set one explicitly!", err)
 		}
-		tunnelURL = fmt.Sprintf("%s:%s", IP.String(), tunnelServerPort)
-		log.Infof("Tunnel server will listen on %s and connect tunnels on port range %s", tunnelURL, tunnelPortRange)
+		tunnelServerAddress = fmt.Sprintf("%s:%s", IP.String(), tunnelServerPort)
+		log.Infof("Tunnel server will listen on %s and connect tunnels on port range %s", tunnelServerAddress, tunnelPortRange)
 	}
 
 	tunnel.StartHttpTunnelServer(tunnelServerPort, pPool)
 	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
-		AuthSecret: authSecret,
-		Name:       name,
-		Capacity:   capacity,
-		Whitelist:  whitelist,
-		Fee:        fee,
-		Selection:  selection,
-		Port:       serverPort,
-		TunnelURL:  tunnelURL,
-		PortPool:   pPool,
+		AuthSecret:          authSecret,
+		Name:                name,
+		Capacity:            capacity,
+		Whitelist:           whitelist,
+		Fee:                 fee,
+		Selection:           selection,
+		Port:                serverPort,
+		tunnelServerAddress: tunnelServerAddress,
+		PortPool:            pPool,
 	})
 }

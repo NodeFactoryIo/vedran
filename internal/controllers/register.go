@@ -22,9 +22,9 @@ type RegisterRequest struct {
 }
 
 type RegisterResponse struct {
-	Token     string `json:"token"`
-	TunnelURL string `json:"tunnel_url"`
-	Port      int    `json:"port"`
+	Token               string `json:"token"`
+	TunnelServerAddress string `json:"tunnel_server_address"`
+	Port                int    `json:"port"`
 }
 
 func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -90,8 +90,8 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	// return generated token
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(RegisterResponse{
-		Token:     token,
-		TunnelURL: configuration.Config.TunnelURL,
-		Port:      port,
+		Token:               token,
+		TunnelServerAddress: configuration.Config.TunnelServerAddress,
+		Port:                port,
 	})
 }
