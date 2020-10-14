@@ -11,7 +11,7 @@
 - Fix panic if no nodes in database after startup [\#62](https://github.com/NodeFactoryIo/vedran/pull/62) ([mpetrun5](https://github.com/mpetrun5))
 
 ### Changed
-- Return port in register response [\#65](https://github.com/NodeFactoryIo/vedran/pull/65) ([mpetrun5](https://github.com/mpetrun5))
+- Use port from tunnel map for calling node [\#65](https://github.com/NodeFactoryIo/vedran/pull/65) ([mpetrun5](https://github.com/mpetrun5))
 
 ## [v0.1.1]((https://github.com/NodeFactoryIo/vedran/tree/v0.1.1))
 
