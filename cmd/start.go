@@ -3,6 +3,10 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/tunnel"
+	"github.com/NodeFactoryIo/vedran/internal/ip"
+	"github.com/NodeFactoryIo/vedran/pkg/util"
+	"strings"
 
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/loadbalancer"
@@ -20,10 +24,14 @@ var (
 	whitelist  []string
 	fee        float32
 	selection  string
-	port       int32
+	serverPort int32
+	publicIP   string
 	// logging related flags
 	logLevel string
 	logFile  string
+	// tunnel related flags
+	tunnelServerPort string
+	tunnelPortRange  string
 )
 
 var startCmd = &cobra.Command{
@@ -55,8 +63,19 @@ var startCmd = &cobra.Command{
 			return errors.New("invalid fee value")
 		}
 		// well known ports and registered ports
-		if port <= 0 && port > 49151 {
-			return errors.New("invalid port number")
+		if !util.IsValidPortAsInt(serverPort) {
+			return errors.New("invalid rpc server port number")
+		}
+		// valid format is PortMin:PortMax
+		prt := strings.Split(tunnelPortRange, ":")
+		if len(prt) != 2 {
+			return errors.New("invalid port range, should be defined as \"PortMin:PortMax\"")
+		}
+		if !util.IsValidPortAsStr(prt[0]) {
+			return errors.New("invalid port number provided for min port inside port range")
+		}
+		if !util.IsValidPortAsStr(prt[1]) {
+			return errors.New("invalid port number provided for max port inside port range")
 		}
 		return nil
 	},
@@ -100,10 +119,16 @@ func init() {
 		"[OPTIONAL] Type of selection used for choosing nodes (round-robin, random)")
 
 	startCmd.Flags().Int32Var(
-		&port,
-		"port",
+		&serverPort,
+		"server-port",
 		4000,
-		"[OPTIONAL] Port on which load balancer will be started")
+		"[OPTIONAL] Port on which load balancer rpc server will be started")
+
+	startCmd.Flags().StringVar(
+		&publicIP,
+		"public-ip",
+		"",
+		"[OPTIONAL] Public ip of load balancer")
 
 	startCmd.Flags().StringVar(
 		&logLevel,
@@ -117,11 +142,36 @@ func init() {
 		"",
 		"[OPTIONAL] Path to logfile (default stdout)")
 
+	startCmd.Flags().StringVar(
+		&tunnelServerPort,
+		"tunnel-port",
+		"5223",
+		"[OPTIONAL] Address on which tunnel server is listening")
+
+	startCmd.Flags().StringVar(
+		&tunnelPortRange,
+		"tunnel-port-range",
+		"20000:30000",
+		"[OPTIONAL] Range of ports which is used to open tunnels")
+
 	RootCmd.AddCommand(startCmd)
 }
 
 func startCommand(_ *cobra.Command, _ []string) {
 	DisplayBanner()
+
+	var tunnelURL string
+	if publicIP == "" {
+		IP, err := ip.Get()
+		if err != nil {
+			log.Fatal("Unable to fetch public IP address. Please set one explicitly!", err)
+		}
+		tunnelURL = fmt.Sprintf("%s:%s", IP.String(), tunnelServerPort)
+		log.Infof("Tunnel server will listen on %s and connect tunnels on port range %s", tunnelURL, tunnelPortRange)
+	}
+
+	tunnel.StartTunnelServer(tunnelServerPort, tunnelPortRange)
+
 	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
 		AuthSecret: authSecret,
 		Name:       name,
@@ -129,6 +179,7 @@ func startCommand(_ *cobra.Command, _ []string) {
 		Whitelist:  whitelist,
 		Fee:        fee,
 		Selection:  selection,
-		Port:       port,
+		Port:       serverPort,
+		TunnelURL:  tunnelURL,
 	})
 }

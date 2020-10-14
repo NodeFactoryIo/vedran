@@ -8,6 +8,7 @@ type Configuration struct {
 	Fee        float32
 	Selection  string
 	Port       int32
+	TunnelURL  string
 }
 
 var Config Configuration
