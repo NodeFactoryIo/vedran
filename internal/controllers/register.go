@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/NodeFactoryIo/vedran/internal/auth"
@@ -24,7 +23,6 @@ type RegisterRequest struct {
 type RegisterResponse struct {
 	Token               string `json:"token"`
 	TunnelServerAddress string `json:"tunnel_server_address"`
-	Port                int    `json:"port"`
 }
 
 func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -41,13 +39,6 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 			log.Error(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
-		return
-	}
-
-	port, err := configuration.Config.PortPool.Acquire(registerRequest.Id, registerRequest.Id)
-	if err != nil {
-		log.Errorf("Unable to assign port, error: %v", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
@@ -73,7 +64,6 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	node := &models.Node{
 		ID:            registerRequest.Id,
 		ConfigHash:    registerRequest.ConfigHash,
-		NodeUrl:       "http://127.0.0.1:" + strconv.Itoa(port),
 		PayoutAddress: registerRequest.PayoutAddress,
 		Token:         token,
 		LastUsed:      time.Now().Unix(),
@@ -92,6 +82,5 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(RegisterResponse{
 		Token:               token,
 		TunnelServerAddress: configuration.Config.TunnelServerAddress,
-		Port:                port,
 	})
 }
