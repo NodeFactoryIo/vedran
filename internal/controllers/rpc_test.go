@@ -7,11 +7,15 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"reflect"
+	"strconv"
 	"testing"
 
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/rpc"
+	tunnelMocks "github.com/NodeFactoryIo/vedran/mocks/http-tunnel/server"
 	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
 	"github.com/stretchr/testify/mock"
 )
@@ -36,6 +40,9 @@ func TestApiController_RPCHandler(t *testing.T) {
 	setup()
 	defer teardown()
 
+	poolerMock := &tunnelMocks.Pooler{}
+	configuration.Config.PortPool = poolerMock
+
 	nodeRepoMock := mocks.NodeRepository{}
 	pingRepoMock := mocks.PingRepository{}
 	metricsRepoMock := mocks.MetricsRepository{}
@@ -52,32 +59,6 @@ func TestApiController_RPCHandler(t *testing.T) {
 		handleFunc  handleFnMock
 	}{
 		{
-			name:       "Returns parse error if json invalid",
-			rpcRequest: `INVALID`,
-			rpcResponse: rpc.RPCResponse{
-				ID:      0,
-				JSONRPC: "2.0",
-				Error:   &rpc.RPCError{Code: -32700, Message: "Parse error"},
-			}},
-		{
-			name:       "Returns server error if no available nodes",
-			rpcRequest: `{"jsonrpc": "2.0", "id": 1, "method": "system"}`,
-			rpcResponse: rpc.RPCResponse{
-				ID:      1,
-				JSONRPC: "2.0",
-				Error:   &rpc.RPCError{Code: -32603, Message: "No available nodes"},
-			},
-			nodes: []models.Node{}},
-		{
-			name:       "Returns server error if all nodes return invalid rpc response",
-			rpcRequest: `{"jsonrpc": "2.0", "id": 1, "method": "system"}`,
-			rpcResponse: rpc.RPCResponse{
-				ID:      1,
-				JSONRPC: "2.0",
-				Error:   &rpc.RPCError{Code: -32603, Message: "Internal Server Error"},
-			},
-			nodes: []models.Node{{ID: "test-id"}}},
-		{
 			name:       "Returns response if node returnes valid rpc response",
 			rpcRequest: `{"jsonrpc": "2.0", "id": 1, "method": "system"}`,
 			rpcResponse: rpc.RPCResponse{
@@ -89,15 +70,52 @@ func TestApiController_RPCHandler(t *testing.T) {
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
 				_, _ = io.WriteString(w, `{"id": 1, "jsonrpc": "2.0"}`)
 			}},
+		{
+			name:       "Returns parse error if json invalid",
+			rpcRequest: `INVALID`,
+			rpcResponse: rpc.RPCResponse{
+				ID:      0,
+				JSONRPC: "2.0",
+				Error:   &rpc.RPCError{Code: -32700, Message: "Parse error"},
+			},
+			handleFunc: func(w http.ResponseWriter, r *http.Request) {
+				_, _ = io.WriteString(w, `{"id": 1, "jsonrpc": "2.0"}`)
+			}},
+		{
+			name:       "Returns server error if no available nodes",
+			rpcRequest: `{"jsonrpc": "2.0", "id": 1, "method": "system"}`,
+			rpcResponse: rpc.RPCResponse{
+				ID:      1,
+				JSONRPC: "2.0",
+				Error:   &rpc.RPCError{Code: -32603, Message: "No available nodes"},
+			},
+			nodes: []models.Node{},
+			handleFunc: func(w http.ResponseWriter, r *http.Request) {
+				_, _ = io.WriteString(w, `{"id": 1, "jsonrpc": "2.0"}`)
+			}},
+		{
+			name:       "Returns server error if all nodes return invalid rpc response",
+			rpcRequest: `{"jsonrpc": "2.0", "id": 1, "method": "system"}`,
+			rpcResponse: rpc.RPCResponse{
+				ID:      1,
+				JSONRPC: "2.0",
+				Error:   &rpc.RPCError{Code: -32603, Message: "Internal Server Error"},
+			},
+			nodes: []models.Node{{ID: "test-id"}},
+			handleFunc: func(w http.ResponseWriter, r *http.Request) {
+				_, _ = io.WriteString(w, `{"id": 1, "jsonrpc": "2.0"}`)
+			}},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			setup()
 
-			if test.handleFunc != nil {
-				mux.HandleFunc("/", test.handleFunc)
-			}
+			serverURL, _ := url.Parse(server.URL)
+			port, _ := strconv.Atoi(serverURL.Port())
+			poolerMock.On("GetPort", mock.Anything).Once().Return(port, nil)
+
+			mux.HandleFunc("/", test.handleFunc)
 
 			nodeRepoMock.On("GetActiveNodes", mock.Anything).Return(&test.nodes, nil)
 			nodeRepoMock.On("RewardNode", mock.Anything).Return()
