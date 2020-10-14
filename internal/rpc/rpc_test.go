@@ -72,7 +72,7 @@ func TestSendRequestToNode(t *testing.T) {
 	}{
 		{
 			name:    "Returns error if node url invalid",
-			args:    args{true, models.Node{NodeUrl: "invalid"}, []byte("{}")},
+			args:    args{true, models.Node{}, []byte("{}")},
 			wantErr: true,
 			want:    nil,
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
@@ -80,7 +80,7 @@ func TestSendRequestToNode(t *testing.T) {
 			}},
 		{
 			name:    "Returns error if it cannot read response",
-			args:    args{true, models.Node{NodeUrl: "valid"}, []byte("{}")},
+			args:    args{true, models.Node{}, []byte("{}")},
 			wantErr: true,
 			want:    nil,
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
@@ -88,7 +88,7 @@ func TestSendRequestToNode(t *testing.T) {
 			}},
 		{
 			name:    "Returns error if node returns invalid status code",
-			args:    args{true, models.Node{NodeUrl: "valid"}, []byte("{}")},
+			args:    args{true, models.Node{}, []byte("{}")},
 			wantErr: true,
 			want:    nil,
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
@@ -96,7 +96,7 @@ func TestSendRequestToNode(t *testing.T) {
 			}},
 		{
 			name:    "Returns error if check batch rpc response returns error",
-			args:    args{true, models.Node{NodeUrl: "valid"}, []byte(`{}`)},
+			args:    args{true, models.Node{}, []byte(`{}`)},
 			wantErr: true,
 			want:    nil,
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
@@ -104,7 +104,7 @@ func TestSendRequestToNode(t *testing.T) {
 			}},
 		{
 			name:    "Returns error if check single rpc response returns error",
-			args:    args{false, models.Node{NodeUrl: "valid"}, []byte(`{}`)},
+			args:    args{false, models.Node{}, []byte(`{}`)},
 			wantErr: true,
 			want:    nil,
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
@@ -112,7 +112,7 @@ func TestSendRequestToNode(t *testing.T) {
 			}},
 		{
 			name:    "Returns unmarshaled response if rpc response valid",
-			args:    args{false, models.Node{NodeUrl: "valid"}, []byte(`{}`)},
+			args:    args{false, models.Node{}, []byte(`{}`)},
 			wantErr: false,
 			want:    RPCResponse{ID: 1},
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
@@ -122,12 +122,6 @@ func TestSendRequestToNode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			setup()
-
-			if tt.args.node.NodeUrl == "valid" {
-				tt.args.node.NodeUrl = server.URL
-			} else {
-				tt.args.node.NodeUrl = "INVALID"
-			}
 
 			mux.HandleFunc("/", tt.handleFunc)
 

@@ -105,7 +105,7 @@ func SendRequestToNode(isBatch bool, node models.Node, reqBody []byte) (interfac
 	client := http.Client{
 		Timeout: RequestTimeout,
 	}
-	resp, err := client.Post(node.NodeUrl, "application/json", bytes.NewBuffer(reqBody))
+	resp, err := client.Post("127.0.0.1:2000", "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, err
 	} else if resp.StatusCode != http.StatusOK {

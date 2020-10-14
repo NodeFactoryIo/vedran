@@ -76,7 +76,7 @@ func TestApiController_RPCHandler(t *testing.T) {
 				JSONRPC: "2.0",
 				Error:   &rpc.RPCError{Code: -32603, Message: "Internal Server Error"},
 			},
-			nodes: []models.Node{{ID: "test-id", NodeUrl: "invalid"}}},
+			nodes: []models.Node{{ID: "test-id"}}},
 		{
 			name:       "Returns response if node returnes valid rpc response",
 			rpcRequest: `{"jsonrpc": "2.0", "id": 1, "method": "system"}`,
@@ -85,7 +85,7 @@ func TestApiController_RPCHandler(t *testing.T) {
 				JSONRPC: "2.0",
 				Error:   nil,
 			},
-			nodes: []models.Node{{ID: "test-id", NodeUrl: "valid"}},
+			nodes: []models.Node{{ID: "test-id"}},
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
 				_, _ = io.WriteString(w, `{"id": 1, "jsonrpc": "2.0"}`)
 			}},
@@ -97,11 +97,6 @@ func TestApiController_RPCHandler(t *testing.T) {
 
 			if test.handleFunc != nil {
 				mux.HandleFunc("/", test.handleFunc)
-			}
-			if len(test.nodes) > 0 && test.nodes[0].NodeUrl == "valid" {
-				test.nodes[0].NodeUrl = server.URL
-			} else if len(test.nodes) > 0 {
-				test.nodes[0].NodeUrl = "INVALID"
 			}
 
 			nodeRepoMock.On("GetActiveNodes", mock.Anything).Return(&test.nodes, nil)
@@ -154,7 +149,7 @@ func TestApiController_BatchRPCHandler(t *testing.T) {
 					JSONRPC: "2.0",
 					Error:   &rpc.RPCError{Code: -32603, Message: "Internal Server Error"}},
 			},
-			nodes: []models.Node{{ID: "test-id", NodeUrl: "invalid"}}},
+			nodes: []models.Node{{ID: "test-id"}}},
 	}
 
 	for _, test := range tests {
@@ -163,11 +158,6 @@ func TestApiController_BatchRPCHandler(t *testing.T) {
 
 			if test.handleFunc != nil {
 				mux.HandleFunc("/", test.handleFunc)
-			}
-			if len(test.nodes) > 0 && test.nodes[0].NodeUrl == "valid" {
-				test.nodes[0].NodeUrl = server.URL
-			} else if len(test.nodes) > 0 {
-				test.nodes[0].NodeUrl = "INVALID"
 			}
 
 			nodeRepoMock.On("GetActiveNodes", mock.Anything).Return(&test.nodes, nil)
