@@ -44,14 +44,9 @@ func (ap *AddrPool) Init(rang string) error {
 		return fmt.Errorf("Port Range Bad Formated  last %d slower than first %d", ap.last, ap.first)
 	}
 
-	ap.addrMap = make(map[int]*RemoteID, ap.last-ap.first)
-
-	for i := ap.first; i < ap.last; i++ {
-		ap.addrMap[i] = nil
-	}
+	ap.addrMap = make(map[int]*RemoteID, 0)
 
 	return nil
-
 }
 
 func (ap *AddrPool) Acquire(cname string, pname string) (int, error) {
@@ -103,9 +98,9 @@ func (ap *AddrPool) Release(id string) error {
 }
 
 func (ap *AddrPool) GetPort(id string) (int, error) {
-	for i := ap.first; i < ap.last; i++ {
-		if ap.addrMap[i].ClientID == id {
-			return ap.addrMap[i].Port, nil
+	for _, addr := range ap.addrMap {
+		if addr != nil && addr.ClientID == id {
+			return addr.Port, nil
 		}
 	}
 

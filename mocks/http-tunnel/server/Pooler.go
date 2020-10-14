@@ -30,6 +30,27 @@ func (_m *Pooler) Acquire(cname string, pname string) (int, error) {
 	return r0, r1
 }
 
+// GetPort provides a mock function with given fields: id
+func (_m *Pooler) GetPort(id string) (int, error) {
+	ret := _m.Called(id)
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func(string) int); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Init provides a mock function with given fields: rang
 func (_m *Pooler) Init(rang string) error {
 	ret := _m.Called(rang)
