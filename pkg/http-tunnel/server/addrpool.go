@@ -52,8 +52,7 @@ func (ap *AddrPool) Init(rang string) error {
 func (ap *AddrPool) Acquire(cname string, pname string) (int, error) {
 	ap.mutex.Lock()
 	defer ap.mutex.Unlock()
-	var assignedPort int
-	assignedPort = 0
+	assignedPort := 0
 	// search for the first unnused port
 	for i := ap.first; i < ap.last; i++ {
 		cur := ap.addrMap[i]
