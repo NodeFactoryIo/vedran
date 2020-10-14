@@ -7,6 +7,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"github.com/NodeFactoryIo/vedran/internal/router"
+	"github.com/NodeFactoryIo/vedran/internal/schedule"
 	"github.com/asdine/storm/v3"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -41,6 +42,9 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 	repos.MetricsRepo = repositories.NewMetricsRepo(database)
 	repos.RecordRepo = repositories.NewRecordRepo(database)
 
+	schedule.StartScheduleTask(repos)
+
+	// whitelist
 	whitelistEnabled := len(props.Whitelist) > 0
 	// save whitelisted id-s
 	if whitelistEnabled {
