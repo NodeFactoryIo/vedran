@@ -1,7 +1,6 @@
 package server
 
 import (
-	"sync"
 	"testing"
 )
 
@@ -53,7 +52,6 @@ func TestAddrPool_Acquire(t *testing.T) {
 		first   int
 		last    int
 		used    int
-		mutex   sync.Mutex
 		addrMap map[int]*RemoteID
 	}
 	type args struct {
@@ -72,14 +70,14 @@ func TestAddrPool_Acquire(t *testing.T) {
 			args:    args{cname: "test-id", pname: "default"},
 			wantErr: true,
 			want:    0,
-			fields:  fields{100, 100, 1, sync.Mutex{}, make(map[int]*RemoteID)},
+			fields:  fields{100, 100, 1, make(map[int]*RemoteID)},
 		},
 		{
 			name:    "Returns port if available",
 			args:    args{cname: "test-id", pname: "default"},
 			wantErr: false,
 			want:    100,
-			fields:  fields{100, 101, 1, sync.Mutex{}, make(map[int]*RemoteID)},
+			fields:  fields{100, 101, 1, make(map[int]*RemoteID)},
 		},
 	}
 	for _, tt := range tests {
@@ -88,7 +86,6 @@ func TestAddrPool_Acquire(t *testing.T) {
 				first:   tt.fields.first,
 				last:    tt.fields.last,
 				used:    tt.fields.used,
-				mutex:   tt.fields.mutex,
 				addrMap: tt.fields.addrMap,
 			}
 			got, err := ap.Acquire(tt.args.cname, tt.args.pname)
@@ -114,7 +111,6 @@ func TestAddrPool_Release(t *testing.T) {
 		first   int
 		last    int
 		used    int
-		mutex   sync.Mutex
 		addrMap map[int]*RemoteID
 	}
 	type args struct {
@@ -130,13 +126,13 @@ func TestAddrPool_Release(t *testing.T) {
 			name:    "Returns error if id not found in pool",
 			args:    args{id: "invalid"},
 			wantErr: true,
-			fields:  fields{100, 100, 1, sync.Mutex{}, make(map[int]*RemoteID)},
+			fields:  fields{100, 100, 1, make(map[int]*RemoteID)},
 		},
 		{
 			name:    "Returns nil if id in pool",
 			args:    args{id: "valid-id"},
 			wantErr: false,
-			fields:  fields{100, 101, 1, sync.Mutex{}, addrMap},
+			fields:  fields{100, 101, 1, addrMap},
 		},
 	}
 	for _, tt := range tests {
@@ -145,7 +141,6 @@ func TestAddrPool_Release(t *testing.T) {
 				first:   tt.fields.first,
 				last:    tt.fields.last,
 				used:    tt.fields.used,
-				mutex:   tt.fields.mutex,
 				addrMap: tt.fields.addrMap,
 			}
 			if err := ap.Release(tt.args.id); (err != nil) != tt.wantErr {
@@ -166,7 +161,6 @@ func TestAddrPool_GetPort(t *testing.T) {
 		first   int
 		last    int
 		used    int
-		mutex   sync.Mutex
 		addrMap map[int]*RemoteID
 	}
 	type args struct {
@@ -184,14 +178,14 @@ func TestAddrPool_GetPort(t *testing.T) {
 			args:    args{id: "invalid"},
 			wantErr: true,
 			want:    0,
-			fields:  fields{100, 100, 1, sync.Mutex{}, make(map[int]*RemoteID)},
+			fields:  fields{100, 100, 1, make(map[int]*RemoteID)},
 		},
 		{
 			name:    "Returns nil if id in pool",
 			args:    args{id: "valid-id"},
 			wantErr: false,
 			want:    20000,
-			fields:  fields{100, 101, 1, sync.Mutex{}, addrMap},
+			fields:  fields{100, 101, 1, addrMap},
 		},
 	}
 
@@ -201,7 +195,6 @@ func TestAddrPool_GetPort(t *testing.T) {
 				first:   tt.fields.first,
 				last:    tt.fields.last,
 				used:    tt.fields.used,
-				mutex:   tt.fields.mutex,
 				addrMap: tt.fields.addrMap,
 			}
 			got, err := ap.GetPort(tt.args.id)

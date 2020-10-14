@@ -44,7 +44,7 @@ func (ap *AddrPool) Init(rang string) error {
 		return fmt.Errorf("Port Range Bad Formated  last %d slower than first %d", ap.last, ap.first)
 	}
 
-	ap.addrMap = make(map[int]*RemoteID, 0)
+	ap.addrMap = make(map[int]*RemoteID)
 
 	return nil
 }
