@@ -35,7 +35,13 @@ func (r *NodeRepo) getValidNodes() (*[]models.Node, error) {
 
 func (r *NodeRepo) InitNodeRepo() error {
 	nodes, err := r.getValidNodes()
+
 	if err != nil {
+		if err.Error() == "not found" {
+			memoryNodes = make([]models.Node, 0)
+			return nil
+		}
+
 		return err
 	}
 
