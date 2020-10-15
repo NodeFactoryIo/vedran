@@ -2,6 +2,7 @@ package router
 
 import (
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"testing"
 
 	"github.com/NodeFactoryIo/vedran/internal/controllers"
@@ -17,10 +18,14 @@ func TestApiRouter(t *testing.T) {
 	recordRepoMock := mocks.RecordRepository{}
 	apiController := controllers.NewApiController(
 		false,
-		&nodeRepoMock,
-		&pingRepoMock,
-		&metricsRepoMock,
-		&recordRepoMock)
+		repositories.Repos{
+			NodeRepo:    &nodeRepoMock,
+			PingRepo:    &pingRepoMock,
+			MetricsRepo: &metricsRepoMock,
+			RecordRepo:  &recordRepoMock,
+		},
+		nil,
+	)
 
 	tests := []struct {
 		name    string
