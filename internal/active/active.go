@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
-	log "github.com/sirupsen/logrus"
 	"time"
 )
 
 const IntervalFromLastPing = 10 * time.Second
+const AllowedBlocksBehind = 10
 
 func CheckIfNodeActive(node models.Node, repos *repositories.Repos) (bool, error) {
 	lastPing, err := repos.PingRepo.FindByNodeID(node.ID)
 	if err != nil {
-		log.Error(err)
+		return false, err
 	}
 
 	fmt.Printf("%s NODE: %s\n", node.ID, lastPing.Timestamp.String())
@@ -34,10 +34,8 @@ func CheckIfNodeActive(node models.Node, repos *repositories.Repos) (bool, error
 	if err != nil {
 		return false, err
 	}
-	if metrics.BestBlockHeight <= latestBlockMetrics.BestBlockHeight-10 &&
-		metrics.FinalizedBlockHeight <= latestBlockMetrics.FinalizedBlockHeight-10 {
-		// log.Infof("PENALIZE NODE %s", node.ID)
-		// actions.PenalizeNode(node, repos.NodeRepo)
+	if metrics.BestBlockHeight <= (latestBlockMetrics.BestBlockHeight - AllowedBlocksBehind) ||
+		metrics.FinalizedBlockHeight <= (latestBlockMetrics.FinalizedBlockHeight - AllowedBlocksBehind) {
 		return false, nil
 	}
 	return true, nil
