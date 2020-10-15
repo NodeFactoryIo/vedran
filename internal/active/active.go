@@ -1,7 +1,6 @@
 package active
 
 import (
-	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"time"
@@ -16,12 +15,8 @@ func CheckIfNodeActive(node models.Node, repos *repositories.Repos) (bool, error
 		return false, err
 	}
 
-	fmt.Printf("%s NODE: %s\n", node.ID, lastPing.Timestamp.String())
-
 	// more than 10 seconds passed from last ping
 	if lastPing.Timestamp.Add(IntervalFromLastPing).Before(time.Now()) {
-		// log.Infof("PENALIZE NODE %s", node.ID)
-		// actions.PenalizeNode(node, repos.NodeRepo)
 		return false, nil
 	}
 

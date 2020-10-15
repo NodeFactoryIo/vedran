@@ -10,9 +10,7 @@ type Actions interface {
 	RewardNode(node models.Node, repositories repositories.Repos)
 }
 
-type actions struct {
-
-}
+type actions struct {}
 
 func NewActions() Actions {
 	return &actions{}
