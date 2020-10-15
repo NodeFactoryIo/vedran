@@ -5,16 +5,20 @@ import (
 	"github.com/asdine/storm/v3"
 )
 
-type RecordRepo struct {
+type RecordRepository interface {
+	Save(record *models.Record) error
+}
+
+type recordRepo struct {
 	db *storm.DB
 }
 
-func NewRecordRepo(db *storm.DB) *RecordRepo {
-	return &RecordRepo{
+func NewRecordRepo(db *storm.DB) RecordRepository {
+	return &recordRepo{
 		db: db,
 	}
 }
 
-func (r *RecordRepo) Save(record *models.Record) error {
+func (r *recordRepo) Save(record *models.Record) error {
 	return r.db.Save(record)
 }

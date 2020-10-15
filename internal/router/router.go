@@ -6,8 +6,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-
-
 func CreateNewApiRouter(repos repositories.Repos, whitelistEnabled bool) *mux.Router {
 	router := mux.NewRouter()
 

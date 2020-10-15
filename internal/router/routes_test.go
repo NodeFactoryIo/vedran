@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/NodeFactoryIo/vedran/internal/controllers"
-	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
+	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,7 +15,12 @@ func TestApiRouter(t *testing.T) {
 	pingRepoMock := mocks.PingRepository{}
 	metricsRepoMock := mocks.MetricsRepository{}
 	recordRepoMock := mocks.RecordRepository{}
-	apiController := controllers.NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &recordRepoMock)
+	apiController := controllers.NewApiController(
+		false,
+		&nodeRepoMock,
+		&pingRepoMock,
+		&metricsRepoMock,
+		&recordRepoMock)
 
 	tests := []struct {
 		name    string

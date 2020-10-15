@@ -33,14 +33,14 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 
 	// initialize repos
 	var repos = &repositories.Repos{}
+	repos.PingRepo = repositories.NewPingRepo(database)
+	repos.MetricsRepo = repositories.NewMetricsRepo(database)
+	repos.RecordRepo = repositories.NewRecordRepo(database)
 	repos.NodeRepo = repositories.NewNodeRepo(database)
 	err = repos.NodeRepo.InitNodeRepo()
 	if err != nil {
 		panic(err)
 	}
-	repos.PingRepo = repositories.NewPingRepo(database)
-	repos.MetricsRepo = repositories.NewMetricsRepo(database)
-	repos.RecordRepo = repositories.NewRecordRepo(database)
 
 	schedule.StartScheduleTask(repos)
 

@@ -1,8 +1,8 @@
 package repositories
 
 type Repos struct {
-	NodeRepo *NodeRepo
-	PingRepo *PingRepo
-	MetricsRepo *MetricsRepo
-	RecordRepo *RecordRepo
+	NodeRepo    NodeRepository
+	PingRepo    PingRepository
+	MetricsRepo MetricsRepository
+	RecordRepo  RecordRepository
 }

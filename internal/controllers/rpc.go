@@ -39,7 +39,7 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nodes := c.nodeRepo.GetActiveNodes(configuration.Config.Selection)
+	nodes := c.nodeRepository.GetActiveNodes(configuration.Config.Selection)
 	if len(*nodes) == 0 {
 		log.Error("Request failed because vedran has no available nodes")
 		_ = json.NewEncoder(w).Encode(
@@ -51,11 +51,11 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 		rpcResponse, err := rpc.SendRequestToNode(isBatch, node, reqBody)
 		if err != nil {
 			log.Errorf("Request failed to node %s because of: %v", node.ID, err)
-			go record.FailedRequest(node, c.nodeRepo, c.recordRepo)
+			go record.FailedRequest(node, c.nodeRepository, c.recordRepository)
 			continue
 		}
 
-		go record.SuccessfulRequest(node, c.nodeRepo, c.recordRepo)
+		go record.SuccessfulRequest(node, c.nodeRepository, c.recordRepository)
 		_ = json.NewEncoder(w).Encode(rpcResponse)
 		return
 	}
