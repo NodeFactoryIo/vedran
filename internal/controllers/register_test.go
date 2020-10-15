@@ -6,15 +6,15 @@ import (
 	"errors"
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	"github.com/NodeFactoryIo/vedran/internal/models"
+	"github.com/NodeFactoryIo/vedran/internal/repositories"
+	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
-
-	"github.com/NodeFactoryIo/vedran/internal/models"
-	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestApiController_RegisterHandler(t *testing.T) {
@@ -108,8 +108,18 @@ func TestApiController_RegisterHandler(t *testing.T) {
 				Token:         test.registerResponse.Token,
 				LastUsed:      time.Now().Unix(),
 			}).Return(test.saveMockReturns)
-			nodeRepoMock.On("IsNodeWhitelisted", test.registerRequest.Id).Return(true, test.isNodeWhitelistedMockReturns)
-			apiController := NewApiController(test.isWhitelisted, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &recordRepoMock)
+			nodeRepoMock.On(
+				"IsNodeWhitelisted",
+				test.registerRequest.Id,
+			).Return(true, test.isNodeWhitelistedMockReturns)
+
+			apiController := NewApiController(test.isWhitelisted, repositories.Repos{
+				NodeRepo:    &nodeRepoMock,
+				PingRepo:    &pingRepoMock,
+				MetricsRepo: &metricsRepoMock,
+				RecordRepo:  &recordRepoMock,
+			}, nil)
+
 			handler := http.HandlerFunc(apiController.RegisterHandler)
 
 			// create test request

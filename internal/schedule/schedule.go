@@ -22,13 +22,13 @@ func StartScheduleTask(repos *repositories.Repos) {
 			case <-done:
 				return
 			case <-ticker.C:
-				scheduledTask(repos)
+				scheduledTask(repos, actions.NewActions())
 			}
 		}
 	}()
 }
 
-func scheduledTask(repos *repositories.Repos) {
+func scheduledTask(repos *repositories.Repos, actions actions.Actions) {
 	log.Debug("Started task: check all active nodes")
 	activeNodes := repos.NodeRepo.GetAllActiveNodes()
 
@@ -38,7 +38,7 @@ func scheduledTask(repos *repositories.Repos) {
 			log.Errorf("Unable to check if node %s active because of %v", node.ID, err)
 		}
 		if !isActive {
-			actions.PenalizeNode(node, repos.NodeRepo)
+			actions.PenalizeNode(node, *repos)
 		}
 	}
 }

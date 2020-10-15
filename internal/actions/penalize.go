@@ -9,7 +9,7 @@ import (
 
 const InitialPenalizeIntervalInSeconds = 1
 
-func PenalizeNode(node models.Node, repositories repositories.Repos) {
+func (a *actions) PenalizeNode(node models.Node, repositories repositories.Repos) {
 	// remove node from active
 	err := repositories.NodeRepo.RemoveNodeFromActive(node)
 	if err != nil {

@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
+	"github.com/NodeFactoryIo/vedran/internal/models"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
-	record "github.com/NodeFactoryIo/vedran/internal/records"
 	"github.com/NodeFactoryIo/vedran/internal/rpc"
 	log "github.com/sirupsen/logrus"
 )
@@ -51,11 +52,31 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 		rpcResponse, err := rpc.SendRequestToNode(isBatch, node, reqBody)
 		if err != nil {
 			log.Errorf("Request failed to node %s because of: %v", node.ID, err)
-			go record.FailedRequest(node, c.repositories)
+			// start penalize node action
+			go c.actions.PenalizeNode(node, c.repositories)
+			// save failed record
+			err := c.repositories.RecordRepo.Save(&models.Record{
+				NodeId:    node.ID,
+				Timestamp: time.Now(),
+				Status:    "failed",
+			})
+			if err != nil {
+				log.Errorf("Failed saving failed request because of: %v", err)
+			}
 			continue
 		}
 
-		go record.SuccessfulRequest(node, c.repositories)
+		// start reward node action
+		go c.actions.RewardNode(node, c.repositories)
+		// save successful record
+		err = c.repositories.RecordRepo.Save(&models.Record{
+			NodeId:    node.ID,
+			Timestamp: time.Now(),
+			Status:    "successful",
+		})
+		if err != nil {
+			log.Errorf("Failed saving successful request because of: %v", err)
+		}
 		_ = json.NewEncoder(w).Encode(rpcResponse)
 		return
 	}
