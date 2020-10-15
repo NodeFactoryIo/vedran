@@ -6,24 +6,15 @@ import (
 
 type ApiController struct {
 	whitelistEnabled  bool
-	nodeRepository    repositories.NodeRepository
-	pingRepository    repositories.PingRepository
-	metricsRepository repositories.MetricsRepository
-	recordRepository  repositories.RecordRepository
+	repositories repositories.Repos
 }
 
 func NewApiController(
 	whitelistEnabled bool,
-	nodeRepository repositories.NodeRepository,
-	pingRepository repositories.PingRepository,
-	metricsRepository repositories.MetricsRepository,
-	recordRepository repositories.RecordRepository,
+	repositories repositories.Repos,
 ) *ApiController {
 	return &ApiController{
 		whitelistEnabled:  whitelistEnabled,
-		nodeRepository:    nodeRepository,
-		pingRepository:    pingRepository,
-		metricsRepository: metricsRepository,
-		recordRepository:  recordRepository,
+		repositories: repositories,
 	}
 }

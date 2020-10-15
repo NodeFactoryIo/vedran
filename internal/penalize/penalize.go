@@ -1,27 +1,34 @@
 package penalize
 
 import (
+	"github.com/NodeFactoryIo/vedran/internal/active"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
-	log "github.com/sirupsen/logrus"
 	"time"
 )
 
-func ScheduleCheckForPenalizedNode(node *models.Node, nodeRepo repositories.NodeRepository) {
+const MaxCooldown = 1000000
+
+func ScheduleCheckForPenalizedNode(node models.Node, repositories repositories.Repos) {
 	time.AfterFunc(time.Duration(node.Cooldown), func() {
-		// TODO check if node active
+		isActive, err := active.CheckIfNodeActive(node, &repositories)
+		if err != nil {
 
-		// YES ->
-		// nodeRepo.AddNodeToActive(*node)
+		}
 
-		// NO ->
-		// newCooldown := node.Cooldown * 2
-		// TODO check if cooldown bigger than MAX_COOLDOWN
-		// node.Cooldown = newCooldown
-		// _ = nodeRepo.Save(node) // todo error
-		// schedule new check
-		// ScheduleCheckForPenalizedNode(node, nodeRepo)
-
-		log.Infof("CHECK FOR PENALIZED NODE %s", node.ID)
+		if isActive {
+			repositories.NodeRepo.AddNodeToActive(node)
+		} else {
+			newCooldown := node.Cooldown * 2
+			if newCooldown > MaxCooldown {
+				// TODO
+			}
+			node.Cooldown = newCooldown
+			err := repositories.NodeRepo.Save(&node)
+			if err != nil {
+				// TODO
+			}
+			ScheduleCheckForPenalizedNode(node, repositories)
+		}
 	})
 }

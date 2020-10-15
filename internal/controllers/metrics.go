@@ -35,7 +35,7 @@ func (c ApiController) SaveMetricsHandler(w http.ResponseWriter, r *http.Request
 
 	requestContext := r.Context().Value(auth.RequestContextKey).(*auth.RequestContext)
 
-	err = c.metricsRepository.Save(&models.Metrics{
+	err = c.repositories.MetricsRepo.Save(&models.Metrics{
 		NodeId:                requestContext.NodeId,
 		PeerCount:             metricsRequest.PeerCount,
 		BestBlockHeight:       metricsRequest.BestBlockHeight,

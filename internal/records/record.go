@@ -11,10 +11,10 @@ import (
 
 // FailedRequest should be called when rpc response is invalid to penalize node.
 // It does not return value as it should be called in separate goroutine
-func FailedRequest(node models.Node, nodeRepo repositories.NodeRepository, recordRepo repositories.RecordRepository) {
-	actions.PenalizeNode(node, nodeRepo)
+func FailedRequest(node models.Node, repositories repositories.Repos) {
+	actions.PenalizeNode(node, repositories)
 
-	err := recordRepo.Save(&models.Record{
+	err := repositories.RecordRepo.Save(&models.Record{
 		NodeId:    node.ID,
 		Timestamp: time.Now(),
 		Status:    "failed",
@@ -26,10 +26,10 @@ func FailedRequest(node models.Node, nodeRepo repositories.NodeRepository, recor
 
 // SuccessfulRequest should be called when rpc response is valid to reward node.
 // It does not return value as it should be called in separate goroutine
-func SuccessfulRequest(node models.Node, nodeRepo repositories.NodeRepository, recordRepo repositories.RecordRepository) {
-	nodeRepo.RewardNode(node)
+func SuccessfulRequest(node models.Node, repositories repositories.Repos) {
+	repositories.NodeRepo.RewardNode(node)
 
-	err := recordRepo.Save(&models.Record{
+	err := repositories.RecordRepo.Save(&models.Record{
 		NodeId:    node.ID,
 		Timestamp: time.Now(),
 		Status:    "successful",

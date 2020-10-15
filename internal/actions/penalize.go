@@ -9,9 +9,9 @@ import (
 
 const InitialPenalizeIntervalInSeconds = 60
 
-func PenalizeNode(node models.Node, repository repositories.NodeRepository) {
+func PenalizeNode(node models.Node, repositories repositories.Repos) {
 	// remove node from active
-	err := repository.RemoveNodeFromActive(node)
+	err := repositories.NodeRepo.RemoveNodeFromActive(node)
 	if err != nil {
 		log.Errorf("Failed penalizing node because of: %v", err)
 		return
@@ -19,11 +19,11 @@ func PenalizeNode(node models.Node, repository repositories.NodeRepository) {
 
 	// set new cooldown
 	node.Cooldown = InitialPenalizeIntervalInSeconds // initial cooldown is 1 min
-	err = repository.Save(&node)
+	err = repositories.NodeRepo.Save(&node)
 	if err != nil {
 		log.Errorf("Failed penalizing node because of: %v", err)
 	}
 
 	log.Debugf("Penalized node %s, on cooldown for 1 minute ", node.ID)
-	penalize.ScheduleCheckForPenalizedNode(&node, repository)
+	penalize.ScheduleCheckForPenalizedNode(node, repositories)
 }

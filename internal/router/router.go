@@ -12,10 +12,7 @@ func CreateNewApiRouter(repos repositories.Repos, whitelistEnabled bool) *mux.Ro
 	// initialize controllers
 	apiController := controllers.NewApiController(
 		whitelistEnabled,
-		repos.NodeRepo,
-		repos.PingRepo,
-		repos.MetricsRepo,
-		repos.RecordRepo,
+		repos,
 	)
 
 	createRoutes(apiController, router)
