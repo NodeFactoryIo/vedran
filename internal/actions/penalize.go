@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const InitialPenalizeIntervalInSeconds = 60
+const InitialPenalizeIntervalInSeconds = 1
 
 func PenalizeNode(node models.Node, repositories repositories.Repos) {
 	// remove node from active
