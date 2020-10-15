@@ -2,16 +2,17 @@ package tunnel
 
 import (
 	"fmt"
+
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/server"
 	log "github.com/sirupsen/logrus"
 )
 
-func StartTunnelServer(serverPort string, portRange string) {
-	logger := log.WithField("context", "tunnel-server")
+func StartHttpTunnelServer(serverPort string, portPool *server.AddrPool) {
+	logger := log.WithField("context", "http-tunnel")
 	s, err := server.NewServer(&server.ServerConfig{
-		Address:   fmt.Sprintf(":%s", serverPort),
-		PortRange: portRange,
+		Address:  fmt.Sprintf(":%s", serverPort),
+		PortPool: portPool,
 		AuthHandler: func(rawToken string) bool {
 			token, err := auth.ParseJwtTokenWithCustomClaims(rawToken)
 			if err == nil {

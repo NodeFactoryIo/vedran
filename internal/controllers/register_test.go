@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
 
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
@@ -18,10 +19,11 @@ import (
 )
 
 func TestApiController_RegisterHandler(t *testing.T) {
-	const TestTunnelURL = "test-tunnel-url:5533"
+	const TestTunnelServerAddress = "test-tunnel-url:5533"
 	configuration.Config = configuration.Configuration{
-		TunnelURL: TestTunnelURL,
+		TunnelServerAddress: TestTunnelServerAddress,
 	}
+
 	// define test cases
 	tests := []struct {
 		name                          string
@@ -39,13 +41,12 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			registerRequest: RegisterRequest{
 				Id:            "1",
 				ConfigHash:    "dadf2e32dwq12",
-				NodeUrl:       "node.test.url",
 				PayoutAddress: "0xdafe2cdscdsa",
 			},
 			httpStatus: http.StatusOK,
 			registerResponse: RegisterResponse{
-				Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
-				TunnelURL: TestTunnelURL,
+				Token:               "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
+				TunnelServerAddress: TestTunnelServerAddress,
 			},
 			isWhitelisted:                 false,
 			saveMockReturns:               nil,
@@ -58,13 +59,12 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			registerRequest: RegisterRequest{
 				Id:            "1",
 				ConfigHash:    "dadf2e32dwq12",
-				NodeUrl:       "node.test.url",
 				PayoutAddress: "0xdafe2cdscdsa",
 			},
 			httpStatus: http.StatusOK,
 			registerResponse: RegisterResponse{
-				Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
-				TunnelURL: TestTunnelURL,
+				Token:               "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
+				TunnelServerAddress: TestTunnelServerAddress,
 			},
 			isWhitelisted:                 true,
 			saveMockReturns:               nil,
@@ -77,7 +77,6 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			registerRequest: RegisterRequest{
 				Id:            "1",
 				ConfigHash:    "dadf2e32dwq12",
-				NodeUrl:       "node.test.url",
 				PayoutAddress: "0xdafe2cdscdsa",
 			},
 			httpStatus:                    http.StatusBadRequest,
@@ -91,7 +90,6 @@ func TestApiController_RegisterHandler(t *testing.T) {
 	}
 	_ = os.Setenv("AUTH_SECRET", "test-auth-secret")
 
-
 	// execute tests
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -103,7 +101,6 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			nodeRepoMock.On("Save", &models.Node{
 				ID:            test.registerRequest.Id,
 				ConfigHash:    test.registerRequest.ConfigHash,
-				NodeUrl:       test.registerRequest.NodeUrl,
 				PayoutAddress: test.registerRequest.PayoutAddress,
 				Token:         test.registerResponse.Token,
 				LastUsed:      time.Now().Unix(),

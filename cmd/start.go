@@ -3,14 +3,15 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/internal/tunnel"
-	"github.com/NodeFactoryIo/vedran/internal/ip"
-	"github.com/NodeFactoryIo/vedran/pkg/util"
 	"strings"
 
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	"github.com/NodeFactoryIo/vedran/internal/ip"
 	"github.com/NodeFactoryIo/vedran/internal/loadbalancer"
+	"github.com/NodeFactoryIo/vedran/internal/tunnel"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/server"
 	"github.com/NodeFactoryIo/vedran/pkg/logger"
+	"github.com/NodeFactoryIo/vedran/pkg/util"
 	"github.com/NodeFactoryIo/vedran/pkg/util/random"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -160,26 +161,32 @@ func init() {
 func startCommand(_ *cobra.Command, _ []string) {
 	DisplayBanner()
 
-	var tunnelURL string
+	pPool := &server.AddrPool{}
+	err := pPool.Init(tunnelPortRange)
+	if err != nil {
+		log.Fatalf("Failed assigning port range because of: %v", err)
+	}
+
+	var tunnelServerAddress string
 	if publicIP == "" {
 		IP, err := ip.Get()
 		if err != nil {
 			log.Fatal("Unable to fetch public IP address. Please set one explicitly!", err)
 		}
-		tunnelURL = fmt.Sprintf("%s:%s", IP.String(), tunnelServerPort)
-		log.Infof("Tunnel server will listen on %s and connect tunnels on port range %s", tunnelURL, tunnelPortRange)
+		tunnelServerAddress = fmt.Sprintf("%s:%s", IP.String(), tunnelServerPort)
+		log.Infof("Tunnel server will listen on %s and connect tunnels on port range %s", tunnelServerAddress, tunnelPortRange)
 	}
 
-	tunnel.StartTunnelServer(tunnelServerPort, tunnelPortRange)
-
+	tunnel.StartHttpTunnelServer(tunnelServerPort, pPool)
 	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
-		AuthSecret: authSecret,
-		Name:       name,
-		Capacity:   capacity,
-		Whitelist:  whitelist,
-		Fee:        fee,
-		Selection:  selection,
-		Port:       serverPort,
-		TunnelURL:  tunnelURL,
+		AuthSecret:          authSecret,
+		Name:                name,
+		Capacity:            capacity,
+		Whitelist:           whitelist,
+		Fee:                 fee,
+		Selection:           selection,
+		Port:                serverPort,
+		TunnelServerAddress: tunnelServerAddress,
+		PortPool:            pPool,
 	})
 }

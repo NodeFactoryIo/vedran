@@ -20,6 +20,8 @@ func FailedRequest(node models.Node, nodeRepo models.NodeRepository, recordRepo 
 	if err != nil {
 		log.Errorf("Failed saving failed request because of: %v", err)
 	}
+
+	log.Debugf("Node %s failed to serve successful request", node.ID)
 }
 
 // SuccessfulRequest should be called when rpc response is valid to reward node.
@@ -35,4 +37,6 @@ func SuccessfulRequest(node models.Node, nodeRepo models.NodeRepository, recordR
 	if err != nil {
 		log.Errorf("Failed saving successful request because of: %v", err)
 	}
+
+	log.Debugf("Node %s served successful request", node.ID)
 }

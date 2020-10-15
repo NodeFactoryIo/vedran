@@ -48,7 +48,11 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, node := range *nodes {
-		rpcResponse, err := rpc.SendRequestToNode(isBatch, node, reqBody)
+		rpcResponse, err := rpc.SendRequestToNode(
+			isBatch,
+			node.ID,
+			reqBody,
+		)
 		if err != nil {
 			log.Errorf("Request failed to node %s because of: %v", node.ID, err)
 			go record.FailedRequest(node, c.nodeRepo, c.recordRepo)

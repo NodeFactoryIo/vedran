@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"net/http"
 	"time"
 
 	"github.com/NodeFactoryIo/vedran/internal/auth"
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/pkg/util"
 	log "github.com/sirupsen/logrus"
@@ -17,13 +17,12 @@ import (
 type RegisterRequest struct {
 	Id            string `json:"id"`
 	ConfigHash    string `json:"config_hash"`
-	NodeUrl       string `json:"node_url"`
 	PayoutAddress string `json:"payout_address"`
 }
 
 type RegisterResponse struct {
-	Token string `json:"token"`
-	TunnelURL string `json:"tunnel_url"`
+	Token               string `json:"token"`
+	TunnelServerAddress string `json:"tunnel_server_address"`
 }
 
 func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +64,6 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	node := &models.Node{
 		ID:            registerRequest.Id,
 		ConfigHash:    registerRequest.ConfigHash,
-		NodeUrl:       registerRequest.NodeUrl,
 		PayoutAddress: registerRequest.PayoutAddress,
 		Token:         token,
 		LastUsed:      time.Now().Unix(),
@@ -82,7 +80,7 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	// return generated token
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(RegisterResponse{
-		Token:     token,
-		TunnelURL: configuration.Config.TunnelURL,
+		Token:               token,
+		TunnelServerAddress: configuration.Config.TunnelServerAddress,
 	})
 }

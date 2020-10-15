@@ -56,9 +56,13 @@ func (r *NodeRepo) FindByID(ID string) (*models.Node, error) {
 }
 
 func (r *NodeRepo) Save(node *models.Node) error {
-	r.AddNodeToActive(*node)
+	err := r.db.Save(node)
+	if err != nil {
+		return err
+	}
 
-	return r.db.Save(node)
+	r.AddNodeToActive(*node)
+	return nil
 }
 
 func (r *NodeRepo) GetAll() (*[]models.Node, error) {
@@ -145,7 +149,7 @@ func (r *NodeRepo) RewardNode(node models.Node) {
 	r.updateMemoryLastUsedTime(node)
 
 	node.LastUsed = time.Now().Unix()
-	err := r.db.Update(node)
+	err := r.db.Update(&node)
 	if err != nil {
 		log.Errorf("Failed updating node last used time because of: %v", err)
 	}
