@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const InitialPenalizeIntervalInSeconds = 1
+const InitialPenalizeIntervalInMins = 1
 
 func (a *actions) PenalizeNode(node models.Node, repositories repositories.Repos) {
 	// remove node from active
@@ -18,7 +18,7 @@ func (a *actions) PenalizeNode(node models.Node, repositories repositories.Repos
 	}
 
 	// set new cooldown
-	node.Cooldown = InitialPenalizeIntervalInSeconds // initial cooldown is 1 min
+	node.Cooldown = InitialPenalizeIntervalInMins
 	err = repositories.NodeRepo.Save(&node)
 	if err != nil {
 		log.Errorf("Failed penalizing node because of: %v", err)

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const MaxCooldown = 17 * time.Hour
+const MaxCooldownForPenalizedNode = 17 * time.Hour
 
 var afterFunc = time.AfterFunc
 
@@ -23,7 +23,7 @@ func ScheduleCheckForPenalizedNode(node models.Node, repositories repositories.R
 			repositories.NodeRepo.AddNodeToActive(node)
 		} else {
 			newCooldown := node.Cooldown * 2
-			if time.Duration(newCooldown) * time.Second > MaxCooldown {
+			if (time.Duration(newCooldown) * time.Minute) > MaxCooldownForPenalizedNode {
 				log.Debugf("Node %s reached maximum cooldown", node.ID)
 				// TODO - remove node
 				return

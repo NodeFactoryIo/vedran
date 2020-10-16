@@ -175,12 +175,12 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 			nodeID: "1",
 			node: models.Node{
 				ID:       "1",
-				Cooldown: MaxCooldown.Nanoseconds() / 2,
+				Cooldown: 510,
 			},
 			saveNode: []*models.Node{
 				{
 					ID:       "1",
-					Cooldown: MaxCooldown.Nanoseconds(),
+					Cooldown: 1020, // 1020 is MaxCooldownForPenalizedNode in minutes (17 hours)
 				},
 			},
 			saveNodeNumberOfCalls: 1,
