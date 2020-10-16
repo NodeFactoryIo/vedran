@@ -11,7 +11,8 @@ import (
 const (
 	DefaultScheduleInterval = 10 * time.Second
 )
-
+// Start scheduled task on DefaultScheduleInterval that checks for each active node if it is active
+// and penalizes node if it is not active
 func StartScheduledTask(repos *repositories.Repos) {
 	ticker := time.NewTicker(DefaultScheduleInterval)
 	done := make(chan bool)

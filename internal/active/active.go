@@ -9,6 +9,8 @@ import (
 const IntervalFromLastPing = 10 * time.Second
 const AllowedBlocksBehind = 10
 
+// CheckIfNodeActive checks if nodes last recorded ping is in last IntervalFromLastPing and if nodes last recorded
+// BestBlockHeight and FinalizedBlockHeight are lagging more than AllowedBlocksBehind blocks
 func CheckIfNodeActive(node models.Node, repos *repositories.Repos) (bool, error) {
 	lastPing, err := repos.PingRepo.FindByNodeID(node.ID)
 	if err != nil {
@@ -33,5 +35,6 @@ func CheckIfNodeActive(node models.Node, repos *repositories.Repos) (bool, error
 		metrics.FinalizedBlockHeight <= (latestBlockMetrics.FinalizedBlockHeight - AllowedBlocksBehind) {
 		return false, nil
 	}
+	
 	return true, nil
 }

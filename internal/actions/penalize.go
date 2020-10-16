@@ -9,6 +9,8 @@ import (
 
 const InitialPenalizeIntervalInMins = 1
 
+// PenalizeNode removes provided node from active nodes, sets initial cooldown of 1 minute and schedules check for
+// penalized node by invoking penalize.ScheduleCheckForPenalizedNode
 func (a *actions) PenalizeNode(node models.Node, repositories repositories.Repos) {
 	// remove node from active
 	err := repositories.NodeRepo.RemoveNodeFromActive(node)

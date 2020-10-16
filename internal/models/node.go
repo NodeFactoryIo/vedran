@@ -6,7 +6,7 @@ type Node struct {
 	NodeUrl       string
 	PayoutAddress string
 	Token         string
-	Cooldown      int64
+	Cooldown      int
 	LastUsed      int64
 }
 

@@ -42,6 +42,7 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 		panic(err)
 	}
 
+	// starts task that checks active nodes
 	checkactive.StartScheduledTask(repos)
 
 	// whitelist
