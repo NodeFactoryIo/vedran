@@ -1,4 +1,4 @@
-package schedule
+package checkactive
 
 import (
 	"github.com/NodeFactoryIo/vedran/internal/actions"
@@ -12,7 +12,7 @@ const (
 	DefaultScheduleInterval = 10 * time.Second
 )
 
-func StartScheduleTask(repos *repositories.Repos) {
+func StartScheduledTask(repos *repositories.Repos) {
 	ticker := time.NewTicker(DefaultScheduleInterval)
 	done := make(chan bool)
 

@@ -7,7 +7,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"github.com/NodeFactoryIo/vedran/internal/router"
-	"github.com/NodeFactoryIo/vedran/internal/schedule"
+	"github.com/NodeFactoryIo/vedran/internal/schedule/checkactive"
 	"github.com/asdine/storm/v3"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -42,7 +42,7 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 		panic(err)
 	}
 
-	schedule.StartScheduleTask(repos)
+	checkactive.StartScheduledTask(repos)
 
 	// whitelist
 	whitelistEnabled := len(props.Whitelist) > 0

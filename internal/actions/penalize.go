@@ -2,8 +2,8 @@ package actions
 
 import (
 	"github.com/NodeFactoryIo/vedran/internal/models"
-	"github.com/NodeFactoryIo/vedran/internal/penalize"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
+	"github.com/NodeFactoryIo/vedran/internal/schedule/penalize"
 	log "github.com/sirupsen/logrus"
 )
 
