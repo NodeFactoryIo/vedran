@@ -2,14 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
+	"github.com/NodeFactoryIo/vedran/internal/rpc"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"time"
-
-	"github.com/NodeFactoryIo/vedran/internal/configuration"
-	"github.com/NodeFactoryIo/vedran/internal/rpc"
-	log "github.com/sirupsen/logrus"
 )
 
 func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +48,11 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, node := range *nodes {
-		rpcResponse, err := rpc.SendRequestToNode(isBatch, node, reqBody)
+		rpcResponse, err := rpc.SendRequestToNode(
+			isBatch,
+			node.ID,
+			reqBody,
+		)
 		if err != nil {
 			log.Errorf("Request failed to node %s because of: %v", node.ID, err)
 			// start penalize node action

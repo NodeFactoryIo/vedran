@@ -39,7 +39,7 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 	repos.NodeRepo = repositories.NewNodeRepo(database)
 	err = repos.NodeRepo.InitNodeRepo()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed initializing node repo because of: %v", err)
 	}
 
 	// starts task that checks active nodes

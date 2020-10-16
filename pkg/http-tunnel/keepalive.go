@@ -2,29 +2,22 @@
 // Use of this source code is governed by an AGPL-style
 // license that can be found in the LICENSE file.
 
-// +build !windows
-
 package tunnel
 
 import (
+	"fmt"
 	"net"
-	"time"
-
-	"github.com/felixge/tcpkeepalive"
-)
-
-var (
-	// DefaultKeepAliveIdleTime specifies how long connection can be idle
-	// before sending keepalive message.
-	DefaultKeepAliveIdleTime = 15 * time.Minute
-	// DefaultKeepAliveCount specifies maximal number of keepalive messages
-	// sent before marking connection as dead.
-	DefaultKeepAliveCount = 8
-	// DefaultKeepAliveInterval specifies how often retry sending keepalive
-	// messages when no response is received.
-	DefaultKeepAliveInterval = 5 * time.Second
 )
 
 func KeepAlive(conn net.Conn) error {
-	return tcpkeepalive.SetKeepAlive(conn, DefaultKeepAliveIdleTime, DefaultKeepAliveCount, DefaultKeepAliveInterval)
+	c, ok := conn.(*net.TCPConn)
+	if !ok {
+		return fmt.Errorf("Bad connection type: %T", c)
+	}
+
+	if err := c.SetKeepAlive(true); err != nil {
+		return err
+	}
+
+	return nil
 }
