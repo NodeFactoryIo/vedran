@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"sort"
@@ -77,7 +76,10 @@ func (r *nodeRepo) Save(node *models.Node) error {
 		return err
 	}
 
-	r.AddNodeToActive(*node)
+	err = r.AddNodeToActive(*node)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -157,7 +159,7 @@ func (r *nodeRepo) RemoveNodeFromActive(targetNode models.Node) error {
 func (r *nodeRepo) AddNodeToActive(node models.Node) error {
 	for _, activeNode := range activeNodes {
 		if activeNode.ID == node.ID {
-			return errors.New(fmt.Sprintf("Node %s already set as active", node.ID))
+			return fmt.Errorf("node %s already set as active", node.ID)
 		}
 	}
 	activeNodes = append(activeNodes, node)
