@@ -19,14 +19,15 @@ import (
 
 var (
 	// load balancer related flags
-	authSecret string
-	name       string
-	capacity   int64
-	whitelist  []string
-	fee        float32
-	selection  string
-	serverPort int32
-	publicIP   string
+	authSecret    string
+	name          string
+	capacity      int64
+	whitelist     []string
+	whitelistFile string
+	fee           float32
+	selection     string
+	serverPort    int32
+	publicIP      string
 	// logging related flags
 	logLevel string
 	logFile  string
@@ -78,6 +79,7 @@ var startCmd = &cobra.Command{
 		if !util.IsValidPortAsStr(prt[1]) {
 			return errors.New("invalid port number provided for max port inside port range")
 		}
+		// is valid csv fil TODO
 		return nil
 	},
 }
@@ -106,6 +108,12 @@ func init() {
 		"whitelist",
 		nil,
 		"[OPTIONAL] Comma separated list of node id-s, if provided only these nodes will be allowed to connect")
+
+	startCmd.Flags().StringVar(
+		&whitelistFile,
+		"whitelist-file",
+		"whitelist.csv",
+		"[OPTIONAL] Path to CSV file with node id-s that should be whitelisted")
 
 	startCmd.Flags().Float32Var(
 		&fee,
