@@ -17,10 +17,19 @@ func ScheduleCheckForPenalizedNode(node models.Node, repositories repositories.R
 		isActive, err := active.CheckIfNodeActive(node, &repositories)
 		if err != nil {
 			log.Errorf("Unable to check if node %s active, because of %v", node.ID, err)
+			return
 		}
 
 		if isActive {
-			repositories.NodeRepo.AddNodeToActive(node)
+			nodeWithResetedCooldown, err := repositories.NodeRepo.ResetNodeCooldown(node.ID)
+			if err != nil {
+				log.Errorf("Unable to reset node %s cooldown, because of %v", node.ID, err)
+				return
+			}
+			err = repositories.NodeRepo.AddNodeToActive(*nodeWithResetedCooldown)
+			if err != nil {
+				log.Errorf("Unable to set node %s as active, because of %v", node.ID, err)
+			}
 		} else {
 			nodeWithNewCooldown, err := repositories.NodeRepo.IncreaseNodeCooldown(node.ID)
 			if err != nil {

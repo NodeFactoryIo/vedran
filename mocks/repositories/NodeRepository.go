@@ -11,8 +11,17 @@ type NodeRepository struct {
 }
 
 // AddNodeToActive provides a mock function with given fields: node
-func (_m *NodeRepository) AddNodeToActive(node models.Node) {
-	_m.Called(node)
+func (_m *NodeRepository) AddNodeToActive(node models.Node) error {
+	ret := _m.Called(node)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(models.Node) error); ok {
+		r0 = rf(node)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // FindByID provides a mock function with given fields: ID
@@ -163,6 +172,29 @@ func (_m *NodeRepository) RemoveNodeFromActive(node models.Node) error {
 	}
 
 	return r0
+}
+
+// ResetNodeCooldown provides a mock function with given fields: ID
+func (_m *NodeRepository) ResetNodeCooldown(ID string) (*models.Node, error) {
+	ret := _m.Called(ID)
+
+	var r0 *models.Node
+	if rf, ok := ret.Get(0).(func(string) *models.Node); ok {
+		r0 = rf(ID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Node)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(ID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // RewardNode provides a mock function with given fields: node

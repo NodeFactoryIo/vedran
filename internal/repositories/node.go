@@ -23,9 +23,10 @@ type NodeRepository interface {
 	GetActiveNodes(selection string) *[]models.Node
 	GetAllActiveNodes() *[]models.Node
 	RemoveNodeFromActive(node models.Node) error
-	AddNodeToActive(node models.Node)
+	AddNodeToActive(node models.Node) error
 	RewardNode(node models.Node)
 	IncreaseNodeCooldown(ID string) (*models.Node, error)
+	ResetNodeCooldown(ID string) (*models.Node, error)
 }
 
 type nodeRepo struct {
@@ -75,7 +76,10 @@ func (r *nodeRepo) Save(node *models.Node) error {
 		return err
 	}
 
-	r.AddNodeToActive(*node)
+	err = r.AddNodeToActive(*node)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -152,8 +156,14 @@ func (r *nodeRepo) RemoveNodeFromActive(targetNode models.Node) error {
 	return fmt.Errorf("No target node %s in memory", targetNode.ID)
 }
 
-func (r *nodeRepo) AddNodeToActive(node models.Node) {
+func (r *nodeRepo) AddNodeToActive(node models.Node) error {
+	for _, activeNode := range activeNodes {
+		if activeNode.ID == node.ID {
+			return fmt.Errorf("node %s already set as active", node.ID)
+		}
+	}
 	activeNodes = append(activeNodes, node)
+	return nil
 }
 
 func (r *nodeRepo) RewardNode(node models.Node) {
@@ -180,3 +190,18 @@ func (r *nodeRepo) IncreaseNodeCooldown(ID string) (*models.Node, error) {
 	err = r.db.Save(node)
 	return node, err
 }
+
+// ResetNodeCooldown resets node cooldown to 0 and saves it to db
+func (r *nodeRepo) ResetNodeCooldown(ID string) (*models.Node, error) {
+	var node *models.Node
+	err := r.db.One("ID", ID, node)
+	if err != nil {
+		return nil, err
+	}
+
+	node.Cooldown = 0
+
+	err = r.db.Save(node)
+	return node, err
+}
+

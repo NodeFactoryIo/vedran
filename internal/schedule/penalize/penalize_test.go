@@ -16,6 +16,7 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 		increaseNodeCooldownNumberOfCalls int
 		addToActiveNode                   []models.Node
 		addToActiveNodesNumberOfCalls     int
+		resetNodeCooldownNumberOfCalls    int
 		nodePing                          []*models.Ping
 		nodeMetrics                       []*models.Metrics
 		latestMetrics                     []*models.LatestBlockMetrics
@@ -31,10 +32,11 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 			addToActiveNode: []models.Node{
 				{
 					ID:       "1",
-					Cooldown: 1,
+					Cooldown: 0,
 				},
 			},
 			addToActiveNodesNumberOfCalls: 1,
+			resetNodeCooldownNumberOfCalls: 1,
 			nodePing: []*models.Ping{
 				{
 					NodeId:    "1",
@@ -67,10 +69,11 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 			addToActiveNode: []models.Node{
 				{
 					ID:       "1",
-					Cooldown: 2,
+					Cooldown: 0,
 				},
 			},
 			addToActiveNodesNumberOfCalls: 1,
+			resetNodeCooldownNumberOfCalls: 1,
 			nodePing: []*models.Ping{
 				{
 					NodeId:    "1",
@@ -116,10 +119,11 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 			addToActiveNode: []models.Node{
 				{
 					ID:       "1",
-					Cooldown: 8,
+					Cooldown: 0,
 				},
 			},
 			addToActiveNodesNumberOfCalls: 1,
+			resetNodeCooldownNumberOfCalls: 1,
 			nodePing: []*models.Ping{
 				{
 					NodeId:    "1",
@@ -179,6 +183,7 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 			},
 			addToActiveNode:                   nil,
 			addToActiveNodesNumberOfCalls:     0,
+			resetNodeCooldownNumberOfCalls: 0,
 			nodePing: []*models.Ping{
 				{
 					NodeId:    "1",
@@ -219,13 +224,18 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 			// is mocked function called in test
 			if test.addToActiveNode != nil {
 				if len(test.addToActiveNode) == 1 { // same return value
-					nodeRepoMock.On("AddNodeToActive", test.addToActiveNode[0]).Return()
+					nodeRepoMock.On("AddNodeToActive", test.addToActiveNode[0]).Return(nil)
 				} else { // multiple return values
 					for _, n := range test.addToActiveNode {
 						nodeRepoMock.On("AddNodeToActive", n).Return().Once()
 					}
 				}
 			}
+			
+			nodeRepoMock.On("ResetNodeCooldown", test.nodeID).Return(&models.Node{
+				ID:       test.nodeID,
+				Cooldown: 0,
+			}, nil)
 
 			// is mocked function called in test
 			if test.increaseNodeCooldown != nil {
@@ -284,6 +294,7 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 
 			nodeRepoMock.AssertNumberOfCalls(t, "AddNodeToActive", test.addToActiveNodesNumberOfCalls)
 			nodeRepoMock.AssertNumberOfCalls(t, "IncreaseNodeCooldown", test.increaseNodeCooldownNumberOfCalls)
+			nodeRepoMock.AssertNumberOfCalls(t, "ResetNodeCooldown", test.resetNodeCooldownNumberOfCalls)
 		})
 	}
 }

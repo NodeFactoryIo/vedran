@@ -37,8 +37,14 @@ func CheckIfNodeActive(node models.Node, repos *repositories.Repos) (bool, error
 	}
 	if metrics.BestBlockHeight <= (latestBlockMetrics.BestBlockHeight - AllowedBlocksBehind) ||
 		metrics.FinalizedBlockHeight <= (latestBlockMetrics.FinalizedBlockHeight - AllowedBlocksBehind) {
-		log.Debugf("Node %s not active as metrics check failed. BestBlockHeight: %d, FinalizedBlockHeight: %d",
-			node.ID, metrics.BestBlockHeight, metrics.FinalizedBlockHeight)
+		log.Debugf(
+			"Node %s not active as metrics check failed. " +
+			"Node metrics: BestBlockHeight[%d], FinalizedBlockHeight[%d] " +
+			"Best pool metrics: BestBlockHeight[%d], FinalizedBlockHeight[%d]",
+			node.ID,
+			metrics.BestBlockHeight, metrics.FinalizedBlockHeight,
+			latestBlockMetrics.BestBlockHeight, latestBlockMetrics.FinalizedBlockHeight,
+		)
 		return false, nil
 	}
 	
