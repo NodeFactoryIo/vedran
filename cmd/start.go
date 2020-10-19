@@ -175,6 +175,8 @@ func startCommand(_ *cobra.Command, _ []string) {
 		}
 		tunnelServerAddress = fmt.Sprintf("%s:%s", IP.String(), tunnelServerPort)
 		log.Infof("Tunnel server will listen on %s and connect tunnels on port range %s", tunnelServerAddress, tunnelPortRange)
+	} else {
+		tunnelServerAddress = fmt.Sprintf("%s:%s", publicIP, tunnelServerPort)
 	}
 
 	tunnel.StartHttpTunnelServer(tunnelServerPort, pPool)

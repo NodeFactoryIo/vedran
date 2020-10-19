@@ -9,6 +9,7 @@
 
 ### Fix
 - Fix panic if no nodes in database after startup [\#62](https://github.com/NodeFactoryIo/vedran/pull/62) ([mpetrun5](https://github.com/mpetrun5))
+- Fix error on provided public IP [\#72](https://github.com/NodeFactoryIo/vedran/pull/72) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Changed
 - Use port from tunnel map for calling node [\#65](https://github.com/NodeFactoryIo/vedran/pull/65) ([mpetrun5](https://github.com/mpetrun5))
