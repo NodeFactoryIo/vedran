@@ -8,16 +8,18 @@ services:
     command: --rpc-external --prometheus-external --log error --rpc-cors=all
 
   vedran:
-    command: start --auth-secret=test-secret --log-level debug
-    image: nodefactory/vedran:v0.1.1
+    command: start --auth-secret=test-secret --log-level debug --public-ip vedran
+    image: nodefactory/vedran:v0.2.0
+    ports:
+      - "4000:4000"
     container_name: "vedran"
 
   vedran-daemon:
-    image: nodefactory/vedran-daemon:v0.1.2
+    image: nodefactory/vedran-daemon:v0.2.0
     depends_on:
       - vedran
       - polkadot
-    command: --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-metrics http://polkadot:9615 --payout-address 0xtestaddress --log-level error
+    command: --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-metrics http://polkadot:9615 --payout-address 0xtestaddress --log-level info
 
 volumes:
   polkadot-data:
