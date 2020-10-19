@@ -10,16 +10,16 @@ import (
 
 func TestScheduleCheckForPenalizedNode(t *testing.T) {
 	tests := []struct {
-		name                          string
-		nodeID                        string
-		node                          models.Node
-		saveNode                      []*models.Node
-		saveNodeNumberOfCalls         int
-		addToActiveNode               []models.Node
-		addToActiveNodesNumberOfCalls int
-		nodePing                      []*models.Ping
-		nodeMetrics                   []*models.Metrics
-		latestMetrics                 []*models.LatestBlockMetrics
+		name                              string
+		nodeID                            string
+		node                              models.Node
+		increaseNodeCooldownNumberOfCalls int
+		addToActiveNode                   []models.Node
+		addToActiveNodesNumberOfCalls     int
+		nodePing                          []*models.Ping
+		nodeMetrics                       []*models.Metrics
+		latestMetrics                     []*models.LatestBlockMetrics
+		increaseNodeCooldown              []*models.Node
 	}{
 		{
 			name:   "penalized node becomes active on first check",
@@ -28,8 +28,6 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 				ID:       "1",
 				Cooldown: 1,
 			},
-			saveNode: nil,
-			saveNodeNumberOfCalls: 0,
 			addToActiveNode: []models.Node{
 				{
 					ID:       "1",
@@ -56,6 +54,8 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 					FinalizedBlockHeight: 998,
 				},
 			},
+			increaseNodeCooldown: nil,
+			increaseNodeCooldownNumberOfCalls: 0,
 		},
 		{
 			name:   "penalized node schedule one check",
@@ -64,13 +64,6 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 				ID:       "1",
 				Cooldown: 1,
 			},
-			saveNode: []*models.Node{
-				{
-					ID:       "1",
-					Cooldown: 2,
-				},
-			},
-			saveNodeNumberOfCalls: 1,
 			addToActiveNode: []models.Node{
 				{
 					ID:       "1",
@@ -105,6 +98,13 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 					FinalizedBlockHeight: 998,
 				},
 			},
+			increaseNodeCooldown: []*models.Node{
+				{
+					ID:       "1",
+					Cooldown: 2,
+				},
+			},
+			increaseNodeCooldownNumberOfCalls: 1,
 		},
 		{
 			name:   "penalized node schedule multiple checks",
@@ -113,21 +113,6 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 				ID:       "1",
 				Cooldown: 1,
 			},
-			saveNode: []*models.Node{
-				{
-					ID:       "1",
-					Cooldown: 2,
-				},
-				{
-					ID:       "1",
-					Cooldown: 4,
-				},
-				{
-					ID:       "1",
-					Cooldown: 8,
-				},
-			},
-			saveNodeNumberOfCalls: 3,
 			addToActiveNode: []models.Node{
 				{
 					ID:       "1",
@@ -169,6 +154,21 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 					FinalizedBlockHeight: 998,
 				},
 			},
+			increaseNodeCooldown: []*models.Node{
+				{
+					ID:       "1",
+					Cooldown: 2,
+				},
+				{
+					ID:       "1",
+					Cooldown: 4,
+				},
+				{
+					ID:       "1",
+					Cooldown: 8,
+				},
+			},
+			increaseNodeCooldownNumberOfCalls: 3,
 		},
 		{
 			name:   "penalized node hits max cooldown",
@@ -177,15 +177,8 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 				ID:       "1",
 				Cooldown: 510,
 			},
-			saveNode: []*models.Node{
-				{
-					ID:       "1",
-					Cooldown: 1020, // 1020 is MaxCooldownForPenalizedNode in minutes (17 hours)
-				},
-			},
-			saveNodeNumberOfCalls: 1,
-			addToActiveNode: nil,
-			addToActiveNodesNumberOfCalls: 0,
+			addToActiveNode:                   nil,
+			addToActiveNodesNumberOfCalls:     0,
 			nodePing: []*models.Ping{
 				{
 					NodeId:    "1",
@@ -205,6 +198,17 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 					FinalizedBlockHeight: 998,
 				},
 			},
+			increaseNodeCooldown: []*models.Node{
+				{
+					ID:       "1",
+					Cooldown: 1020,
+				},
+				{
+					ID:       "1",
+					Cooldown: 2040,
+				},
+			},
+			increaseNodeCooldownNumberOfCalls: 2,
 		},
 	}
 
@@ -224,12 +228,15 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 			}
 
 			// is mocked function called in test
-			if test.saveNode != nil {
-				if len(test.saveNode) == 1 { // same return value
-					nodeRepoMock.On("Save", test.saveNode[0]).Return(nil)
-				} else { // multiple return values
-					for _, nn := range test.saveNode {
-						nodeRepoMock.On("Save", nn).Return(nil).Once()
+			if test.increaseNodeCooldown != nil {
+				if len(test.increaseNodeCooldown) == 1 {
+					nodeRepoMock.On(
+						"IncreaseNodeCooldown",
+						test.nodeID,
+					).Return(test.increaseNodeCooldown[0], nil)
+				} else {
+					for _, node := range test.increaseNodeCooldown {
+						nodeRepoMock.On("IncreaseNodeCooldown", test.nodeID).Return(node, nil).Once()
 					}
 				}
 			}
@@ -276,7 +283,7 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 			})
 
 			nodeRepoMock.AssertNumberOfCalls(t, "AddNodeToActive", test.addToActiveNodesNumberOfCalls)
-			nodeRepoMock.AssertNumberOfCalls(t, "Save", test.saveNodeNumberOfCalls)
+			nodeRepoMock.AssertNumberOfCalls(t, "IncreaseNodeCooldown", test.increaseNodeCooldownNumberOfCalls)
 		})
 	}
 }

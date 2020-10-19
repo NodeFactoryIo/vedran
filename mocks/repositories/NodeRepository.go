@@ -93,6 +93,29 @@ func (_m *NodeRepository) GetAllActiveNodes() *[]models.Node {
 	return r0
 }
 
+// IncreaseNodeCooldown provides a mock function with given fields: ID
+func (_m *NodeRepository) IncreaseNodeCooldown(ID string) (*models.Node, error) {
+	ret := _m.Called(ID)
+
+	var r0 *models.Node
+	if rf, ok := ret.Get(0).(func(string) *models.Node); ok {
+		r0 = rf(ID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Node)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(ID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // InitNodeRepo provides a mock function with given fields:
 func (_m *NodeRepository) InitNodeRepo() error {
 	ret := _m.Called()
