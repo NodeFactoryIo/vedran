@@ -15,7 +15,7 @@ func (a *actions) PenalizeNode(node models.Node, repositories repositories.Repos
 	// remove node from active
 	err := repositories.NodeRepo.RemoveNodeFromActive(node)
 	if err != nil {
-		log.Errorf("Failed penalizing node because of: %v", err)
+		log.Errorf("Failed penalizing node %s because of: %v", node.ID, err)
 		return
 	}
 
@@ -23,7 +23,8 @@ func (a *actions) PenalizeNode(node models.Node, repositories repositories.Repos
 	node.Cooldown = InitialPenalizeIntervalInMins
 	err = repositories.NodeRepo.Save(&node)
 	if err != nil {
-		log.Errorf("Failed penalizing node because of: %v", err)
+		log.Errorf("Failed penalizing node %s because of: %v", node.ID, err)
+		return
 	}
 
 	log.Debugf("Penalized node %s, on cooldown for 1 minute ", node.ID)

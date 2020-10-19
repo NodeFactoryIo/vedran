@@ -22,18 +22,17 @@ func ScheduleCheckForPenalizedNode(node models.Node, repositories repositories.R
 		if isActive {
 			repositories.NodeRepo.AddNodeToActive(node)
 		} else {
-			newCooldown := node.Cooldown * 2
-			if (time.Duration(newCooldown) * time.Minute) > MaxCooldownForPenalizedNode {
+			nodeWithNewCooldown, err := repositories.NodeRepo.IncreaseNodeCooldown(node.ID)
+			if err != nil {
+				log.Errorf("Unable to save new cooldown for node %s, because of %v", node.ID, err)
+				return
+			}
+			if (time.Duration(nodeWithNewCooldown.Cooldown) * time.Minute) > MaxCooldownForPenalizedNode {
 				log.Debugf("Node %s reached maximum cooldown", node.ID)
 				// TODO - remove node
 				return
 			}
-			node.Cooldown = newCooldown
-			err := repositories.NodeRepo.Save(&node)
-			if err != nil {
-				log.Errorf("Unable to save new cooldown for node %s, because of %v", node.ID, err)
-			}
-			ScheduleCheckForPenalizedNode(node, repositories)
+			ScheduleCheckForPenalizedNode(*nodeWithNewCooldown, repositories)
 		}
 	})
 }

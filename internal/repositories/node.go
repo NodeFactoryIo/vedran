@@ -25,6 +25,7 @@ type NodeRepository interface {
 	RemoveNodeFromActive(node models.Node) error
 	AddNodeToActive(node models.Node)
 	RewardNode(node models.Node)
+	IncreaseNodeCooldown(ID string) (*models.Node, error)
 }
 
 type nodeRepo struct {
@@ -163,4 +164,19 @@ func (r *nodeRepo) RewardNode(node models.Node) {
 	if err != nil {
 		log.Errorf("Failed updating node last used time because of: %v", err)
 	}
+}
+
+// IncreaseNodeCooldown doubles node cooldown and saves it to db
+func (r *nodeRepo) IncreaseNodeCooldown(ID string) (*models.Node, error) {
+	var node *models.Node
+	err := r.db.One("ID", ID, node)
+	if err != nil {
+		return nil, err
+	}
+
+	newCooldown := 2 * node.Cooldown
+	node.Cooldown = newCooldown
+
+	err = r.db.Save(node)
+	return node, err
 }
