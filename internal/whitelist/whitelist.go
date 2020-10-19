@@ -51,7 +51,7 @@ func InitWhitelistedNodesFromFile(filePath string) error {
 	if fileWithWhitelistedNodes == "" && whitelistedNodes == nil {
 		_, err := os.Stat(filePath)
 		if os.IsNotExist(err) {
-			return errors.New(fmt.Sprintf("whitelisted nodes file %s doesn't exist", filePath))
+			return fmt.Errorf("whitelisted nodes file %s doesn't exist", filePath)
 		}
 		fileWithWhitelistedNodes = filePath
 		return nil
