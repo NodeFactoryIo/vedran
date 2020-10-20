@@ -43,7 +43,7 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if c.whitelistEnabled {
-		_, err := c.nodeRepo.IsNodeWhitelisted(registerRequest.Id)
+		_, err := c.repositories.NodeRepo.IsNodeWhitelisted(registerRequest.Id)
 		if err != nil {
 			log.Errorf("Node id %s not whitelisted: %v", registerRequest.Id, err)
 			http.Error(w, fmt.Sprintf("Node %s is not whitelisted", registerRequest.Id), http.StatusBadRequest)
@@ -68,7 +68,7 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		Token:         token,
 		LastUsed:      time.Now().Unix(),
 	}
-	err = c.nodeRepo.Save(node)
+	err = c.repositories.NodeRepo.Save(node)
 	if err != nil {
 		log.Errorf("Unable to save node %v to database, error: %v", node, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

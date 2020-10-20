@@ -12,19 +12,34 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var memoryNodes []models.Node
+var activeNodes []models.Node
 
-type NodeRepo struct {
+type NodeRepository interface {
+	InitNodeRepo() error
+	FindByID(ID string) (*models.Node, error)
+	Save(node *models.Node) error
+	GetAll() (*[]models.Node, error)
+	IsNodeWhitelisted(ID string) (bool, error)
+	GetActiveNodes(selection string) *[]models.Node
+	GetAllActiveNodes() *[]models.Node
+	RemoveNodeFromActive(node models.Node) error
+	AddNodeToActive(node models.Node) error
+	RewardNode(node models.Node)
+	IncreaseNodeCooldown(ID string) (*models.Node, error)
+	ResetNodeCooldown(ID string) (*models.Node, error)
+}
+
+type nodeRepo struct {
 	db *storm.DB
 }
 
-func NewNodeRepo(db *storm.DB) *NodeRepo {
-	return &NodeRepo{
+func NewNodeRepo(db *storm.DB) NodeRepository {
+	return &nodeRepo{
 		db: db,
 	}
 }
 
-func (r *NodeRepo) getValidNodes() (*[]models.Node, error) {
+func (r *nodeRepo) getValidNodes() (*[]models.Node, error) {
 	var nodes []models.Node
 
 	q := r.db.Select(q.Lte("Cooldown", 0))
@@ -33,54 +48,57 @@ func (r *NodeRepo) getValidNodes() (*[]models.Node, error) {
 	return &nodes, err
 }
 
-func (r *NodeRepo) InitNodeRepo() error {
+func (r *nodeRepo) InitNodeRepo() error {
 	nodes, err := r.getValidNodes()
 
 	if err != nil {
 		if err.Error() == "not found" {
-			memoryNodes = make([]models.Node, 0)
+			activeNodes = make([]models.Node, 0)
 			return nil
 		}
 
 		return err
 	}
 
-	memoryNodes = *nodes
+	activeNodes = *nodes
 	return nil
 }
 
-func (r *NodeRepo) FindByID(ID string) (*models.Node, error) {
+func (r *nodeRepo) FindByID(ID string) (*models.Node, error) {
 	var node *models.Node
 	err := r.db.One("ID", ID, node)
 	return node, err
 }
 
-func (r *NodeRepo) Save(node *models.Node) error {
+func (r *nodeRepo) Save(node *models.Node) error {
 	err := r.db.Save(node)
 	if err != nil {
 		return err
 	}
 
-	r.AddNodeToActive(*node)
+	err = r.AddNodeToActive(*node)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (r *NodeRepo) GetAll() (*[]models.Node, error) {
+func (r *nodeRepo) GetAll() (*[]models.Node, error) {
 	var nodes []models.Node
 	err := r.db.All(&nodes)
 	return &nodes, err
 }
 
-func (r *NodeRepo) IsNodeWhitelisted(ID string) (bool, error) {
+func (r *nodeRepo) IsNodeWhitelisted(ID string) (bool, error) {
 	var isWhitelisted bool
 	err := r.db.Get(models.WhitelistBucket, ID, &isWhitelisted)
 	return isWhitelisted, err
 }
 
-func (r *NodeRepo) getRandomNodes() *[]models.Node {
-	nodes := make([]models.Node, len(memoryNodes))
+func (r *nodeRepo) getRandomNodes() *[]models.Node {
+	nodes := make([]models.Node, len(activeNodes))
 
-	_ = copy(nodes[:], memoryNodes)
+	_ = copy(nodes[:], activeNodes)
 
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(nodes), func(i, j int) {
@@ -90,10 +108,10 @@ func (r *NodeRepo) getRandomNodes() *[]models.Node {
 	return &nodes
 }
 
-func (r *NodeRepo) getRoundRobinNodes() *[]models.Node {
-	nodes := make([]models.Node, len(memoryNodes))
+func (r *nodeRepo) getRoundRobinNodes() *[]models.Node {
+	nodes := make([]models.Node, len(activeNodes))
 
-	_ = copy(nodes[:], memoryNodes)
+	_ = copy(nodes[:], activeNodes)
 
 	sort.Slice(nodes[:], func(i, j int) bool {
 		return nodes[i].LastUsed < nodes[j].LastUsed
@@ -102,7 +120,7 @@ func (r *NodeRepo) getRoundRobinNodes() *[]models.Node {
 	return &nodes
 }
 
-func (r *NodeRepo) GetActiveNodes(selection string) *[]models.Node {
+func (r *nodeRepo) GetActiveNodes(selection string) *[]models.Node {
 	if selection == "round-robin" {
 		return r.getRoundRobinNodes()
 	}
@@ -110,22 +128,26 @@ func (r *NodeRepo) GetActiveNodes(selection string) *[]models.Node {
 	return r.getRandomNodes()
 }
 
-func (r *NodeRepo) updateMemoryLastUsedTime(targetNode models.Node) {
-	for i, node := range memoryNodes {
+func (r *nodeRepo) GetAllActiveNodes() *[]models.Node {
+	return &activeNodes
+}
+
+func (r *nodeRepo) updateMemoryLastUsedTime(targetNode models.Node) {
+	for i, node := range activeNodes {
 		if targetNode.ID == node.ID {
-			tempNode := &memoryNodes[i]
+			tempNode := &activeNodes[i]
 			tempNode.LastUsed = time.Now().Unix()
 			break
 		}
 	}
 }
 
-func (r *NodeRepo) RemoveNodeFromActive(targetNode models.Node) error {
-	for i, node := range memoryNodes {
+func (r *nodeRepo) RemoveNodeFromActive(targetNode models.Node) error {
+	for i, node := range activeNodes {
 
 		if targetNode.ID == node.ID {
-			memoryNodes[i] = memoryNodes[len(memoryNodes)-1]
-			memoryNodes = memoryNodes[:len(memoryNodes)-1]
+			activeNodes[i] = activeNodes[len(activeNodes)-1]
+			activeNodes = activeNodes[:len(activeNodes)-1]
 			return nil
 		}
 
@@ -134,18 +156,17 @@ func (r *NodeRepo) RemoveNodeFromActive(targetNode models.Node) error {
 	return fmt.Errorf("No target node %s in memory", targetNode.ID)
 }
 
-func (r *NodeRepo) AddNodeToActive(node models.Node) {
-	memoryNodes = append(memoryNodes, node)
-}
-
-func (r *NodeRepo) PenalizeNode(node models.Node) {
-	err := r.RemoveNodeFromActive(node)
-	if err != nil {
-		log.Errorf("Failed penalizing node because of: %v", err)
+func (r *nodeRepo) AddNodeToActive(node models.Node) error {
+	for _, activeNode := range activeNodes {
+		if activeNode.ID == node.ID {
+			return fmt.Errorf("node %s already set as active", node.ID)
+		}
 	}
+	activeNodes = append(activeNodes, node)
+	return nil
 }
 
-func (r *NodeRepo) RewardNode(node models.Node) {
+func (r *nodeRepo) RewardNode(node models.Node) {
 	r.updateMemoryLastUsedTime(node)
 
 	node.LastUsed = time.Now().Unix()
@@ -154,3 +175,33 @@ func (r *NodeRepo) RewardNode(node models.Node) {
 		log.Errorf("Failed updating node last used time because of: %v", err)
 	}
 }
+
+// IncreaseNodeCooldown doubles node cooldown and saves it to db
+func (r *nodeRepo) IncreaseNodeCooldown(ID string) (*models.Node, error) {
+	var node *models.Node
+	err := r.db.One("ID", ID, node)
+	if err != nil {
+		return nil, err
+	}
+
+	newCooldown := 2 * node.Cooldown
+	node.Cooldown = newCooldown
+
+	err = r.db.Save(node)
+	return node, err
+}
+
+// ResetNodeCooldown resets node cooldown to 0 and saves it to db
+func (r *nodeRepo) ResetNodeCooldown(ID string) (*models.Node, error) {
+	var node *models.Node
+	err := r.db.One("ID", ID, node)
+	if err != nil {
+		return nil, err
+	}
+
+	node.Cooldown = 0
+
+	err = r.db.Save(node)
+	return node, err
+}
+
