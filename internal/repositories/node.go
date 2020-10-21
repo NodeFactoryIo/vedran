@@ -19,7 +19,6 @@ type NodeRepository interface {
 	FindByID(ID string) (*models.Node, error)
 	Save(node *models.Node) error
 	GetAll() (*[]models.Node, error)
-	IsNodeWhitelisted(ID string) (bool, error)
 	GetActiveNodes(selection string) *[]models.Node
 	GetAllActiveNodes() *[]models.Node
 	RemoveNodeFromActive(node models.Node) error
@@ -56,7 +55,6 @@ func (r *nodeRepo) InitNodeRepo() error {
 			activeNodes = make([]models.Node, 0)
 			return nil
 		}
-
 		return err
 	}
 
@@ -87,12 +85,6 @@ func (r *nodeRepo) GetAll() (*[]models.Node, error) {
 	var nodes []models.Node
 	err := r.db.All(&nodes)
 	return &nodes, err
-}
-
-func (r *nodeRepo) IsNodeWhitelisted(ID string) (bool, error) {
-	var isWhitelisted bool
-	err := r.db.Get(models.WhitelistBucket, ID, &isWhitelisted)
-	return isWhitelisted, err
 }
 
 func (r *nodeRepo) getRandomNodes() *[]models.Node {
