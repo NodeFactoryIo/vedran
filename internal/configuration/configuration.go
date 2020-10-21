@@ -6,7 +6,7 @@ type Configuration struct {
 	AuthSecret          string
 	Name                string
 	Capacity            int64
-	Whitelist           bool
+	WhitelistEnabled    bool
 	Fee                 float32
 	Selection           string
 	Port                int32

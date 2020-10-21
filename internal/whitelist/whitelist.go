@@ -16,29 +16,6 @@ var (
 
 var newLine = []byte{'\n'}
 
-func IsNodeWhitelisted(nodeId string) bool {
-	if fileWithWhitelistedNodes != "" {
-		file, err := ioutil.ReadFile(fileWithWhitelistedNodes)
-		if err != nil {
-			log.Errorf("Unable to read file with whitelisted nodes %s because %v", fileWithWhitelistedNodes, err)
-			return false
-		}
-		for _, nodeIdBytes := range bytes.Split(file, newLine) {
-			if string(nodeIdBytes) == nodeId {
-				return true
-			}
-		}
-		return false
-	} else {
-		for _, wn := range whitelistedNodes {
-			if wn == nodeId {
-				return true
-			}
-		}
-		return false
-	}
-}
-
 func InitWhitelisting(whitelistedNodes []string, whitelistFile string) (bool, error) {
 	var whitelistError error
 	whitelistEnabled := true
@@ -71,6 +48,29 @@ func initWhitelistedNodesFromFile(filePath string) error {
 		return nil
 	} else {
 		return errors.New("whitelisted nodes already initialized")
+	}
+}
+
+func IsNodeWhitelisted(nodeId string) bool {
+	if fileWithWhitelistedNodes != "" {
+		file, err := ioutil.ReadFile(fileWithWhitelistedNodes)
+		if err != nil {
+			log.Errorf("Unable to read file with whitelisted nodes %s because %v", fileWithWhitelistedNodes, err)
+			return false
+		}
+		for _, nodeIdBytes := range bytes.Split(file, newLine) {
+			if string(nodeIdBytes) == nodeId {
+				return true
+			}
+		}
+		return false
+	} else {
+		for _, wn := range whitelistedNodes {
+			if wn == nodeId {
+				return true
+			}
+		}
+		return false
 	}
 }
 

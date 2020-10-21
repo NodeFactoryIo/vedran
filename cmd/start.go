@@ -80,9 +80,8 @@ var startCmd = &cobra.Command{
 		if !util.IsValidPortAsStr(prt[1]) {
 			return errors.New("invalid port number provided for max port inside port range")
 		}
-		// is valid csv fil TODO
 		if whitelistArray != nil && whitelistFile != "" {
-			return errors.New("only one option for whitelisting nodes should be set")
+			return errors.New("only one flag for setting whitelisted nodes should be set")
 		}
 		return nil
 	},
@@ -111,14 +110,14 @@ func init() {
 		&whitelistArray,
 		"whitelist",
 		nil,
-		"[OPTIONAL] Comma separated list of node id-s, if provided only these nodes will be allowed to connect"+
+		"[OPTIONAL] Comma separated list of node id-s, if provided only these nodes will be allowed to connect."+
 			"This flag can't be used together with --whitelist-file flag, only one option for setting whitelisted nodes can be used")
 
 	startCmd.Flags().StringVar(
 		&whitelistFile,
 		"whitelist-file",
 		"",
-		"[OPTIONAL] Path to .txt file with node id-s in each line that should be whitelisted. "+
+		"[OPTIONAL] Path to file with node id-s in each line that should be whitelisted."+
 			"This flag can't be used together with --whitelist flag, only one option for setting whitelisted nodes can be used")
 
 	startCmd.Flags().Float32Var(
@@ -212,6 +211,6 @@ func startCommand(_ *cobra.Command, _ []string) {
 		Port:                serverPort,
 		TunnelServerAddress: tunnelServerAddress,
 		PortPool:            pPool,
-		Whitelist:           whitelistEnabled,
+		WhitelistEnabled:    whitelistEnabled,
 	})
 }
