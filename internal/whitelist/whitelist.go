@@ -52,6 +52,28 @@ func InitWhitelisting(whitelistedNodes []string, whitelistFile string) (bool, er
 	return whitelistEnabled, whitelistError
 }
 
+func initWhitelistedNodes(nodes []string) error {
+	if whitelistedNodes == nil && fileWithWhitelistedNodes == "" {
+		whitelistedNodes = nodes
+		return nil
+	} else {
+		return errors.New("whitelisted nodes already initialized")
+	}
+}
+
+func initWhitelistedNodesFromFile(filePath string) error {
+	if fileWithWhitelistedNodes == "" && whitelistedNodes == nil {
+		_, err := os.Stat(filePath)
+		if os.IsNotExist(err) {
+			return fmt.Errorf("whitelisted nodes file %s doesn't exist", filePath)
+		}
+		fileWithWhitelistedNodes = filePath
+		return nil
+	} else {
+		return errors.New("whitelisted nodes already initialized")
+	}
+}
+
 func RemoveNodeFromWhitelisted(nodeId string) error {
 	if fileWithWhitelistedNodes != "" {
 		return removeNodeFromWhitelistFile(nodeId)
@@ -101,26 +123,4 @@ func removeNodeFromWhitelistArray(nodeId string) error {
 		return fmt.Errorf("node %s not found in whitelisted nodes", nodeId)
 	}
 	return nil
-}
-
-func initWhitelistedNodes(nodes []string) error {
-	if whitelistedNodes == nil && fileWithWhitelistedNodes == "" {
-		whitelistedNodes = nodes
-		return nil
-	} else {
-		return errors.New("whitelisted nodes already initialized")
-	}
-}
-
-func initWhitelistedNodesFromFile(filePath string) error {
-	if fileWithWhitelistedNodes == "" && whitelistedNodes == nil {
-		_, err := os.Stat(filePath)
-		if os.IsNotExist(err) {
-			return fmt.Errorf("whitelisted nodes file %s doesn't exist", filePath)
-		}
-		fileWithWhitelistedNodes = filePath
-		return nil
-	} else {
-		return errors.New("whitelisted nodes already initialized")
-	}
 }
