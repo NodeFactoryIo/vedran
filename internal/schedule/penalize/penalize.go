@@ -39,10 +39,6 @@ func ScheduleCheckForPenalizedNode(node models.Node, repositories repositories.R
 			}
 			if (time.Duration(nodeWithNewCooldown.Cooldown) * time.Minute) > MaxCooldownForPenalizedNode {
 				log.Debugf("Node %s reached maximum cooldown", node.ID)
-				err := repositories.NodeRepo.RemoveNodeFromActive(*nodeWithNewCooldown)
-				if err != nil {
-					log.Errorf("Unable to remove node %s from active nodes, because of %v", node.ID, err)
-				}
 				err = whitelist.RemoveNodeFromWhitelisted(node.ID)
 				if err != nil {
 					log.Errorf("Unable to remove node %s from whitelisted nodes, because of %v", node.ID, err)
