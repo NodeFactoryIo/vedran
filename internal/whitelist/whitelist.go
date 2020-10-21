@@ -77,8 +77,11 @@ func IsNodeWhitelisted(nodeId string) bool {
 func RemoveNodeFromWhitelisted(nodeId string) error {
 	if fileWithWhitelistedNodes != "" {
 		return removeNodeFromWhitelistFile(nodeId)
-	} else {
+	} else if len(whitelistedNodes) != 0 {
 		return removeNodeFromWhitelistArray(nodeId)
+	} else {
+		// whitelisting disabled
+		return nil
 	}
 }
 
