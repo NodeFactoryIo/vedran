@@ -3,6 +3,7 @@ package penalize
 import (
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
+	"github.com/NodeFactoryIo/vedran/internal/whitelist"
 	repoMocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
 	"testing"
 	"time"
@@ -16,6 +17,8 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 		increaseNodeCooldownNumberOfCalls int
 		addToActiveNode                   []models.Node
 		addToActiveNodesNumberOfCalls     int
+		removeFromActiveNode			  []models.Node
+		removeFromActiveNodeNumberOfCalls int
 		resetNodeCooldownNumberOfCalls    int
 		nodePing                          []*models.Ping
 		nodeMetrics                       []*models.Metrics
@@ -36,6 +39,8 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 				},
 			},
 			addToActiveNodesNumberOfCalls: 1,
+			removeFromActiveNode: nil,
+			removeFromActiveNodeNumberOfCalls: 0,
 			resetNodeCooldownNumberOfCalls: 1,
 			nodePing: []*models.Ping{
 				{
@@ -73,6 +78,8 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 				},
 			},
 			addToActiveNodesNumberOfCalls: 1,
+			removeFromActiveNode: nil,
+			removeFromActiveNodeNumberOfCalls: 0,
 			resetNodeCooldownNumberOfCalls: 1,
 			nodePing: []*models.Ping{
 				{
@@ -123,6 +130,8 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 				},
 			},
 			addToActiveNodesNumberOfCalls: 1,
+			removeFromActiveNode: nil,
+			removeFromActiveNodeNumberOfCalls: 0,
 			resetNodeCooldownNumberOfCalls: 1,
 			nodePing: []*models.Ping{
 				{
@@ -183,6 +192,13 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 			},
 			addToActiveNode:                   nil,
 			addToActiveNodesNumberOfCalls:     0,
+			removeFromActiveNode: []models.Node{
+				{
+					ID:       "1",
+					Cooldown: 2040,
+				},
+			},
+			removeFromActiveNodeNumberOfCalls: 1,
 			resetNodeCooldownNumberOfCalls: 0,
 			nodePing: []*models.Ping{
 				{
@@ -219,6 +235,7 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			_, _ = whitelist.InitWhitelisting([]string{test.nodeID}, "")
 			nodeRepoMock := repoMocks.NodeRepository{}
 
 			// is mocked function called in test
@@ -228,6 +245,17 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 				} else { // multiple return values
 					for _, n := range test.addToActiveNode {
 						nodeRepoMock.On("AddNodeToActive", n).Return().Once()
+					}
+				}
+			}
+
+			// is mocked function called in test
+			if test.removeFromActiveNode != nil {
+				if len(test.removeFromActiveNode) == 1 { // same return value
+					nodeRepoMock.On("RemoveNodeFromActive", test.removeFromActiveNode[0]).Return(nil)
+				} else { // multiple return values
+					for _, n := range test.addToActiveNode {
+						nodeRepoMock.On("RemoveNodeFromActive", n).Return().Once()
 					}
 				}
 			}
@@ -295,6 +323,7 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 			nodeRepoMock.AssertNumberOfCalls(t, "AddNodeToActive", test.addToActiveNodesNumberOfCalls)
 			nodeRepoMock.AssertNumberOfCalls(t, "IncreaseNodeCooldown", test.increaseNodeCooldownNumberOfCalls)
 			nodeRepoMock.AssertNumberOfCalls(t, "ResetNodeCooldown", test.resetNodeCooldownNumberOfCalls)
+			nodeRepoMock.AssertNumberOfCalls(t, "RemoveNodeFromActive", test.removeFromActiveNodeNumberOfCalls)
 		})
 	}
 }

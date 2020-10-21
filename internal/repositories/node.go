@@ -144,13 +144,11 @@ func (r *nodeRepo) updateMemoryLastUsedTime(targetNode models.Node) {
 
 func (r *nodeRepo) RemoveNodeFromActive(targetNode models.Node) error {
 	for i, node := range activeNodes {
-
 		if targetNode.ID == node.ID {
 			activeNodes[i] = activeNodes[len(activeNodes)-1]
 			activeNodes = activeNodes[:len(activeNodes)-1]
 			return nil
 		}
-
 	}
 
 	return fmt.Errorf("No target node %s in memory", targetNode.ID)
