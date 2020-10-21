@@ -175,12 +175,14 @@ func init() {
 func startCommand(_ *cobra.Command, _ []string) {
 	DisplayBanner()
 
+	// creating address pool
 	pPool := &server.AddrPool{}
 	err := pPool.Init(tunnelPortRange)
 	if err != nil {
 		log.Fatalf("Failed assigning port range because of: %v", err)
 	}
 
+	// defining tunnel server address
 	var tunnelServerAddress string
 	if publicIP == "" {
 		IP, err := ip.Get()
@@ -193,19 +195,12 @@ func startCommand(_ *cobra.Command, _ []string) {
 		tunnelServerAddress = fmt.Sprintf("%s:%s", publicIP, tunnelServerPort)
 	}
 
-	var whitelistError error
-	whitelistEnabled := true
-	if whitelistFile != "" {
-		whitelistError = whitelist.InitWhitelistedNodesFromFile(whitelistFile)
-	} else if len(whitelistArray) != 0 {
-		whitelistError = whitelist.InitWhitelistedNodes(whitelistArray)
-	} else {
-		whitelistEnabled = false
-		log.Debug("Whitelisting disabled")
-	}
-	if whitelistError != nil {
+	// initializing whitelisting
+	whitelistEnabled, err := whitelist.InitWhitelisting(whitelistArray, whitelistFile)
+	if err != nil {
 		log.Fatal("Unable to set whitelisted nodes ", err)
 	}
+	log.Debugf("Whitelisting set to: %t", whitelistEnabled)
 
 	tunnel.StartHttpTunnelServer(tunnelServerPort, pPool)
 	loadbalancer.StartLoadBalancerServer(configuration.Configuration{

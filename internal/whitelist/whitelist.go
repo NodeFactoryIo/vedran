@@ -38,7 +38,20 @@ func IsNodeWhitelisted(nodeId string) bool {
 	}
 }
 
-func InitWhitelistedNodes(nodes []string) error {
+func InitWhitelisting(whitelistedNodes []string, whitelistFile string) (bool, error) {
+	var whitelistError error
+	whitelistEnabled := true
+	if whitelistFile != "" {
+		whitelistError = initWhitelistedNodesFromFile(whitelistFile)
+	} else if len(whitelistedNodes) != 0 {
+		whitelistError = initWhitelistedNodes(whitelistedNodes)
+	} else {
+		whitelistEnabled = false
+	}
+	return whitelistEnabled, whitelistError
+}
+
+func initWhitelistedNodes(nodes []string) error {
 	if whitelistedNodes == nil && fileWithWhitelistedNodes == "" {
 		whitelistedNodes = nodes
 		return nil
@@ -47,7 +60,7 @@ func InitWhitelistedNodes(nodes []string) error {
 	}
 }
 
-func InitWhitelistedNodesFromFile(filePath string) error {
+func initWhitelistedNodesFromFile(filePath string) error {
 	if fileWithWhitelistedNodes == "" && whitelistedNodes == nil {
 		_, err := os.Stat(filePath)
 		if os.IsNotExist(err) {

@@ -24,7 +24,7 @@ func reset() {
 // tests
 
 func Test_WhitelistingFromMemory(t *testing.T) {
-	_ = InitWhitelistedNodes([]string{"node1", "node2", "node3"})
+	_ = initWhitelistedNodes([]string{"node1", "node2", "node3"})
 
 	tests := []struct {
 		name string
@@ -50,7 +50,7 @@ func Test_WhitelistingFromFile(t *testing.T) {
 	createTmpWhitelistTestFile(t)
 	defer os.Remove("./tmp_whitelist_test.txt")
 
-	_ = InitWhitelistedNodesFromFile("./tmp_whitelist_test.txt")
+	_ = initWhitelistedNodesFromFile("./tmp_whitelist_test.txt")
 
 	tests := []struct {
 		name string
@@ -76,19 +76,19 @@ func Test_WhitelistInit(t *testing.T) {
 	createTmpWhitelistTestFile(t)
 	defer os.Remove("./tmp_whitelist_test.txt")
 
-	assert.Nil(t, InitWhitelistedNodesFromFile("./tmp_whitelist_test.txt"))
-	assert.Error(t, InitWhitelistedNodes([]string{"node1", "node2"}))
+	assert.Nil(t, initWhitelistedNodesFromFile("./tmp_whitelist_test.txt"))
+	assert.Error(t, initWhitelistedNodes([]string{"node1", "node2"}))
 
 	reset()
 
-	assert.Nil(t, InitWhitelistedNodes([]string{"node1", "node2"}))
-	assert.Error(t, InitWhitelistedNodesFromFile("test-file.txt"))
+	assert.Nil(t, initWhitelistedNodes([]string{"node1", "node2"}))
+	assert.Error(t, initWhitelistedNodesFromFile("test-file.txt"))
 
 	reset()
 }
 
 func Test_InitWhitelistedNodesFromFile_FileDoesntExist(t *testing.T) {
-	assert.Error(t, InitWhitelistedNodesFromFile("test-file.txt"))
+	assert.Error(t, initWhitelistedNodesFromFile("test-file.txt"))
 	reset()
 }
 
