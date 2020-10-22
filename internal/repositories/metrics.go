@@ -8,6 +8,7 @@ import (
 type MetricsRepository interface {
 	FindByID(ID string) (*models.Metrics, error)
 	Save(metrics *models.Metrics) error
+	SaveAndCheckIfFirstEntry(metrics *models.Metrics) (bool, error)
 	GetAll() (*[]models.Metrics, error)
 	GetLatestBlockMetrics() (*models.LatestBlockMetrics, error)
 }
@@ -30,6 +31,21 @@ func (r *metricsRepo) FindByID(ID string) (*models.Metrics, error) {
 
 func (r *metricsRepo) Save(metrics *models.Metrics) error {
 	return r.db.Save(metrics)
+}
+
+func (r *metricsRepo) SaveAndCheckIfFirstEntry(metrics *models.Metrics) (bool, error) {
+	_, err := r.FindByID(metrics.NodeId)
+	isFirstMetricEntry := false
+	if err != nil {
+		if err.Error() == "not found" {
+			isFirstMetricEntry = true
+		} else {
+			return false, err
+		}
+	}
+
+	err = r.Save(metrics)
+	return isFirstMetricEntry, err
 }
 
 func (r metricsRepo) GetAll() (*[]models.Metrics, error) {

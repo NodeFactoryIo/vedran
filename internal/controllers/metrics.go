@@ -35,32 +35,7 @@ func (c ApiController) SaveMetricsHandler(w http.ResponseWriter, r *http.Request
 
 	requestContext := r.Context().Value(auth.RequestContextKey).(*auth.RequestContext)
 
-	// check if node with provided ID exists
-	node, err := c.repositories.NodeRepo.FindByID(requestContext.NodeId)
-	if err != nil {
-		if err.Error() == "not found" {
-			log.Errorf("Unable to save metrics for non registered node %s", requestContext.NodeId)
-		} else {
-			log.Errorf("Unable to save metrics for node %v to database, error: %v", requestContext.NodeId, err)
-		}
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	isFirstMetricEntry := false
-	// check if this is first metrics entry that is being saved
-	_, err = c.repositories.MetricsRepo.FindByID(requestContext.NodeId)
-	if err != nil {
-		if err.Error() == "not found" {
-			isFirstMetricEntry = true
-		} else {
-			log.Errorf("Unable to save metrics for node %v to database, error: %v", requestContext.NodeId, err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-	}
-
-	err = c.repositories.MetricsRepo.Save(&models.Metrics{
+	isFirstMetricEntry, err := c.repositories.MetricsRepo.SaveAndCheckIfFirstEntry(&models.Metrics{
 		NodeId:                requestContext.NodeId,
 		PeerCount:             metricsRequest.PeerCount,
 		BestBlockHeight:       metricsRequest.BestBlockHeight,
@@ -69,15 +44,21 @@ func (c ApiController) SaveMetricsHandler(w http.ResponseWriter, r *http.Request
 	})
 
 	if err != nil {
-		log.Errorf("Unable to save metrics for node %v to database, error: %v", requestContext.NodeId, err)
+		log.Errorf("Unable to save metrics for node %s to database, error: %v", requestContext.NodeId, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	if isFirstMetricEntry {
-		err := c.repositories.NodeRepo.AddNodeToActive(*node)
+		node, err := c.repositories.NodeRepo.FindByID(requestContext.NodeId)
 		if err != nil {
-			log.Errorf("Unable to add node %v to active nodes, error: %v", requestContext.NodeId, err)
+			log.Errorf("Unable add node %s to active nodes, error: %v", requestContext.NodeId, err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+		err = c.repositories.NodeRepo.AddNodeToActive(*node)
+		if err != nil {
+			log.Errorf("Unable to add node %s to active nodes, error: %v", requestContext.NodeId, err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
 	}
