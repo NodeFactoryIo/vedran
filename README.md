@@ -21,7 +21,7 @@ _Vedran loadbalancer_ is used in conjunction with [Vedran daemon](https://github
 This demo starts three separate dockerized components:
 - _Polkadot node_ ([repository](https://github.com/paritytech/polkadot))
 - _Vedran daemon_ ([repository](https://github.com/NodeFactoryIo/vedran-daemon))
-- _Vedran loadbalancer_ 
+- _Vedran loadbalancer_
 
 ## Get `vedran` package
 1. Install [Golang](https://golang.org/doc/install) **1.13 or greater**
@@ -37,7 +37,7 @@ Note that if you need to do this, you probably want to add your Go bin directory
 
 ## Starting loadbalancer
 
-First download latest prebuilded binaries [from releases](https://github.com/NodeFactoryIo/vedran/releases).
+First download latest prebuilt binaries [from releases](https://github.com/NodeFactoryIo/vedran/releases).
 
 Load balancer is started by invoking **start** command.
 
@@ -63,13 +63,15 @@ For example `vedran-linux-amd64 start --auth-secret=supersecret`.
 
 `--capacity` - maximum number of nodes allowed to connect - **DEFAULT** [-1] unlimited capacity
 
-`--whitelist`
+`--whitelist` - Comma separated list of node id-s, if provided only these nodes will be allowed to connect. This flag can't be used together with --whitelist-file flag, only one option for setting whitelisted nodes can be used - **DEFAULT** no nodes whitelisted
+
+`--whitelist-file` - Path to file with node id-s in each line that should be whitelisted. This flag can't be used together with --whitelist flag, only one option for setting whitelisted nodes can be used - **DEFAULT** no file used
 
 `--fee` - value between 0-1 representing fee percentage that loadbalancer will take - **DEFAULT** [0.1]
 
 `--selection` - type of selection that is used for selecting nodes on new request, valid values are `round-robin` and `random` - **DEFAULT** [round-robin]
 
-`--log-level` - log level - **DEFAULT** [error]
+`--log-level` - log level (debug, info, warn, error) - **DEFAULT** [error]
 
 `--log-file` - path to file in which logs will be saved - **DEFAULT** [stdout]
 
@@ -99,7 +101,7 @@ Ping loadbalancer from node. Auth token should be in header as `X-Auth-Header`.
 ---
 
 `PUT    api/v1/nodes/metrics`
- 
+
 Send metrics for node. Auth token should be in header as `X-Auth-Header`. Body should contain metrics as:
 
 ```json
