@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
-	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"github.com/NodeFactoryIo/vedran/internal/router"
 	"github.com/NodeFactoryIo/vedran/internal/schedule/checkactive"
@@ -45,25 +44,9 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 	// starts task that checks active nodes
 	checkactive.StartScheduledTask(repos)
 
-	// whitelist
-	whitelistEnabled := len(props.Whitelist) > 0
-	// save whitelisted id-s
-	if whitelistEnabled {
-		log.Debugf("Whitelisting enabled, whitelisted node IDs: %v", props.Whitelist)
-		for _, nodeId := range props.Whitelist {
-			err = database.Set(models.WhitelistBucket, nodeId, true)
-			if err != nil {
-				// terminate app: unable to save whitelist id-s
-				log.Fatalf("Unable to start vedran load balancer: %v", err)
-			}
-		}
-	} else {
-		log.Debug("Whitelisting disabled")
-	}
-
 	// start server
 	log.Infof("Starting vedran load balancer on port :%d...", props.Port)
-	r := router.CreateNewApiRouter(*repos, whitelistEnabled)
+	r := router.CreateNewApiRouter(*repos, props.WhitelistEnabled)
 	err = http.ListenAndServe(fmt.Sprintf(":%d", props.Port), r)
 	if err != nil {
 		log.Error(err)

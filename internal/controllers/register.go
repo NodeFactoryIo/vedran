@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/whitelist"
 	"net/http"
 	"time"
 
@@ -43,9 +44,7 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if c.whitelistEnabled {
-		_, err := c.repositories.NodeRepo.IsNodeWhitelisted(registerRequest.Id)
-		if err != nil {
-			log.Errorf("Node id %s not whitelisted: %v", registerRequest.Id, err)
+		if !whitelist.IsNodeWhitelisted(registerRequest.Id) {
 			http.Error(w, fmt.Sprintf("Node %s is not whitelisted", registerRequest.Id), http.StatusBadRequest)
 			return
 		}

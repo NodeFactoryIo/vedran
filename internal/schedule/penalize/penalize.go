@@ -4,6 +4,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/active"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
+	"github.com/NodeFactoryIo/vedran/internal/whitelist"
 	log "github.com/sirupsen/logrus"
 	"time"
 )
@@ -38,7 +39,10 @@ func ScheduleCheckForPenalizedNode(node models.Node, repositories repositories.R
 			}
 			if (time.Duration(nodeWithNewCooldown.Cooldown) * time.Minute) > MaxCooldownForPenalizedNode {
 				log.Debugf("Node %s reached maximum cooldown", node.ID)
-				// TODO - remove node
+				err = whitelist.RemoveNodeFromWhitelisted(node.ID)
+				if err != nil {
+					log.Errorf("Unable to remove node %s from whitelisted nodes, because of %v", node.ID, err)
+				}
 				return
 			}
 			ScheduleCheckForPenalizedNode(*nodeWithNewCooldown, repositories)

@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/whitelist"
 	"strings"
 
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
@@ -19,14 +20,15 @@ import (
 
 var (
 	// load balancer related flags
-	authSecret string
-	name       string
-	capacity   int64
-	whitelist  []string
-	fee        float32
-	selection  string
-	serverPort int32
-	publicIP   string
+	authSecret     string
+	name           string
+	capacity       int64
+	whitelistArray []string
+	whitelistFile  string
+	fee            float32
+	selection      string
+	serverPort     int32
+	publicIP       string
 	// logging related flags
 	logLevel string
 	logFile  string
@@ -78,6 +80,9 @@ var startCmd = &cobra.Command{
 		if !util.IsValidPortAsStr(prt[1]) {
 			return errors.New("invalid port number provided for max port inside port range")
 		}
+		if whitelistArray != nil && whitelistFile != "" {
+			return errors.New("only one flag for setting whitelisted nodes should be set")
+		}
 		return nil
 	},
 }
@@ -102,10 +107,18 @@ func init() {
 		"[OPTIONAL] Maximum number of nodes allowed to connect, where -1 represents no upper limit")
 
 	startCmd.Flags().StringSliceVar(
-		&whitelist,
+		&whitelistArray,
 		"whitelist",
 		nil,
-		"[OPTIONAL] Comma separated list of node id-s, if provided only these nodes will be allowed to connect")
+		"[OPTIONAL] Comma separated list of node id-s, if provided only these nodes will be allowed to connect."+
+			"This flag can't be used together with --whitelist-file flag, only one option for setting whitelisted nodes can be used")
+
+	startCmd.Flags().StringVar(
+		&whitelistFile,
+		"whitelist-file",
+		"",
+		"[OPTIONAL] Path to file with node id-s in each line that should be whitelisted."+
+			"This flag can't be used together with --whitelist flag, only one option for setting whitelisted nodes can be used")
 
 	startCmd.Flags().Float32Var(
 		&fee,
@@ -161,12 +174,14 @@ func init() {
 func startCommand(_ *cobra.Command, _ []string) {
 	DisplayBanner()
 
+	// creating address pool
 	pPool := &server.AddrPool{}
 	err := pPool.Init(tunnelPortRange)
 	if err != nil {
 		log.Fatalf("Failed assigning port range because of: %v", err)
 	}
 
+	// defining tunnel server address
 	var tunnelServerAddress string
 	if publicIP == "" {
 		IP, err := ip.Get()
@@ -179,16 +194,23 @@ func startCommand(_ *cobra.Command, _ []string) {
 		tunnelServerAddress = fmt.Sprintf("%s:%s", publicIP, tunnelServerPort)
 	}
 
+	// initializing whitelisting
+	whitelistEnabled, err := whitelist.InitWhitelisting(whitelistArray, whitelistFile)
+	if err != nil {
+		log.Fatal("Unable to set whitelisted nodes ", err)
+	}
+	log.Debugf("Whitelisting set to: %t", whitelistEnabled)
+
 	tunnel.StartHttpTunnelServer(tunnelServerPort, pPool)
 	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
 		AuthSecret:          authSecret,
 		Name:                name,
 		Capacity:            capacity,
-		Whitelist:           whitelist,
 		Fee:                 fee,
 		Selection:           selection,
 		Port:                serverPort,
 		TunnelServerAddress: tunnelServerAddress,
 		PortPool:            pPool,
+		WhitelistEnabled:    whitelistEnabled,
 	})
 }

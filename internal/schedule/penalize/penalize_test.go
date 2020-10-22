@@ -3,6 +3,7 @@ package penalize
 import (
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
+	"github.com/NodeFactoryIo/vedran/internal/whitelist"
 	repoMocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
 	"testing"
 	"time"
@@ -219,6 +220,7 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			_, _ = whitelist.InitWhitelisting([]string{test.nodeID}, "")
 			nodeRepoMock := repoMocks.NodeRepository{}
 
 			// is mocked function called in test
@@ -231,7 +233,7 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 					}
 				}
 			}
-			
+
 			nodeRepoMock.On("ResetNodeCooldown", test.nodeID).Return(&models.Node{
 				ID:       test.nodeID,
 				Cooldown: 0,

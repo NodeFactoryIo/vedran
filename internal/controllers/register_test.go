@@ -3,11 +3,11 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
+	"github.com/NodeFactoryIo/vedran/internal/whitelist"
 	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -32,8 +32,6 @@ func TestApiController_RegisterHandler(t *testing.T) {
 		isWhitelisted                 bool
 		saveMockReturns               interface{}
 		saveMockCalledNumber          int
-		isNodeWhitelistedMockReturns  interface{}
-		isNodeWhitelistedCalledNumber int
 	}{
 		{
 			name: "Valid registration test no whitelist",
@@ -50,8 +48,6 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			isWhitelisted:                 false,
 			saveMockReturns:               nil,
 			saveMockCalledNumber:          1,
-			isNodeWhitelistedMockReturns:  nil,
-			isNodeWhitelistedCalledNumber: 0,
 		},
 		{
 			name: "Valid registration test nodeId on whitelist",
@@ -68,13 +64,11 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			isWhitelisted:                 true,
 			saveMockReturns:               nil,
 			saveMockCalledNumber:          1,
-			isNodeWhitelistedMockReturns:  nil,
-			isNodeWhitelistedCalledNumber: 1,
 		},
 		{
 			name: "Invalid registration test nodeId not on whitelist",
 			registerRequest: RegisterRequest{
-				Id:            "1",
+				Id:            "2",
 				ConfigHash:    "dadf2e32dwq12",
 				PayoutAddress: "0xdafe2cdscdsa",
 			},
@@ -83,11 +77,10 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			isWhitelisted:                 true,
 			saveMockReturns:               nil,
 			saveMockCalledNumber:          0,
-			isNodeWhitelistedMockReturns:  errors.New("not found"),
-			isNodeWhitelistedCalledNumber: 1,
 		},
 	}
 	_ = os.Setenv("AUTH_SECRET", "test-auth-secret")
+	_, _ = whitelist.InitWhitelisting([]string{"1"}, "")
 
 	// execute tests
 	for _, test := range tests {
@@ -104,10 +97,6 @@ func TestApiController_RegisterHandler(t *testing.T) {
 				Token:         test.registerResponse.Token,
 				LastUsed:      time.Now().Unix(),
 			}).Return(test.saveMockReturns)
-			nodeRepoMock.On(
-				"IsNodeWhitelisted",
-				test.registerRequest.Id,
-			).Return(true, test.isNodeWhitelistedMockReturns)
 
 			apiController := NewApiController(test.isWhitelisted, repositories.Repos{
 				NodeRepo:    &nodeRepoMock,
@@ -139,7 +128,6 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			}
 
 			assert.True(t, nodeRepoMock.AssertNumberOfCalls(t, "Save", test.saveMockCalledNumber))
-			assert.True(t, nodeRepoMock.AssertNumberOfCalls(t, "IsNodeWhitelisted", test.isNodeWhitelistedCalledNumber))
 		})
 	}
 	_ = os.Setenv("AUTH_SECRET", "")
