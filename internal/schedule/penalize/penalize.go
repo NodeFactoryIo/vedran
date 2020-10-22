@@ -14,7 +14,7 @@ const MaxCooldownForPenalizedNode = 17 * time.Hour
 var afterFunc = time.AfterFunc
 
 func ScheduleCheckForPenalizedNode(node models.Node, repositories repositories.Repos) {
-	afterFunc(time.Duration(node.Cooldown), func() {
+	afterFunc(time.Duration(node.Cooldown) * time.Minute, func() {
 		isActive, err := active.CheckIfNodeActive(node, &repositories)
 		if err != nil {
 			log.Errorf("Unable to check if node %s active, because of %v", node.ID, err)
