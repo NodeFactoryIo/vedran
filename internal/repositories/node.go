@@ -163,8 +163,8 @@ func (r *nodeRepo) RewardNode(node models.Node) {
 
 // IncreaseNodeCooldown doubles node cooldown and saves it to db
 func (r *nodeRepo) IncreaseNodeCooldown(ID string) (*models.Node, error) {
-	var node *models.Node
-	err := r.db.One("ID", ID, node)
+	var node models.Node
+	err := r.db.One("ID", ID, &node)
 	if err != nil {
 		return nil, err
 	}
@@ -172,20 +172,20 @@ func (r *nodeRepo) IncreaseNodeCooldown(ID string) (*models.Node, error) {
 	newCooldown := 2 * node.Cooldown
 	node.Cooldown = newCooldown
 
-	err = r.db.Save(node)
-	return node, err
+	err = r.db.Save(&node)
+	return &node, err
 }
 
 // ResetNodeCooldown resets node cooldown to 0 and saves it to db
 func (r *nodeRepo) ResetNodeCooldown(ID string) (*models.Node, error) {
-	var node *models.Node
-	err := r.db.One("ID", ID, node)
+	var node models.Node
+	err := r.db.One("ID", ID, &node)
 	if err != nil {
 		return nil, err
 	}
 
 	node.Cooldown = 0
 
-	err = r.db.Save(node)
-	return node, err
+	err = r.db.Save(&node)
+	return &node, err
 }

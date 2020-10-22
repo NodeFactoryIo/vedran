@@ -23,9 +23,9 @@ func NewMetricsRepo(db *storm.DB) MetricsRepository {
 }
 
 func (r *metricsRepo) FindByID(ID string) (*models.Metrics, error) {
-	var metrics *models.Metrics
-	err := r.db.One("ID", ID, metrics)
-	return metrics, err
+	var metrics models.Metrics
+	err := r.db.One("NodeId", ID, &metrics)
+	return &metrics, err
 }
 
 func (r *metricsRepo) Save(metrics *models.Metrics) error {
@@ -33,9 +33,9 @@ func (r *metricsRepo) Save(metrics *models.Metrics) error {
 }
 
 func (r metricsRepo) GetAll() (*[]models.Metrics, error) {
-	var metrics *[]models.Metrics
-	err := r.db.All(metrics)
-	return metrics, err
+	var metrics []models.Metrics
+	err := r.db.All(&metrics)
+	return &metrics, err
 }
 
 func (r *metricsRepo) GetLatestBlockMetrics() (*models.LatestBlockMetrics, error) {
@@ -57,5 +57,3 @@ func (r *metricsRepo) GetLatestBlockMetrics() (*models.LatestBlockMetrics, error
 	}
 	return &latestBlockMetrics, err
 }
-
-
