@@ -63,9 +63,9 @@ func (r *nodeRepo) InitNodeRepo() error {
 }
 
 func (r *nodeRepo) FindByID(ID string) (*models.Node, error) {
-	var node *models.Node
-	err := r.db.One("ID", ID, node)
-	return node, err
+	var node models.Node
+	err := r.db.One("ID", ID, &node)
+	return &node, err
 }
 
 func (r *nodeRepo) Save(node *models.Node) error {
@@ -194,4 +194,3 @@ func (r *nodeRepo) ResetNodeCooldown(ID string) (*models.Node, error) {
 	err = r.db.Save(node)
 	return node, err
 }
-
