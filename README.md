@@ -43,6 +43,10 @@ Load balancer is started by invoking **start** command.
 
 For example `vedran-linux-amd64 start --auth-secret=supersecret`.
 
+Command will start application on 2 ports that need to be exposed to public:
+ 1. - RPC api for load balancing to nodes and API for nodes to register to load balancer (default: 4000)
+ 2. - http tunnel server for creating tunnels between node and load balancer so node operators don't to have expose nodes to public network (default: 5223)
+
 ### Required flags
 
 `--auth-secret` authentication secret used for generating tokens
