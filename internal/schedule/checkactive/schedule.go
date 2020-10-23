@@ -36,15 +36,29 @@ func scheduledTask(repos *repositories.Repos, actions actions.Actions) {
 	activeNodes := repos.NodeRepo.GetAllActiveNodes()
 
 	for _, node := range *activeNodes {
-		isActive, err := active.CheckIfNodeActive(node, repos)
 
+		pingActive, err := active.CheckIfPingActive(node, repos)
 		if err != nil {
 			log.Errorf("Unable to check if node %s active because of %v", node.ID, err)
 			continue
 		}
 
-		if !isActive {
+		if !pingActive {
 			actions.PenalizeNode(node, *repos)
+			continue
+		}
+
+		metricsVald, err := active.CheckIfMetricsValid(node, repos)
+		if err != nil {
+			log.Errorf("Unable to check if node %s active because of %v", node.ID, err)
+			continue
+		}
+
+		if !metricsVald {
+			err := repos.NodeRepo.RemoveNodeFromActive(node)
+			if err != nil {
+				// todo
+			}
 		}
 	}
 }

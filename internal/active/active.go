@@ -15,6 +15,20 @@ const (
 // CheckIfNodeActive checks if nodes last recorded ping is in last IntervalFromLastPing and if nodes last recorded
 // BestBlockHeight and FinalizedBlockHeight are lagging more than AllowedBlocksBehind blocks
 func CheckIfNodeActive(node models.Node, repos *repositories.Repos) (bool, error) {
+	isPingActive, err := CheckIfPingActive(node, repos)
+	if !isPingActive {
+		return false, err
+	}
+
+	isMetricsValid, err := CheckIfMetricsValid(node, repos)
+	if !isMetricsValid {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func CheckIfPingActive(node models.Node, repos *repositories.Repos) (bool, error) {
 	lastPing, err := repos.PingRepo.FindByNodeID(node.ID)
 	if err != nil {
 		return false, err
@@ -26,7 +40,12 @@ func CheckIfNodeActive(node models.Node, repos *repositories.Repos) (bool, error
 		return false, nil
 	}
 
-	// node's latest and best block lag behind the best in the pool by more than 10 blocks
+	return true, nil
+}
+
+// node's latest and best block lag behind the best in the pool by more than 10 blocks
+func CheckIfMetricsValid(node models.Node, repos *repositories.Repos) (bool, error) {
+
 	metrics, err := repos.MetricsRepo.FindByID(node.ID)
 	if err != nil {
 		return false, err
@@ -39,14 +58,14 @@ func CheckIfNodeActive(node models.Node, repos *repositories.Repos) (bool, error
 		metrics.FinalizedBlockHeight <= (latestBlockMetrics.FinalizedBlockHeight - AllowedBlocksBehind) {
 		log.Debugf(
 			"Node %s not active as metrics check failed. " +
-			"Node metrics: BestBlockHeight[%d], FinalizedBlockHeight[%d] " +
-			"Best pool metrics: BestBlockHeight[%d], FinalizedBlockHeight[%d]",
+				"Node metrics: BestBlockHeight[%d], FinalizedBlockHeight[%d] " +
+				"Best pool metrics: BestBlockHeight[%d], FinalizedBlockHeight[%d]",
 			node.ID,
 			metrics.BestBlockHeight, metrics.FinalizedBlockHeight,
 			latestBlockMetrics.BestBlockHeight, latestBlockMetrics.FinalizedBlockHeight,
 		)
 		return false, nil
 	}
-	
+
 	return true, nil
 }
