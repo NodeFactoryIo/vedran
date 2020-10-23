@@ -45,7 +45,7 @@ func ScheduleCheckForPenalizedNode(node models.Node, repositories repositories.R
 				}
 				return
 			}
-			log.Debugf("Node %s still not active, on cooldown for %d minute ", node.ID, nodeWithNewCooldown.Cooldown)
+			log.Debugf("Node %s is still not active, on new cooldown for %d minute ", node.ID, nodeWithNewCooldown.Cooldown)
 			ScheduleCheckForPenalizedNode(*nodeWithNewCooldown, repositories)
 		}
 	})
