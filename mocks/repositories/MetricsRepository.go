@@ -92,3 +92,24 @@ func (_m *MetricsRepository) Save(metrics *models.Metrics) error {
 
 	return r0
 }
+
+// SaveAndCheckIfFirstEntry provides a mock function with given fields: metrics
+func (_m *MetricsRepository) SaveAndCheckIfFirstEntry(metrics *models.Metrics) (bool, error) {
+	ret := _m.Called(metrics)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(*models.Metrics) bool); ok {
+		r0 = rf(metrics)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*models.Metrics) error); ok {
+		r1 = rf(metrics)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
