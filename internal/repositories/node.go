@@ -8,7 +8,6 @@ import (
 
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/asdine/storm/v3"
-	"github.com/asdine/storm/v3/q"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -37,15 +36,6 @@ func NewNodeRepo(db *storm.DB) NodeRepository {
 	return &nodeRepo{
 		db: db,
 	}
-}
-
-func (r *nodeRepo) getValidNodes() (*[]models.Node, error) {
-	var nodes []models.Node
-
-	q := r.db.Select(q.Lte("Cooldown", 0))
-	err := q.Find(&nodes)
-
-	return &nodes, err
 }
 
 func (r *nodeRepo) FindByID(ID string) (*models.Node, error) {
