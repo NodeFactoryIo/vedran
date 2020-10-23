@@ -43,9 +43,7 @@ func (r *pingRepo) GetAll() (*[]models.Ping, error) {
 func (r *pingRepo) ResetAllPings() error {
 	pings, err := r.GetAll()
 	if err != nil {
-		if err.Error() != "not found" {
-			return err
-		}
+		return err
 	}
 
 	for _, ping := range *pings {
