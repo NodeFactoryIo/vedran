@@ -1,6 +1,7 @@
 package router
 
 import (
+	log "github.com/sirupsen/logrus"
 	"net/http"
 
 	"github.com/NodeFactoryIo/vedran/internal/auth"
@@ -17,6 +18,7 @@ func createRoute(route string, method string, handler http.HandlerFunc, router *
 	}
 	r.Methods(method)
 	r.Name(route)
+	log.Debugf("Created route %s\t%s", method, route)
 }
 
 func createRoutes(apiController *controllers.ApiController, router *mux.Router) {
