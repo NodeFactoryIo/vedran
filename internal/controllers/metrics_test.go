@@ -6,55 +6,134 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/auth"
+	"github.com/NodeFactoryIo/vedran/internal/models"
+	"github.com/NodeFactoryIo/vedran/internal/repositories"
+	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
-
-	"github.com/NodeFactoryIo/vedran/internal/auth"
-	"github.com/NodeFactoryIo/vedran/internal/models"
-	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestApiController_SaveMetricsHandler(t *testing.T) {
 	tests := []struct {
 		name                  string
 		metricsRequest        interface{}
+		nodeId                string
 		httpStatus            int
-		repoReturn            interface{}
-		numberOfRepoSaveCalls int
+		// NodeRepo.FindByID
+		nodeRepoFindByIDReturns *models.Node
+		nodeRepoFindByIDError   error
+		nodeRepoFindByIDNumOfCalls int
+		// NodeRepo.AddNodeToActive
+		nodeRepoAddNodeToActiveError error
+		nodeRepoAddNodeToActiveNumOfCalls int
+		// MetricsRepo.Save
+		metricsRepoSaveAndCheckIfFirstEntryError      error
+		metricsRepoSaveAndCheckIfFirstEntryReturn     bool
+		metricsRepoSaveAndCheckIfFirstEntryNumOfCalls int
 	}{
 		{
-			name: "Valid metrics save request",
+			name: "Valid metrics save request, older metrics entry already saved",
 			metricsRequest: MetricsRequest{
 				PeerCount:             10,
 				BestBlockHeight:       100,
 				FinalizedBlockHeight:  100,
 				ReadyTransactionCount: 10,
 			},
-			httpStatus:            http.StatusOK,
-			repoReturn:            nil,
-			numberOfRepoSaveCalls: 1,
+			nodeId:                            "1",
+			httpStatus:                        http.StatusOK,
+			nodeRepoFindByIDReturns:           &models.Node{
+				ID: "1",
+			},
+			nodeRepoFindByIDError:                         nil,
+			nodeRepoFindByIDNumOfCalls:                    0,
+			nodeRepoAddNodeToActiveError:                  nil,
+			nodeRepoAddNodeToActiveNumOfCalls:             0,
+			metricsRepoSaveAndCheckIfFirstEntryNumOfCalls: 1,
+			metricsRepoSaveAndCheckIfFirstEntryError:      nil,
+			metricsRepoSaveAndCheckIfFirstEntryReturn:     false,
 		},
 		{
-			name:                  "Invalid metrics save request",
-			metricsRequest:        struct{ PeerCount string }{PeerCount: "10"},
-			httpStatus:            http.StatusBadRequest,
-			repoReturn:            nil,
-			numberOfRepoSaveCalls: 0,
-		},
-		{
-			name: "Database fails on save",
+			name: "Valid metrics save request, first metrics entry, node should be added to active",
 			metricsRequest: MetricsRequest{
 				PeerCount:             10,
 				BestBlockHeight:       100,
 				FinalizedBlockHeight:  100,
 				ReadyTransactionCount: 10,
 			},
+			nodeId:                            "1",
+			httpStatus:                        http.StatusOK,
+			nodeRepoFindByIDReturns:           &models.Node{
+				ID: "1",
+			},
+			nodeRepoFindByIDError:             nil,
+			nodeRepoFindByIDNumOfCalls:        1,
+			nodeRepoAddNodeToActiveError:      nil,
+			nodeRepoAddNodeToActiveNumOfCalls: 1,
+			metricsRepoSaveAndCheckIfFirstEntryNumOfCalls: 1,
+			metricsRepoSaveAndCheckIfFirstEntryError:      nil,
+			metricsRepoSaveAndCheckIfFirstEntryReturn:     true,
+		},
+		{
+			name:                              "Invalid metrics save request",
+			metricsRequest:                    struct{ PeerCount string }{PeerCount: "10"},
+			nodeId:                            "1",
+			httpStatus:                        http.StatusBadRequest,
+		},
+		{
+			name: "Database fails on saving metrics",
+			metricsRequest: MetricsRequest{
+				PeerCount:             10,
+				BestBlockHeight:       100,
+				FinalizedBlockHeight:  100,
+				ReadyTransactionCount: 10,
+			},
+			nodeId: "1",
 			httpStatus:            http.StatusInternalServerError,
-			repoReturn:            errors.New("database error"),
-			numberOfRepoSaveCalls: 1,
+			metricsRepoSaveAndCheckIfFirstEntryNumOfCalls: 1,
+			metricsRepoSaveAndCheckIfFirstEntryError:      errors.New("db error"),
+			metricsRepoSaveAndCheckIfFirstEntryReturn:     false,
+		},
+		{
+			name: "Database fails on fetching node, first metrics entry",
+			metricsRequest: MetricsRequest{
+				PeerCount:             10,
+				BestBlockHeight:       100,
+				FinalizedBlockHeight:  100,
+				ReadyTransactionCount: 10,
+			},
+			nodeId: "1",
+			httpStatus:            http.StatusInternalServerError,
+			nodeRepoFindByIDError:             errors.New("db error"),
+			nodeRepoFindByIDNumOfCalls:        1,
+			metricsRepoSaveAndCheckIfFirstEntryNumOfCalls: 1,
+			metricsRepoSaveAndCheckIfFirstEntryError:      nil,
+			metricsRepoSaveAndCheckIfFirstEntryReturn:     true,
+		},
+		{
+			name: "Adding node to active fails, first metrics entry",
+			metricsRequest: MetricsRequest{
+				PeerCount:             10,
+				BestBlockHeight:       100,
+				FinalizedBlockHeight:  100,
+				ReadyTransactionCount: 10,
+			},
+			nodeId: "1",
+			httpStatus:            http.StatusInternalServerError,
+			nodeRepoFindByIDError:             nil,
+			nodeRepoFindByIDReturns: &models.Node{
+				ID: "1",
+			},
+			nodeRepoFindByIDNumOfCalls:        1,
+			nodeRepoAddNodeToActiveError: errors.New("fail to add repo"),
+			nodeRepoAddNodeToActiveNumOfCalls: 1,
+			metricsRepoSaveAndCheckIfFirstEntryNumOfCalls: 1,
+			metricsRepoSaveAndCheckIfFirstEntryError:      nil,
+			metricsRepoSaveAndCheckIfFirstEntryReturn:     true,
 		},
 	}
 	for _, test := range tests {
@@ -62,25 +141,41 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 			timestamp := time.Now()
 
 			// create mock controller
-			nodeRepoMock := mocks.NodeRepository{}
 			pingRepoMock := mocks.PingRepository{}
-			metricsRepoMock := mocks.MetricsRepository{}
 			recordRepoMock := mocks.RecordRepository{}
-			metricsRepoMock.On("Save", &models.Metrics{
-				NodeId:                "1",
+			
+			nodeRepoMock := mocks.NodeRepository{}
+			nodeRepoMock.On("FindByID", test.nodeId).Return(
+				test.nodeRepoFindByIDReturns, test.nodeRepoFindByIDError, 
+			)
+			nodeRepoMock.On("AddNodeToActive", mock.Anything).Return(
+				test.nodeRepoAddNodeToActiveError,
+			)
+			
+			metricsRepoMock := mocks.MetricsRepository{}
+
+			metricsRepoMock.On("SaveAndCheckIfFirstEntry", &models.Metrics{
+				NodeId:                test.nodeId,
 				PeerCount:             10,
 				BestBlockHeight:       100,
 				FinalizedBlockHeight:  100,
 				ReadyTransactionCount: 10,
-			}).Return(test.repoReturn)
-			apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &recordRepoMock)
+			}).Return(test.metricsRepoSaveAndCheckIfFirstEntryReturn, test.metricsRepoSaveAndCheckIfFirstEntryError)
+			
+			apiController := NewApiController(false, repositories.Repos{
+				NodeRepo:    &nodeRepoMock,
+				PingRepo:    &pingRepoMock,
+				MetricsRepo: &metricsRepoMock,
+				RecordRepo:  &recordRepoMock,
+			}, nil)
+			
 			handler := http.HandlerFunc(apiController.SaveMetricsHandler)
 
 			// create test request
 			rb, _ := json.Marshal(test.metricsRequest)
 			req, _ := http.NewRequest("POST", "/api/v1/metrics", bytes.NewReader(rb))
 			c := &auth.RequestContext{
-				NodeId:    "1",
+				NodeId:    test.nodeId,
 				Timestamp: timestamp,
 			}
 			ctx := context.WithValue(req.Context(), auth.RequestContextKey, c)
@@ -92,7 +187,10 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 
 			// asserts
 			assert.Equal(t, test.httpStatus, rr.Code, fmt.Sprintf("Response status code should be %d", test.httpStatus))
-			assert.True(t, metricsRepoMock.AssertNumberOfCalls(t, "Save", test.numberOfRepoSaveCalls))
+			
+			nodeRepoMock.AssertNumberOfCalls(t, "FindByID", test.nodeRepoFindByIDNumOfCalls)
+			nodeRepoMock.AssertNumberOfCalls(t, "AddNodeToActive", test.nodeRepoAddNodeToActiveNumOfCalls)
+			metricsRepoMock.AssertNumberOfCalls(t, "SaveAndCheckIfFirstEntry", test.metricsRepoSaveAndCheckIfFirstEntryNumOfCalls)
 		})
 	}
 }

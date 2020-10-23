@@ -8,7 +8,3 @@ type Record struct {
 	Status    string
 	Timestamp time.Time
 }
-
-type RecordRepository interface {
-	Save(record *Record) error
-}

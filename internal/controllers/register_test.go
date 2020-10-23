@@ -5,17 +5,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	"github.com/NodeFactoryIo/vedran/internal/models"
+	"github.com/NodeFactoryIo/vedran/internal/repositories"
+	"github.com/NodeFactoryIo/vedran/internal/whitelist"
+	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
-
-	"github.com/NodeFactoryIo/vedran/internal/configuration"
-
-	"github.com/NodeFactoryIo/vedran/internal/models"
-	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestApiController_RegisterHandler(t *testing.T) {
@@ -26,15 +26,16 @@ func TestApiController_RegisterHandler(t *testing.T) {
 
 	// define test cases
 	tests := []struct {
-		name                          string
-		registerRequest               RegisterRequest
-		httpStatus                    int
-		registerResponse              RegisterResponse
-		isWhitelisted                 bool
-		saveMockReturns               interface{}
-		saveMockCalledNumber          int
-		isNodeWhitelistedMockReturns  interface{}
-		isNodeWhitelistedCalledNumber int
+		name                  string
+		registerRequest       RegisterRequest
+		httpStatus            int
+		registerResponse      RegisterResponse
+		isWhitelisted         bool
+		saveMockReturns       interface{}
+		saveMockNumberOfCalls int
+		findByIDReturns       *models.Node
+		findByIDError         error
+		findByIDNumberOfCalls int
 	}{
 		{
 			name: "Valid registration test no whitelist",
@@ -48,11 +49,12 @@ func TestApiController_RegisterHandler(t *testing.T) {
 				Token:               "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
 				TunnelServerAddress: TestTunnelServerAddress,
 			},
-			isWhitelisted:                 false,
-			saveMockReturns:               nil,
-			saveMockCalledNumber:          1,
-			isNodeWhitelistedMockReturns:  nil,
-			isNodeWhitelistedCalledNumber: 0,
+			isWhitelisted:         false,
+			saveMockReturns:       nil,
+			saveMockNumberOfCalls: 1,
+			findByIDError:         errors.New("not found"),
+			findByIDReturns:       nil,
+			findByIDNumberOfCalls: 1,
 		},
 		{
 			name: "Valid registration test nodeId on whitelist",
@@ -66,29 +68,54 @@ func TestApiController_RegisterHandler(t *testing.T) {
 				Token:               "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJub2RlX2lkIjoiMSJ9.LdQLi-cx5HZs6HvVzSFVx0WjXFTsGqDuO9FepXfYLlY",
 				TunnelServerAddress: TestTunnelServerAddress,
 			},
-			isWhitelisted:                 true,
-			saveMockReturns:               nil,
-			saveMockCalledNumber:          1,
-			isNodeWhitelistedMockReturns:  nil,
-			isNodeWhitelistedCalledNumber: 1,
+			isWhitelisted:         true,
+			saveMockReturns:       nil,
+			saveMockNumberOfCalls: 1,
+			findByIDReturns:       nil,
+			findByIDError:         errors.New("not found"),
+			findByIDNumberOfCalls: 1,
 		},
 		{
 			name: "Invalid registration test nodeId not on whitelist",
 			registerRequest: RegisterRequest{
-				Id:            "1",
+				Id:            "2",
 				ConfigHash:    "dadf2e32dwq12",
 				PayoutAddress: "0xdafe2cdscdsa",
 			},
-			httpStatus:                    http.StatusBadRequest,
-			registerResponse:              RegisterResponse{},
-			isWhitelisted:                 true,
-			saveMockReturns:               nil,
-			saveMockCalledNumber:          0,
-			isNodeWhitelistedMockReturns:  errors.New("not found"),
-			isNodeWhitelistedCalledNumber: 1,
+			httpStatus:            http.StatusBadRequest,
+			registerResponse:      RegisterResponse{},
+			isWhitelisted:         true,
+			saveMockReturns:       nil,
+			saveMockNumberOfCalls: 0,
+			findByIDReturns:       nil,
+			findByIDError:         nil,
+			findByIDNumberOfCalls: 0,
+		},
+		{
+			name: "Registration request for node that is already registered",
+			registerRequest: RegisterRequest{
+				Id:            "3",
+				ConfigHash:    "dadf2e32dwq12",
+				PayoutAddress: "0xdafe2cdscdsa",
+			},
+			httpStatus: http.StatusOK,
+			registerResponse: RegisterResponse{
+				Token:               "test-token",
+				TunnelServerAddress: TestTunnelServerAddress,
+			},
+			isWhitelisted:         true,
+			saveMockReturns:       nil,
+			saveMockNumberOfCalls: 0,
+			findByIDReturns: &models.Node{
+				ID:    "3",
+				Token: "test-token",
+			},
+			findByIDError:         nil,
+			findByIDNumberOfCalls: 1,
 		},
 	}
 	_ = os.Setenv("AUTH_SECRET", "test-auth-secret")
+	_, _ = whitelist.InitWhitelisting([]string{"1", "3"}, "")
 
 	// execute tests
 	for _, test := range tests {
@@ -105,8 +132,18 @@ func TestApiController_RegisterHandler(t *testing.T) {
 				Token:         test.registerResponse.Token,
 				LastUsed:      time.Now().Unix(),
 			}).Return(test.saveMockReturns)
-			nodeRepoMock.On("IsNodeWhitelisted", test.registerRequest.Id).Return(true, test.isNodeWhitelistedMockReturns)
-			apiController := NewApiController(test.isWhitelisted, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &recordRepoMock)
+
+			nodeRepoMock.On("FindByID", test.registerRequest.Id).Return(
+				test.findByIDReturns, test.findByIDError,
+			)
+
+			apiController := NewApiController(test.isWhitelisted, repositories.Repos{
+				NodeRepo:    &nodeRepoMock,
+				PingRepo:    &pingRepoMock,
+				MetricsRepo: &metricsRepoMock,
+				RecordRepo:  &recordRepoMock,
+			}, nil)
+
 			handler := http.HandlerFunc(apiController.RegisterHandler)
 
 			// create test request
@@ -121,16 +158,17 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			handler.ServeHTTP(rr, req)
 
 			// asserts
-			assert.Equal(t, rr.Code, test.httpStatus, fmt.Sprintf("Response status code should be %d", test.httpStatus))
+			assert.Equal(t, test.httpStatus, rr.Code, fmt.Sprintf("Response status code should be %d", test.httpStatus))
 
 			var response RegisterResponse
 			if rr.Code == http.StatusOK {
 				_ = json.Unmarshal(rr.Body.Bytes(), &response)
-				assert.Equal(t, response, test.registerResponse, fmt.Sprintf("Response should be %v", test.registerResponse))
+				assert.Equal(t, test.registerResponse, response, fmt.Sprintf("Response should be %v", test.registerResponse))
 			}
 
-			assert.True(t, nodeRepoMock.AssertNumberOfCalls(t, "Save", test.saveMockCalledNumber))
-			assert.True(t, nodeRepoMock.AssertNumberOfCalls(t, "IsNodeWhitelisted", test.isNodeWhitelistedCalledNumber))
+			nodeRepoMock.AssertNumberOfCalls(t, "Save", test.saveMockNumberOfCalls)
+			nodeRepoMock.AssertNumberOfCalls(t, "FindByID", test.findByIDNumberOfCalls)
+			assert.True(t, nodeRepoMock.AssertNumberOfCalls(t, "Save", test.saveMockNumberOfCalls))
 		})
 	}
 	_ = os.Setenv("AUTH_SECRET", "")

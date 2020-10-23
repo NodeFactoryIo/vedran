@@ -7,8 +7,3 @@ type Ping struct {
 	Timestamp time.Time
 }
 
-type PingRepository interface {
-	FindByNodeID(nodeId string) (*Ping, error)
-	Save(ping *Ping) error
-	GetAll() (*[]Ping, error)
-}

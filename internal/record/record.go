@@ -1,18 +1,19 @@
 package record
 
 import (
-	"time"
-
+	"github.com/NodeFactoryIo/vedran/internal/actions"
 	"github.com/NodeFactoryIo/vedran/internal/models"
+	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	log "github.com/sirupsen/logrus"
+	"time"
 )
 
 // FailedRequest should be called when rpc response is invalid to penalize node.
 // It does not return value as it should be called in separate goroutine
-func FailedRequest(node models.Node, nodeRepo models.NodeRepository, recordRepo models.RecordRepository) {
-	nodeRepo.PenalizeNode(node)
+func FailedRequest(node models.Node, repositories repositories.Repos, actions actions.Actions) {
+	actions.PenalizeNode(node, repositories)
 
-	err := recordRepo.Save(&models.Record{
+	err := repositories.RecordRepo.Save(&models.Record{
 		NodeId:    node.ID,
 		Timestamp: time.Now(),
 		Status:    "failed",
@@ -26,10 +27,10 @@ func FailedRequest(node models.Node, nodeRepo models.NodeRepository, recordRepo 
 
 // SuccessfulRequest should be called when rpc response is valid to reward node.
 // It does not return value as it should be called in separate goroutine
-func SuccessfulRequest(node models.Node, nodeRepo models.NodeRepository, recordRepo models.RecordRepository) {
-	nodeRepo.RewardNode(node)
+func SuccessfulRequest(node models.Node,  repositories repositories.Repos, actions actions.Actions) {
+	actions.RewardNode(node, repositories)
 
-	err := recordRepo.Save(&models.Record{
+	err := repositories.RecordRepo.Save(&models.Record{
 		NodeId:    node.ID,
 		Timestamp: time.Now(),
 		Status:    "successful",

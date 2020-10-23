@@ -8,8 +8,7 @@ type Metrics struct {
 	ReadyTransactionCount int32
 }
 
-type MetricsRepository interface {
-	FindByID(ID string) (*Metrics, error)
-	Save(metrics *Metrics) error
-	GetAll() (*[]Metrics, error)
+type LatestBlockMetrics struct {
+	BestBlockHeight       int64
+	FinalizedBlockHeight  int64
 }

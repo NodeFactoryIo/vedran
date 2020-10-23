@@ -2,13 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
-	"io/ioutil"
-	"net/http"
-
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
-	record "github.com/NodeFactoryIo/vedran/internal/records"
+	"github.com/NodeFactoryIo/vedran/internal/record"
 	"github.com/NodeFactoryIo/vedran/internal/rpc"
 	log "github.com/sirupsen/logrus"
+	"io/ioutil"
+	"net/http"
 )
 
 func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +38,7 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nodes := c.nodeRepo.GetActiveNodes(configuration.Config.Selection)
+	nodes := c.repositories.NodeRepo.GetActiveNodes(configuration.Config.Selection)
 	if len(*nodes) == 0 {
 		log.Error("Request failed because vedran has no available nodes")
 		_ = json.NewEncoder(w).Encode(
@@ -55,11 +54,11 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 		)
 		if err != nil {
 			log.Errorf("Request failed to node %s because of: %v", node.ID, err)
-			go record.FailedRequest(node, c.nodeRepo, c.recordRepo)
+			go record.FailedRequest(node, c.repositories, c.actions)
 			continue
 		}
 
-		go record.SuccessfulRequest(node, c.nodeRepo, c.recordRepo)
+		go record.SuccessfulRequest(node, c.repositories, c.actions)
 		_ = json.NewEncoder(w).Encode(rpcResponse)
 		return
 	}

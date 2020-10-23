@@ -35,7 +35,7 @@ func (c ApiController) SaveMetricsHandler(w http.ResponseWriter, r *http.Request
 
 	requestContext := r.Context().Value(auth.RequestContextKey).(*auth.RequestContext)
 
-	err = c.metricsRepo.Save(&models.Metrics{
+	isFirstMetricEntry, err := c.repositories.MetricsRepo.SaveAndCheckIfFirstEntry(&models.Metrics{
 		NodeId:                requestContext.NodeId,
 		PeerCount:             metricsRequest.PeerCount,
 		BestBlockHeight:       metricsRequest.BestBlockHeight,
@@ -44,9 +44,23 @@ func (c ApiController) SaveMetricsHandler(w http.ResponseWriter, r *http.Request
 	})
 
 	if err != nil {
-		log.Errorf("Unable to save metrics for node %v to database, error: %v", requestContext.NodeId, err)
+		log.Errorf("Unable to save metrics for node %s to database, error: %v", requestContext.NodeId, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
+	}
+
+	if isFirstMetricEntry {
+		node, err := c.repositories.NodeRepo.FindByID(requestContext.NodeId)
+		if err != nil {
+			log.Errorf("Unable add node %s to active nodes, error: %v", requestContext.NodeId, err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+		err = c.repositories.NodeRepo.AddNodeToActive(*node)
+		if err != nil {
+			log.Errorf("Unable to add node %s to active nodes, error: %v", requestContext.NodeId, err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
 	}
 
 	log.Debugf(
@@ -54,5 +68,5 @@ func (c ApiController) SaveMetricsHandler(w http.ResponseWriter, r *http.Request
 		requestContext.NodeId,
 		metricsRequest.FinalizedBlockHeight,
 		metricsRequest.BestBlockHeight,
-		)
+	)
 }

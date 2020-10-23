@@ -5,28 +5,71 @@ import (
 	"github.com/asdine/storm/v3"
 )
 
-type MetricsRepo struct {
+type MetricsRepository interface {
+	FindByID(ID string) (*models.Metrics, error)
+	Save(metrics *models.Metrics) error
+	SaveAndCheckIfFirstEntry(metrics *models.Metrics) (bool, error)
+	GetAll() (*[]models.Metrics, error)
+	GetLatestBlockMetrics() (*models.LatestBlockMetrics, error)
+}
+
+type metricsRepo struct {
 	db *storm.DB
 }
 
-func NewMetricsRepo(db *storm.DB) *MetricsRepo {
-	return &MetricsRepo{
+func NewMetricsRepo(db *storm.DB) MetricsRepository {
+	return &metricsRepo{
 		db: db,
 	}
 }
 
-func (r *MetricsRepo) FindByID(ID string) (*models.Metrics, error) {
-	var metrics *models.Metrics
-	err := r.db.One("ID", ID, metrics)
-	return metrics, err
+func (r *metricsRepo) FindByID(ID string) (*models.Metrics, error) {
+	var metrics models.Metrics
+	err := r.db.One("NodeId", ID, &metrics)
+	return &metrics, err
 }
 
-func (r *MetricsRepo) Save(metrics *models.Metrics) error {
+func (r *metricsRepo) Save(metrics *models.Metrics) error {
 	return r.db.Save(metrics)
 }
 
-func (r MetricsRepo) GetAll() (*[]models.Metrics, error) {
-	var metrics *[]models.Metrics
-	err := r.db.All(metrics)
-	return metrics, err
+func (r *metricsRepo) SaveAndCheckIfFirstEntry(metrics *models.Metrics) (bool, error) {
+	_, err := r.FindByID(metrics.NodeId)
+	isFirstMetricEntry := false
+	if err != nil {
+		if err.Error() == "not found" {
+			isFirstMetricEntry = true
+		} else {
+			return false, err
+		}
+	}
+
+	err = r.Save(metrics)
+	return isFirstMetricEntry, err
+}
+
+func (r metricsRepo) GetAll() (*[]models.Metrics, error) {
+	var metrics []models.Metrics
+	err := r.db.All(&metrics)
+	return &metrics, err
+}
+
+func (r *metricsRepo) GetLatestBlockMetrics() (*models.LatestBlockMetrics, error) {
+	all, err := r.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	latestBlockMetrics := models.LatestBlockMetrics{
+		BestBlockHeight:      0,
+		FinalizedBlockHeight: 0,
+	}
+	for _, m := range *all {
+		if m.BestBlockHeight > latestBlockMetrics.BestBlockHeight {
+			latestBlockMetrics.BestBlockHeight = m.BestBlockHeight
+		}
+		if m.FinalizedBlockHeight > latestBlockMetrics.FinalizedBlockHeight {
+			latestBlockMetrics.FinalizedBlockHeight = m.FinalizedBlockHeight
+		}
+	}
+	return &latestBlockMetrics, err
 }

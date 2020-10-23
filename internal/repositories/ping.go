@@ -5,28 +5,36 @@ import (
 	"github.com/asdine/storm/v3"
 )
 
-type PingRepo struct {
+type PingRepository interface {
+	FindByNodeID(nodeId string) (*models.Ping, error)
+	Save(ping *models.Ping) error
+	GetAll() (*[]models.Ping, error)
+}
+
+type pingRepo struct {
 	db *storm.DB
 }
 
-func NewPingRepo(db *storm.DB) *PingRepo {
-	return &PingRepo{
+func NewPingRepo(db *storm.DB) PingRepository {
+	return &pingRepo{
 		db: db,
 	}
 }
 
-func (r *PingRepo) FindByNodeID(nodeId string) (*models.Ping, error) {
-	var ping *models.Ping
-	err := r.db.One("NodeId", nodeId, ping)
-	return ping, err
+func (r *pingRepo) FindByNodeID(nodeId string) (*models.Ping, error) {
+	var ping models.Ping
+	err := r.db.One("NodeId", nodeId, &ping)
+	return &ping, err
 }
 
-func (r *PingRepo) Save(ping *models.Ping) error {
+func (r *pingRepo) Save(ping *models.Ping) error {
 	return r.db.Save(ping)
 }
 
-func (r PingRepo) GetAll() (*[]models.Ping, error) {
+func (r *pingRepo) GetAll() (*[]models.Ping, error) {
 	var pings []models.Ping
 	err := r.db.All(&pings)
 	return &pings, err
 }
+
+

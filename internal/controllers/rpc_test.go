@@ -4,6 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	"github.com/NodeFactoryIo/vedran/internal/models"
+	"github.com/NodeFactoryIo/vedran/internal/repositories"
+	"github.com/NodeFactoryIo/vedran/internal/rpc"
+	actionMocks "github.com/NodeFactoryIo/vedran/mocks/actions"
+	tunnelMocks "github.com/NodeFactoryIo/vedran/mocks/http-tunnel/server"
+	repoMocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
+	"github.com/stretchr/testify/mock"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -11,13 +19,6 @@ import (
 	"reflect"
 	"strconv"
 	"testing"
-
-	"github.com/NodeFactoryIo/vedran/internal/configuration"
-	"github.com/NodeFactoryIo/vedran/internal/models"
-	"github.com/NodeFactoryIo/vedran/internal/rpc"
-	tunnelMocks "github.com/NodeFactoryIo/vedran/mocks/http-tunnel/server"
-	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
-	"github.com/stretchr/testify/mock"
 )
 
 var (
@@ -43,12 +44,23 @@ func TestApiController_RPCHandler(t *testing.T) {
 	poolerMock := &tunnelMocks.Pooler{}
 	configuration.Config.PortPool = poolerMock
 
-	nodeRepoMock := mocks.NodeRepository{}
-	pingRepoMock := mocks.PingRepository{}
-	metricsRepoMock := mocks.MetricsRepository{}
-	recordRepoMock := mocks.RecordRepository{}
+	nodeRepoMock := repoMocks.NodeRepository{}
+	pingRepoMock := repoMocks.PingRepository{}
+	metricsRepoMock := repoMocks.MetricsRepository{}
+	recordRepoMock := repoMocks.RecordRepository{}
 	recordRepoMock.On("Save", mock.Anything).Return(nil)
-	apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &recordRepoMock)
+
+	actionsMockObject := new(actionMocks.Actions)
+	actionsMockObject.On("PenalizeNode", mock.Anything, mock.Anything).Return()
+	actionsMockObject.On("RewardNode", mock.Anything, mock.Anything).Return()
+
+	apiController := NewApiController(false, repositories.Repos{
+		NodeRepo:    &nodeRepoMock,
+		PingRepo:    &pingRepoMock,
+		MetricsRepo: &metricsRepoMock,
+		RecordRepo:  &recordRepoMock,
+	}, actionsMockObject)
+
 	handler := http.HandlerFunc(apiController.RPCHandler)
 
 	tests := []struct {
@@ -104,7 +116,8 @@ func TestApiController_RPCHandler(t *testing.T) {
 			nodes: []models.Node{{ID: "test-id"}},
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
 				_, _ = io.WriteString(w, `{"id": 1, "jsonrpc": "2.0"}`)
-			}},
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -118,8 +131,6 @@ func TestApiController_RPCHandler(t *testing.T) {
 			mux.HandleFunc("/", test.handleFunc)
 
 			nodeRepoMock.On("GetActiveNodes", mock.Anything).Return(&test.nodes, nil)
-			nodeRepoMock.On("RewardNode", mock.Anything).Return()
-			nodeRepoMock.On("PenalizeNode", mock.Anything).Return()
 
 			req, _ := http.NewRequest("POST", "/", bytes.NewReader([]byte(test.rpcRequest)))
 			rr := httptest.NewRecorder()
@@ -143,12 +154,26 @@ func TestApiController_BatchRPCHandler(t *testing.T) {
 	setup()
 	defer teardown()
 
-	nodeRepoMock := mocks.NodeRepository{}
-	pingRepoMock := mocks.PingRepository{}
-	metricsRepoMock := mocks.MetricsRepository{}
-	recordRepoMock := mocks.RecordRepository{}
+	poolerMock := &tunnelMocks.Pooler{}
+	configuration.Config.PortPool = poolerMock
+
+	nodeRepoMock := repoMocks.NodeRepository{}
+	pingRepoMock := repoMocks.PingRepository{}
+	metricsRepoMock := repoMocks.MetricsRepository{}
+	recordRepoMock := repoMocks.RecordRepository{}
 	recordRepoMock.On("Save", mock.Anything).Return(nil)
-	apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &recordRepoMock)
+
+	actionsMockObject := new(actionMocks.Actions)
+	actionsMockObject.On("PenalizeNode", mock.Anything, mock.Anything).Return()
+	actionsMockObject.On("RewardNode", mock.Anything, mock.Anything).Return()
+
+	apiController := NewApiController(false, repositories.Repos{
+		NodeRepo:    &nodeRepoMock,
+		PingRepo:    &pingRepoMock,
+		MetricsRepo: &metricsRepoMock,
+		RecordRepo:  &recordRepoMock,
+	}, actionsMockObject)
+
 	handler := http.HandlerFunc(apiController.RPCHandler)
 
 	tests := []struct {
@@ -174,12 +199,15 @@ func TestApiController_BatchRPCHandler(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			setup()
 
+			serverURL, _ := url.Parse(server.URL)
+			port, _ := strconv.Atoi(serverURL.Port())
+			poolerMock.On("GetPort", mock.Anything).Once().Return(port, nil)
+
 			if test.handleFunc != nil {
 				mux.HandleFunc("/", test.handleFunc)
 			}
 
 			nodeRepoMock.On("GetActiveNodes", mock.Anything).Return(&test.nodes, nil)
-			nodeRepoMock.On("PenalizeNode", mock.Anything).Return()
 
 			req, _ := http.NewRequest("POST", "/", bytes.NewReader([]byte(test.rpcRequest)))
 			rr := httptest.NewRecorder()
@@ -220,11 +248,22 @@ func TestApiController_RPCHandler_InvalidBody(t *testing.T) {
 				Error:   &rpc.RPCError{Code: -32700, Message: "Parse error"}}},
 	}
 
-	nodeRepoMock := mocks.NodeRepository{}
-	pingRepoMock := mocks.PingRepository{}
-	metricsRepoMock := mocks.MetricsRepository{}
-	recordRepoMock := mocks.RecordRepository{}
-	apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &recordRepoMock)
+	nodeRepoMock := repoMocks.NodeRepository{}
+	pingRepoMock := repoMocks.PingRepository{}
+	metricsRepoMock := repoMocks.MetricsRepository{}
+	recordRepoMock := repoMocks.RecordRepository{}
+
+	actionsMockObject := new(actionMocks.Actions)
+	actionsMockObject.On("PenalizeNode", mock.Anything, mock.Anything).Return()
+	actionsMockObject.On("RewardNode", mock.Anything, mock.Anything).Return()
+
+	apiController := NewApiController(false, repositories.Repos{
+		NodeRepo:    &nodeRepoMock,
+		PingRepo:    &pingRepoMock,
+		MetricsRepo: &metricsRepoMock,
+		RecordRepo:  &recordRepoMock,
+	}, actionsMockObject)
+
 	handler := http.HandlerFunc(apiController.RPCHandler)
 
 	for _, test := range tests {

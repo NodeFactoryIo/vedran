@@ -2,12 +2,12 @@ package record
 
 import (
 	"fmt"
-	"testing"
-
 	"github.com/NodeFactoryIo/vedran/internal/models"
-	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
-	"github.com/stretchr/testify/assert"
+	"github.com/NodeFactoryIo/vedran/internal/repositories"
+	aMock "github.com/NodeFactoryIo/vedran/mocks/actions"
+	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
 	"github.com/stretchr/testify/mock"
+	"testing"
 )
 
 func TestFailedRequest(t *testing.T) {
@@ -27,25 +27,34 @@ func TestFailedRequest(t *testing.T) {
 			name:                    "Logs error if save request record fails",
 			penalizedNodeCallCount:  1,
 			saveNodeRecordCallCount: 1,
-			saveNodeRecordResult:    fmt.Errorf("Error")},
+			saveNodeRecordResult:    fmt.Errorf("error")},
 	}
 
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
-			nodeRepoMock := mocks.NodeRepository{}
-			recordRepoMock := mocks.RecordRepository{}
 			node := models.Node{
 				ID: "test-id",
 			}
 
-			nodeRepoMock.On("PenalizeNode", node).Once().Return()
+			nodeRepoMock := mocks.NodeRepository{}
+			pingRepoMock := mocks.PingRepository{}
+			metricsRepoMock := mocks.MetricsRepository{}
+			recordRepoMock := mocks.RecordRepository{}
 			recordRepoMock.On("Save", mock.Anything).Once().Return(tt.saveNodeRecordResult)
 
-			FailedRequest(node, &nodeRepoMock, &recordRepoMock)
+			actionsMock := aMock.Actions{}
+			actionsMock.On("PenalizeNode", node, mock.Anything).Return()
 
-			assert.True(t, nodeRepoMock.AssertNumberOfCalls(t, "PenalizeNode", tt.penalizedNodeCallCount))
-			assert.True(t, recordRepoMock.AssertNumberOfCalls(t, "Save", tt.saveNodeRecordCallCount))
+			FailedRequest(node, repositories.Repos{
+				NodeRepo:    &nodeRepoMock,
+				PingRepo:    &pingRepoMock,
+				MetricsRepo: &metricsRepoMock,
+				RecordRepo:  &recordRepoMock,
+			}, &actionsMock)
+
+			actionsMock.AssertNumberOfCalls(t, "PenalizeNode", tt.penalizedNodeCallCount)
+			recordRepoMock.AssertNumberOfCalls(t, "Save", tt.saveNodeRecordCallCount)
 		})
 
 	}
@@ -73,18 +82,27 @@ func TestSuccessfulRequest(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 			nodeRepoMock := mocks.NodeRepository{}
+			pingRepoMock := mocks.PingRepository{}
+			metricsRepoMock := mocks.MetricsRepository{}
 			recordRepoMock := mocks.RecordRepository{}
+
 			node := models.Node{
 				ID: "test-id",
 			}
-
-			nodeRepoMock.On("RewardNode", node).Once().Return()
 			recordRepoMock.On("Save", mock.Anything).Once().Return(tt.saveNodeRecordResult)
 
-			SuccessfulRequest(node, &nodeRepoMock, &recordRepoMock)
+			actionsMock := aMock.Actions{}
+			actionsMock.On("RewardNode", node, mock.Anything).Return()
 
-			assert.True(t, nodeRepoMock.AssertNumberOfCalls(t, "RewardNode", tt.rewardNodeCallCount))
-			assert.True(t, recordRepoMock.AssertNumberOfCalls(t, "Save", tt.saveNodeRecordCallCount))
+			SuccessfulRequest(node, repositories.Repos{
+				NodeRepo:    &nodeRepoMock,
+				PingRepo:    &pingRepoMock,
+				MetricsRepo: &metricsRepoMock,
+				RecordRepo:  &recordRepoMock,
+			}, &actionsMock)
+
+			recordRepoMock.AssertNumberOfCalls(t, "Save", tt.saveNodeRecordCallCount)
+			actionsMock.AssertNumberOfCalls(t, "RewardNode", tt.rewardNodeCallCount)
 		})
 
 	}
