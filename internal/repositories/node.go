@@ -73,11 +73,6 @@ func (r *nodeRepo) Save(node *models.Node) error {
 	if err != nil {
 		return err
 	}
-
-	err = r.AddNodeToActive(*node)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
