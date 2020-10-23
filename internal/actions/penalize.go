@@ -28,5 +28,5 @@ func (a *actions) PenalizeNode(node models.Node, repositories repositories.Repos
 	}
 
 	log.Debugf("Penalized node %s, on cooldown for 1 minute ", node.ID)
-	penalize.ScheduleCheckForPenalizedNode(node, repositories)
+	go penalize.ScheduleCheckForPenalizedNode(node, repositories)
 }

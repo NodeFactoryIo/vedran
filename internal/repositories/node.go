@@ -26,6 +26,7 @@ type NodeRepository interface {
 	RewardNode(node models.Node)
 	IncreaseNodeCooldown(ID string) (*models.Node, error)
 	ResetNodeCooldown(ID string) (*models.Node, error)
+	IsNodeOnCooldown(ID string) (bool, error)
 }
 
 type nodeRepo struct {
@@ -189,3 +190,15 @@ func (r *nodeRepo) ResetNodeCooldown(ID string) (*models.Node, error) {
 	err = r.db.Save(&node)
 	return &node, err
 }
+
+// IsNodeOnCooldown check if node is on cooldown
+func (r *nodeRepo) IsNodeOnCooldown(ID string) (bool, error) {
+	var node models.Node
+	err := r.db.One("ID", ID, &node)
+	if err != nil {
+		return false, err
+	}
+
+	return node.Cooldown != 0, err
+}
+

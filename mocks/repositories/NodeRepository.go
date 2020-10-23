@@ -139,6 +139,27 @@ func (_m *NodeRepository) InitNodeRepo() error {
 	return r0
 }
 
+// IsNodeOnCooldown provides a mock function with given fields: ID
+func (_m *NodeRepository) IsNodeOnCooldown(ID string) (bool, error) {
+	ret := _m.Called(ID)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(string) bool); ok {
+		r0 = rf(ID)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(ID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // RemoveNodeFromActive provides a mock function with given fields: node
 func (_m *NodeRepository) RemoveNodeFromActive(node models.Node) error {
 	ret := _m.Called(node)
