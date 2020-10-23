@@ -1,8 +1,8 @@
 # Changelog
 
-## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
+## [v0.2.0]((https://github.com/NodeFactoryIo/vedran/tree/v0.2.0))
 
-[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v.0.1.1...HEAD)
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v.0.1.1...v.0.2.0)
 
 ### Added
 - Implement tunnel server in load balancer [\#63](https://github.com/NodeFactoryIo/vedran/pull/63) ([MakMuftic](https://github.com/MakMuftic))
