@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"time"
+
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/asdine/storm/v3"
 )
@@ -9,6 +11,7 @@ type PingRepository interface {
 	FindByNodeID(nodeId string) (*models.Ping, error)
 	Save(ping *models.Ping) error
 	GetAll() (*[]models.Ping, error)
+	ResetAllPings() error
 }
 
 type pingRepo struct {
@@ -37,4 +40,21 @@ func (r *pingRepo) GetAll() (*[]models.Ping, error) {
 	return &pings, err
 }
 
+func (r *pingRepo) ResetAllPings() error {
+	pings, err := r.GetAll()
+	if err != nil {
+		if err.Error() != "not found" {
+			return err
+		}
+	}
 
+	for _, ping := range *pings {
+		newPing := models.Ping{
+			NodeId:    ping.NodeId,
+			Timestamp: time.Now(),
+		}
+		_ = r.Save(&newPing)
+	}
+
+	return nil
+}
