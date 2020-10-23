@@ -31,6 +31,7 @@ func ScheduleCheckForPenalizedNode(node models.Node, repositories repositories.R
 			if err != nil {
 				log.Errorf("Unable to set node %s as active, because of %v", node.ID, err)
 			}
+			log.Debugf("Node %s become active again, added to active nodes", node.ID)
 		} else {
 			nodeWithNewCooldown, err := repositories.NodeRepo.IncreaseNodeCooldown(node.ID)
 			if err != nil {
@@ -45,6 +46,7 @@ func ScheduleCheckForPenalizedNode(node models.Node, repositories repositories.R
 				}
 				return
 			}
+			log.Debugf("Node %s is still not active, on new cooldown for %d minute ", node.ID, nodeWithNewCooldown.Cooldown)
 			ScheduleCheckForPenalizedNode(*nodeWithNewCooldown, repositories)
 		}
 	})

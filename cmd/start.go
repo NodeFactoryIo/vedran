@@ -189,10 +189,10 @@ func startCommand(_ *cobra.Command, _ []string) {
 			log.Fatal("Unable to fetch public IP address. Please set one explicitly!", err)
 		}
 		tunnelServerAddress = fmt.Sprintf("%s:%s", IP.String(), tunnelServerPort)
-		log.Infof("Tunnel server will listen on %s and connect tunnels on port range %s", tunnelServerAddress, tunnelPortRange)
 	} else {
 		tunnelServerAddress = fmt.Sprintf("%s:%s", publicIP, tunnelServerPort)
 	}
+	log.Infof("Tunnel server will listen on %s and connect tunnels on port range %s", tunnelServerAddress, tunnelPortRange)
 
 	// initializing whitelisting
 	whitelistEnabled, err := whitelist.InitWhitelisting(whitelistArray, whitelistFile)
