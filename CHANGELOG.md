@@ -7,6 +7,7 @@
 ### Added
 - Implement tunnel server in load balancer [\#63](https://github.com/NodeFactoryIo/vedran/pull/63) ([MakMuftic](https://github.com/MakMuftic))
 - Implement penalizing nodes [\#68](https://github.com/NodeFactoryIo/vedran/pull/68) ([MakMuftic](https://github.com/MakMuftic))
+- Add instructions for running Vedran load balancer in README file [\#86](https://github.com/NodeFactoryIo/vedran/pull/86) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Fix
 - Fix panic if no nodes in database after startup [\#62](https://github.com/NodeFactoryIo/vedran/pull/62) ([mpetrun5](https://github.com/mpetrun5))
