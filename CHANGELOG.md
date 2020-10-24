@@ -18,6 +18,7 @@
 
 ### Changed
 - Use port from tunnel map for calling node [\#65](https://github.com/NodeFactoryIo/vedran/pull/65) ([mpetrun5](https://github.com/mpetrun5))
+- Reset all node pings after restart [\#94](https://github.com/NodeFactoryIo/vedran/pull/94) ([mpetrun5](https://github.com/mpetrun5))
 - Refactor whitelisting [\#75](https://github.com/NodeFactoryIo/vedran/pull/75) ([MakMuftic](https://github.com/MakMuftic))
 - Refactor how nodes are added to active [\#85](https://github.com/NodeFactoryIo/vedran/pull/85) ([MakMuftic](https://github.com/MakMuftic))
 - Improve logging [\#91](https://github.com/NodeFactoryIo/vedran/pull/91) ([MakMuftic](https://github.com/MakMuftic))

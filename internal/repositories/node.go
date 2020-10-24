@@ -8,14 +8,12 @@ import (
 
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/asdine/storm/v3"
-	"github.com/asdine/storm/v3/q"
 	log "github.com/sirupsen/logrus"
 )
 
 var activeNodes []models.Node
 
 type NodeRepository interface {
-	InitNodeRepo() error
 	FindByID(ID string) (*models.Node, error)
 	Save(node *models.Node) error
 	GetAll() (*[]models.Node, error)
@@ -33,33 +31,11 @@ type nodeRepo struct {
 }
 
 func NewNodeRepo(db *storm.DB) NodeRepository {
+	activeNodes = make([]models.Node, 0)
+
 	return &nodeRepo{
 		db: db,
 	}
-}
-
-func (r *nodeRepo) getValidNodes() (*[]models.Node, error) {
-	var nodes []models.Node
-
-	q := r.db.Select(q.Lte("Cooldown", 0))
-	err := q.Find(&nodes)
-
-	return &nodes, err
-}
-
-func (r *nodeRepo) InitNodeRepo() error {
-	nodes, err := r.getValidNodes()
-
-	if err != nil {
-		if err.Error() == "not found" {
-			activeNodes = make([]models.Node, 0)
-			return nil
-		}
-		return err
-	}
-
-	activeNodes = *nodes
-	return nil
 }
 
 func (r *nodeRepo) FindByID(ID string) (*models.Node, error) {

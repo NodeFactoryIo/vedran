@@ -2,6 +2,8 @@ package loadbalancer
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
@@ -9,7 +11,6 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/schedule/checkactive"
 	"github.com/asdine/storm/v3"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
 
 func StartLoadBalancerServer(props configuration.Configuration) {
@@ -36,9 +37,9 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 	repos.MetricsRepo = repositories.NewMetricsRepo(database)
 	repos.RecordRepo = repositories.NewRecordRepo(database)
 	repos.NodeRepo = repositories.NewNodeRepo(database)
-	err = repos.NodeRepo.InitNodeRepo()
+	err = repos.PingRepo.ResetAllPings()
 	if err != nil {
-		log.Fatalf("Failed initializing node repo because of: %v", err)
+		log.Fatalf("Failed reseting pings because of: %v", err)
 	}
 
 	// starts task that checks active nodes
