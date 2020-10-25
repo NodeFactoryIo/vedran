@@ -125,20 +125,6 @@ func (_m *NodeRepository) IncreaseNodeCooldown(ID string) (*models.Node, error) 
 	return r0, r1
 }
 
-// InitNodeRepo provides a mock function with given fields:
-func (_m *NodeRepository) InitNodeRepo() error {
-	ret := _m.Called()
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // IsNodeOnCooldown provides a mock function with given fields: ID
 func (_m *NodeRepository) IsNodeOnCooldown(ID string) (bool, error) {
 	ret := _m.Called(ID)

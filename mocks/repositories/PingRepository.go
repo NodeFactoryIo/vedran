@@ -56,6 +56,20 @@ func (_m *PingRepository) GetAll() (*[]models.Ping, error) {
 	return r0, r1
 }
 
+// ResetAllPings provides a mock function with given fields:
+func (_m *PingRepository) ResetAllPings() error {
+	ret := _m.Called()
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Save provides a mock function with given fields: ping
 func (_m *PingRepository) Save(ping *models.Ping) error {
 	ret := _m.Called(ping)
