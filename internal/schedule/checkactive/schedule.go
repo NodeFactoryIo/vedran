@@ -55,7 +55,11 @@ func scheduledTask(repos *repositories.Repos, actions actions.Actions) {
 		}
 
 		if !metricsVald {
-			_ = repos.NodeRepo.RemoveNodeFromActive(node)
+			err = repos.NodeRepo.RemoveNodeFromActive(node.ID)
+			if err != nil {
+				log.Errorf("Unable to remove node %s from active because of %v", node.ID, err)
+			}
+			log.Debugf("Node %s metrics lagging more than 10 blocks, removed node from active", node.ID)
 		}
 	}
 }

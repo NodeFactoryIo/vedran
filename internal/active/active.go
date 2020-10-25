@@ -71,15 +71,11 @@ func CheckIfMetricsValid(nodeID string, repos *repositories.Repos) (bool, error)
 	return true, nil
 }
 
-// ActivateNodeIfReady sets node to active nodes if latest metrics are valid and node is not penalized
+// ActivateNodeIfReady adds node to active nodes if latest metrics are valid and node is not penalized
 func ActivateNodeIfReady(nodeID string, repos repositories.Repos) error {
-	node, err := repos.NodeRepo.FindByID(nodeID)
-	if err != nil {
+	nodeIsOnCooldown, err := repos.NodeRepo.IsNodeOnCooldown(nodeID)
+	if nodeIsOnCooldown {
 		return err
-	}
-
-	if node.Cooldown != 0 {
-		return nil
 	}
 
 	metricsValid, err := CheckIfMetricsValid(nodeID, &repos)
@@ -88,7 +84,11 @@ func ActivateNodeIfReady(nodeID string, repos repositories.Repos) error {
 	}
 
 	if metricsValid {
-		_ = repos.NodeRepo.AddNodeToActive(*node)
+		err = repos.NodeRepo.AddNodeToActive(nodeID)
+		if err != nil {
+			log.Errorf("Unable to add node %s to active nodes, because of %v", nodeID, err)
+		}
+		log.Debugf("Node %s added to active nodes", nodeID)
 	}
 
 	return nil

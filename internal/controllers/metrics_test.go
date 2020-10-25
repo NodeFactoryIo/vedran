@@ -25,9 +25,9 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 		nodeId         string
 		httpStatus     int
 		// NodeRepo.FindByID
-		nodeRepoFindByIDReturns    *models.Node
-		nodeRepoFindByIDError      error
-		nodeRepoFindByIDNumOfCalls int
+		nodeRepoIsNodeOnCooldownReturns bool
+		nodeRepoIsNodeOnCooldownError   error
+		nodeRepoIsNodeOnNumOfCalls      int
 		// NodeRepo.AddNodeToActive
 		nodeRepoAddNodeToActiveError      error
 		nodeRepoAddNodeToActiveNumOfCalls int
@@ -54,12 +54,9 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 			nodeId:     "1",
 			httpStatus: http.StatusOK,
 			// NodeRepo.FindByID
-			nodeRepoFindByIDReturns: &models.Node{
-				ID:       "1",
-				Cooldown: 0,
-			},
-			nodeRepoFindByIDError:      nil,
-			nodeRepoFindByIDNumOfCalls: 1,
+			nodeRepoIsNodeOnCooldownReturns: false,
+			nodeRepoIsNodeOnCooldownError: nil,
+			nodeRepoIsNodeOnNumOfCalls:    1,
 			// NodeRepo.AddNodeToActive
 			nodeRepoAddNodeToActiveError:      nil,
 			nodeRepoAddNodeToActiveNumOfCalls: 1,
@@ -95,12 +92,9 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 			nodeId:     "1",
 			httpStatus: http.StatusOK,
 			// NodeRepo.FindByID
-			nodeRepoFindByIDReturns: &models.Node{
-				ID:       "1",
-				Cooldown: 2,
-			},
-			nodeRepoFindByIDError:      nil,
-			nodeRepoFindByIDNumOfCalls: 1,
+			nodeRepoIsNodeOnCooldownReturns: true,
+			nodeRepoIsNodeOnCooldownError:      nil,
+			nodeRepoIsNodeOnNumOfCalls: 1,
 			// NodeRepo.AddNodeToActive
 			nodeRepoAddNodeToActiveError:      nil,
 			nodeRepoAddNodeToActiveNumOfCalls: 0,
@@ -127,12 +121,9 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 			nodeId:     "1",
 			httpStatus: http.StatusOK,
 			// NodeRepo.FindByID
-			nodeRepoFindByIDReturns: &models.Node{
-				ID:       "1",
-				Cooldown: 0,
-			},
-			nodeRepoFindByIDError:      nil,
-			nodeRepoFindByIDNumOfCalls: 1,
+			nodeRepoIsNodeOnCooldownReturns: false,
+			nodeRepoIsNodeOnCooldownError:      nil,
+			nodeRepoIsNodeOnNumOfCalls: 1,
 			// NodeRepo.AddNodeToActive
 			nodeRepoAddNodeToActiveError:      nil,
 			nodeRepoAddNodeToActiveNumOfCalls: 0,
@@ -186,10 +177,10 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 			recordRepoMock := mocks.RecordRepository{}
 
 			nodeRepoMock := mocks.NodeRepository{}
-			nodeRepoMock.On("FindByID", test.nodeId).Return(
-				test.nodeRepoFindByIDReturns, test.nodeRepoFindByIDError,
+			nodeRepoMock.On("IsNodeOnCooldown", test.nodeId).Return(
+				test.nodeRepoIsNodeOnCooldownReturns, test.nodeRepoIsNodeOnCooldownError,
 			)
-			nodeRepoMock.On("AddNodeToActive", mock.Anything).Return(
+			nodeRepoMock.On("AddNodeToActive", test.nodeId).Return(
 				test.nodeRepoAddNodeToActiveError,
 			)
 
@@ -230,7 +221,7 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 			// asserts
 			assert.Equal(t, test.httpStatus, rr.Code, fmt.Sprintf("Response status code should be %d", test.httpStatus))
 
-			nodeRepoMock.AssertNumberOfCalls(t, "FindByID", test.nodeRepoFindByIDNumOfCalls)
+			nodeRepoMock.AssertNumberOfCalls(t, "IsNodeOnCooldown", test.nodeRepoIsNodeOnNumOfCalls)
 			nodeRepoMock.AssertNumberOfCalls(t, "AddNodeToActive", test.nodeRepoAddNodeToActiveNumOfCalls)
 			metricsRepoMock.AssertNumberOfCalls(t, "FindByID", test.metricsRepoFindByIDNumOfCalls)
 			metricsRepoMock.AssertNumberOfCalls(t, "GetLatestBlockMetrics", test.metricsRepoGetLatestBlockMetricsNumOfCalls)

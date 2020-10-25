@@ -10,13 +10,13 @@ type NodeRepository struct {
 	mock.Mock
 }
 
-// AddNodeToActive provides a mock function with given fields: node
-func (_m *NodeRepository) AddNodeToActive(node models.Node) error {
-	ret := _m.Called(node)
+// AddNodeToActive provides a mock function with given fields: ID
+func (_m *NodeRepository) AddNodeToActive(ID string) error {
+	ret := _m.Called(ID)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(models.Node) error); ok {
-		r0 = rf(node)
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(ID)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -160,13 +160,13 @@ func (_m *NodeRepository) IsNodeOnCooldown(ID string) (bool, error) {
 	return r0, r1
 }
 
-// RemoveNodeFromActive provides a mock function with given fields: node
-func (_m *NodeRepository) RemoveNodeFromActive(node models.Node) error {
-	ret := _m.Called(node)
+// RemoveNodeFromActive provides a mock function with given fields: ID
+func (_m *NodeRepository) RemoveNodeFromActive(ID string) error {
+	ret := _m.Called(ID)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(models.Node) error); ok {
-		r0 = rf(node)
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(ID)
 	} else {
 		r0 = ret.Error(0)
 	}

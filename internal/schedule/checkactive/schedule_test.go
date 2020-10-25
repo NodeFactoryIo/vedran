@@ -236,10 +236,10 @@ func Test_scheduledTask(t *testing.T) {
 
 			if test.removeNodeFromActiveArgs != nil {
 				if len(test.removeNodeFromActiveArgs) == 1 {
-					nodeRepoMock.On("RemoveNodeFromActive", test.removeNodeFromActiveArgs[0]).Return(nil)
+					nodeRepoMock.On("RemoveNodeFromActive", test.removeNodeFromActiveArgs[0].ID).Return(nil)
 				} else {
-					for _, fromActiveArg := range test.removeNodeFromActiveArgs {
-						nodeRepoMock.On("RemoveNodeFromActive", fromActiveArg).Return(nil).Once()
+					for _, node := range test.removeNodeFromActiveArgs {
+						nodeRepoMock.On("RemoveNodeFromActive", node.ID).Return(nil).Once()
 					}
 				}
 			}
