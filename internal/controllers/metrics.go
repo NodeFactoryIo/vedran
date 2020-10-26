@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"github.com/NodeFactoryIo/vedran/internal/active"
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/pkg/util"
@@ -35,7 +36,7 @@ func (c ApiController) SaveMetricsHandler(w http.ResponseWriter, r *http.Request
 
 	requestContext := r.Context().Value(auth.RequestContextKey).(*auth.RequestContext)
 
-	err = c.metricsRepo.Save(&models.Metrics{
+	err = c.repositories.MetricsRepo.Save(&models.Metrics{
 		NodeId:                requestContext.NodeId,
 		PeerCount:             metricsRequest.PeerCount,
 		BestBlockHeight:       metricsRequest.BestBlockHeight,
@@ -44,7 +45,7 @@ func (c ApiController) SaveMetricsHandler(w http.ResponseWriter, r *http.Request
 	})
 
 	if err != nil {
-		log.Errorf("Unable to save metrics for node %v to database, error: %v", requestContext.NodeId, err)
+		log.Errorf("Unable to save metrics for node %s to database, error: %v", requestContext.NodeId, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -54,5 +55,13 @@ func (c ApiController) SaveMetricsHandler(w http.ResponseWriter, r *http.Request
 		requestContext.NodeId,
 		metricsRequest.FinalizedBlockHeight,
 		metricsRequest.BestBlockHeight,
-		)
+	)
+
+	if !c.repositories.NodeRepo.IsNodeActive(requestContext.NodeId) {
+		err = active.ActivateNodeIfReady(requestContext.NodeId, c.repositories)
+		if err != nil {
+			log.Errorf("Unable to activate node %s, error: %v", requestContext.NodeId, err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
+	}
 }

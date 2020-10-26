@@ -11,7 +11,8 @@ import (
 
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/models"
-	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
+	"github.com/NodeFactoryIo/vedran/internal/repositories"
+	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -85,19 +86,27 @@ func TestApiController_PingHandler(t *testing.T) {
 			timestamp := time.Now()
 			// create mock controller
 			nodeRepoMock := mocks.NodeRepository{}
-			pingRepoMock := mocks.PingRepository{}
+			recordRepoMock := mocks.RecordRepository{}
 			metricsRepoMock := mocks.MetricsRepository{}
-			downtimeRepoMock := mocks.DowntimeRepository{}
 
+			pingRepoMock := mocks.PingRepository{}
 			pingRepoMock.On("Save", &models.Ping{
 				NodeId:    "1",
 				Timestamp: timestamp,
 			}).Return(test.pingSaveErr)
 			pingRepoMock.On("CalculateDowntime", mock.Anything, mock.Anything).Return(
 				time.Now(), test.downtimeDuration, test.calculateDowntimeErr)
+
+			downtimeRepoMock := mocks.DowntimeRepository{}
 			downtimeRepoMock.On("Save", mock.Anything).Return(test.downtimeSaveErr)
 
-			apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &downtimeRepoMock)
+			apiController := NewApiController(false, repositories.Repos{
+				NodeRepo:     &nodeRepoMock,
+				PingRepo:     &pingRepoMock,
+				MetricsRepo:  &metricsRepoMock,
+				RecordRepo:   &recordRepoMock,
+				DowntimeRepo: &downtimeRepoMock,
+			}, nil)
 			handler := http.HandlerFunc(apiController.PingHandler)
 
 			// create test request and populate context

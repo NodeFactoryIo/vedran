@@ -5,6 +5,10 @@ import (
 	"github.com/asdine/storm/v3"
 )
 
+type DowntimeRepository interface {
+	Save(downtime *models.Downtime) error
+}
+
 type DowntimeRepo struct {
 	db *storm.DB
 }

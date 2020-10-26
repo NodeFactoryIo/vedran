@@ -3,8 +3,16 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/whitelist"
+	"strings"
+
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	"github.com/NodeFactoryIo/vedran/internal/ip"
 	"github.com/NodeFactoryIo/vedran/internal/loadbalancer"
+	"github.com/NodeFactoryIo/vedran/internal/tunnel"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/server"
 	"github.com/NodeFactoryIo/vedran/pkg/logger"
+	"github.com/NodeFactoryIo/vedran/pkg/util"
 	"github.com/NodeFactoryIo/vedran/pkg/util/random"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -12,16 +20,21 @@ import (
 
 var (
 	// load balancer related flags
-	authSecret string
-	name       string
-	capacity   int64
-	whitelist  []string
-	fee        float32
-	selection  string
-	port       int32
+	authSecret     string
+	name           string
+	capacity       int64
+	whitelistArray []string
+	whitelistFile  string
+	fee            float32
+	selection      string
+	serverPort     int32
+	publicIP       string
 	// logging related flags
 	logLevel string
 	logFile  string
+	// tunnel related flags
+	tunnelServerPort string
+	tunnelPortRange  string
 )
 
 var startCmd = &cobra.Command{
@@ -53,8 +66,22 @@ var startCmd = &cobra.Command{
 			return errors.New("invalid fee value")
 		}
 		// well known ports and registered ports
-		if port <= 0 && port > 49151 {
-			return errors.New("invalid port number")
+		if !util.IsValidPortAsInt(serverPort) {
+			return errors.New("invalid rpc server port number")
+		}
+		// valid format is PortMin:PortMax
+		prt := strings.Split(tunnelPortRange, ":")
+		if len(prt) != 2 {
+			return errors.New("invalid port range, should be defined as \"PortMin:PortMax\"")
+		}
+		if !util.IsValidPortAsStr(prt[0]) {
+			return errors.New("invalid port number provided for min port inside port range")
+		}
+		if !util.IsValidPortAsStr(prt[1]) {
+			return errors.New("invalid port number provided for max port inside port range")
+		}
+		if whitelistArray != nil && whitelistFile != "" {
+			return errors.New("only one flag for setting whitelisted nodes should be set")
 		}
 		return nil
 	},
@@ -80,10 +107,18 @@ func init() {
 		"[OPTIONAL] Maximum number of nodes allowed to connect, where -1 represents no upper limit")
 
 	startCmd.Flags().StringSliceVar(
-		&whitelist,
+		&whitelistArray,
 		"whitelist",
 		nil,
-		"[OPTIONAL] Comma separated list of node id-s, if provided only these nodes will be allowed to connect")
+		"[OPTIONAL] Comma separated list of node id-s, if provided only these nodes will be allowed to connect."+
+			"This flag can't be used together with --whitelist-file flag, only one option for setting whitelisted nodes can be used")
+
+	startCmd.Flags().StringVar(
+		&whitelistFile,
+		"whitelist-file",
+		"",
+		"[OPTIONAL] Path to file with node id-s in each line that should be whitelisted."+
+			"This flag can't be used together with --whitelist flag, only one option for setting whitelisted nodes can be used")
 
 	startCmd.Flags().Float32Var(
 		&fee,
@@ -95,13 +130,19 @@ func init() {
 		&selection,
 		"selection",
 		"round-robin",
-		"[OPTIONAL] Type of selection used for choosing nodes")
+		"[OPTIONAL] Type of selection used for choosing nodes (round-robin, random)")
 
 	startCmd.Flags().Int32Var(
-		&port,
-		"port",
+		&serverPort,
+		"server-port",
 		4000,
-		"[OPTIONAL] Port on which load balancer will be started")
+		"[OPTIONAL] Port on which load balancer rpc server will be started")
+
+	startCmd.Flags().StringVar(
+		&publicIP,
+		"public-ip",
+		"",
+		"[OPTIONAL] Public ip of load balancer")
 
 	startCmd.Flags().StringVar(
 		&logLevel,
@@ -115,18 +156,61 @@ func init() {
 		"",
 		"[OPTIONAL] Path to logfile (default stdout)")
 
+	startCmd.Flags().StringVar(
+		&tunnelServerPort,
+		"tunnel-port",
+		"5223",
+		"[OPTIONAL] Address on which tunnel server is listening")
+
+	startCmd.Flags().StringVar(
+		&tunnelPortRange,
+		"tunnel-port-range",
+		"20000:30000",
+		"[OPTIONAL] Range of ports which is used to open tunnels")
+
 	RootCmd.AddCommand(startCmd)
 }
 
 func startCommand(_ *cobra.Command, _ []string) {
 	DisplayBanner()
-	loadbalancer.StartLoadBalancerServer(loadbalancer.Properties{
-		AuthSecret: authSecret,
-		Name:       name,
-		Capacity:   capacity,
-		Whitelist:  whitelist,
-		Fee:        fee,
-		Selection:  selection,
-		Port:       port,
+
+	// creating address pool
+	pPool := &server.AddrPool{}
+	err := pPool.Init(tunnelPortRange)
+	if err != nil {
+		log.Fatalf("Failed assigning port range because of: %v", err)
+	}
+
+	// defining tunnel server address
+	var tunnelServerAddress string
+	if publicIP == "" {
+		IP, err := ip.Get()
+		if err != nil {
+			log.Fatal("Unable to fetch public IP address. Please set one explicitly!", err)
+		}
+		tunnelServerAddress = fmt.Sprintf("%s:%s", IP.String(), tunnelServerPort)
+	} else {
+		tunnelServerAddress = fmt.Sprintf("%s:%s", publicIP, tunnelServerPort)
+	}
+	log.Infof("Tunnel server will listen on %s and connect tunnels on port range %s", tunnelServerAddress, tunnelPortRange)
+
+	// initializing whitelisting
+	whitelistEnabled, err := whitelist.InitWhitelisting(whitelistArray, whitelistFile)
+	if err != nil {
+		log.Fatal("Unable to set whitelisted nodes ", err)
+	}
+	log.Debugf("Whitelisting set to: %t", whitelistEnabled)
+
+	tunnel.StartHttpTunnelServer(tunnelServerPort, pPool)
+	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
+		AuthSecret:          authSecret,
+		Name:                name,
+		Capacity:            capacity,
+		Fee:                 fee,
+		Selection:           selection,
+		Port:                serverPort,
+		TunnelServerAddress: tunnelServerAddress,
+		PortPool:            pPool,
+		WhitelistEnabled:    whitelistEnabled,
 	})
 }

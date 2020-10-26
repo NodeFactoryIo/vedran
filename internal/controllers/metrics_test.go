@@ -13,48 +13,199 @@ import (
 
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/models"
-	mocks "github.com/NodeFactoryIo/vedran/mocks/models"
+	"github.com/NodeFactoryIo/vedran/internal/repositories"
+	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestApiController_SaveMetricsHandler(t *testing.T) {
 	tests := []struct {
-		name                  string
-		metricsRequest        interface{}
-		httpStatus            int
-		repoReturn            interface{}
-		numberOfRepoSaveCalls int
+		name           string
+		metricsRequest interface{}
+		nodeId         string
+		httpStatus     int
+		// NodeRepo.FindByID
+		nodeRepoIsNodeOnCooldownReturns bool
+		nodeRepoIsNodeOnCooldownError   error
+		nodeRepoIsNodeOnNumOfCalls      int
+		// NodeRepo.AddNodeToActive
+		nodeRepoAddNodeToActiveError      error
+		nodeRepoAddNodeToActiveNumOfCalls int
+		// NodeRepo.IsNodeActive
+		nodeRepoIsNodeActiveReturn bool
+		// MetricsRepo.FindByID
+		metricsRepoFindByIDError      error
+		metricsRepoFindByIDReturn     *models.Metrics
+		metricsRepoFindByIDNumOfCalls int
+		// MetricsRepo.GetLatestBlockMetrics
+		metricsRepoGetLatestBlockMetricsError      error
+		metricsRepoGetLatestBlockMetricsReturn     *models.LatestBlockMetrics
+		metricsRepoGetLatestBlockMetricsNumOfCalls int
+		// MetricsRepo.Save
+		metricsRepoSaveError      error
+		metricsRepoSaveNumOfCalls int
 	}{
 		{
-			name: "Valid metrics save request",
+			name: "Valid metrics save request and node should be added to active nodes",
+			metricsRequest: MetricsRequest{
+				PeerCount:             0,
+				BestBlockHeight:       1000,
+				FinalizedBlockHeight:  995,
+				ReadyTransactionCount: 0,
+			},
+			nodeId:     "1",
+			httpStatus: http.StatusOK,
+			// NodeRepo.FindByID
+			nodeRepoIsNodeOnCooldownReturns: false,
+			nodeRepoIsNodeOnCooldownError:   nil,
+			nodeRepoIsNodeOnNumOfCalls:      1,
+			// NodeRepo.AddNodeToActive
+			nodeRepoAddNodeToActiveError:      nil,
+			nodeRepoAddNodeToActiveNumOfCalls: 1,
+			// NodeRepo.IsNodeActive
+			nodeRepoIsNodeActiveReturn: false,
+			// MetricsRepo.FindByID
+			metricsRepoFindByIDReturn: &models.Metrics{
+				NodeId:                "1",
+				PeerCount:             0,
+				BestBlockHeight:       1000,
+				FinalizedBlockHeight:  995,
+				ReadyTransactionCount: 0,
+			},
+			metricsRepoFindByIDError:      nil,
+			metricsRepoFindByIDNumOfCalls: 1,
+			// MetricsRepo.GetLatestBlockMetrics
+			metricsRepoGetLatestBlockMetricsReturn: &models.LatestBlockMetrics{
+				BestBlockHeight:      1001,
+				FinalizedBlockHeight: 998,
+			},
+			metricsRepoGetLatestBlockMetricsError:      nil,
+			metricsRepoGetLatestBlockMetricsNumOfCalls: 1,
+			// MetricsRepo.Save
+			metricsRepoSaveError:      nil,
+			metricsRepoSaveNumOfCalls: 1,
+		},
+		{
+			name: "Valid metrics save request and node should not be added to active nodes as it already is in active",
+			metricsRequest: MetricsRequest{
+				PeerCount:             0,
+				BestBlockHeight:       1000,
+				FinalizedBlockHeight:  995,
+				ReadyTransactionCount: 0,
+			},
+			nodeId:     "1",
+			httpStatus: http.StatusOK,
+			// NodeRepo.FindByID
+			nodeRepoIsNodeOnCooldownReturns: false,
+			nodeRepoIsNodeOnCooldownError:   nil,
+			nodeRepoIsNodeOnNumOfCalls:      0,
+			// NodeRepo.AddNodeToActive
+			nodeRepoAddNodeToActiveError:      nil,
+			nodeRepoAddNodeToActiveNumOfCalls: 0,
+			// NodeRepo.IsNodeActive
+			nodeRepoIsNodeActiveReturn: true,
+			// MetricsRepo.FindByID
+			metricsRepoFindByIDReturn: nil,
+			metricsRepoFindByIDError:      nil,
+			metricsRepoFindByIDNumOfCalls: 0,
+			// MetricsRepo.GetLatestBlockMetrics
+			metricsRepoGetLatestBlockMetricsReturn: nil,
+			metricsRepoGetLatestBlockMetricsError:      nil,
+			metricsRepoGetLatestBlockMetricsNumOfCalls: 0,
+			// MetricsRepo.Save
+			metricsRepoSaveError:      nil,
+			metricsRepoSaveNumOfCalls: 1,
+		},
+		{
+			name: "Valid metrics save request and node should not be added to active nodes as it is penalized",
 			metricsRequest: MetricsRequest{
 				PeerCount:             10,
 				BestBlockHeight:       100,
 				FinalizedBlockHeight:  100,
 				ReadyTransactionCount: 10,
 			},
-			httpStatus:            http.StatusOK,
-			repoReturn:            nil,
-			numberOfRepoSaveCalls: 1,
+			nodeId:     "1",
+			httpStatus: http.StatusOK,
+			// NodeRepo.FindByID
+			nodeRepoIsNodeOnCooldownReturns: true,
+			nodeRepoIsNodeOnCooldownError:   nil,
+			nodeRepoIsNodeOnNumOfCalls:      1,
+			// NodeRepo.AddNodeToActive
+			nodeRepoAddNodeToActiveError:      nil,
+			nodeRepoAddNodeToActiveNumOfCalls: 0,
+			// NodeRepo.IsNodeActive
+			nodeRepoIsNodeActiveReturn: false,
+			// MetricsRepo.FindByID
+			metricsRepoFindByIDReturn:     nil,
+			metricsRepoFindByIDError:      nil,
+			metricsRepoFindByIDNumOfCalls: 0,
+			// MetricsRepo.GetLatestBlockMetrics
+			metricsRepoGetLatestBlockMetricsReturn:     nil,
+			metricsRepoGetLatestBlockMetricsError:      nil,
+			metricsRepoGetLatestBlockMetricsNumOfCalls: 0,
+			// MetricsRepo.Save
+			metricsRepoSaveError:      nil,
+			metricsRepoSaveNumOfCalls: 1,
 		},
 		{
-			name:                  "Invalid metrics save request",
-			metricsRequest:        struct{ PeerCount string }{PeerCount: "10"},
-			httpStatus:            http.StatusBadRequest,
-			repoReturn:            nil,
-			numberOfRepoSaveCalls: 0,
+			name: "Valid metrics save request and node should not be added to active nodes as metrics are invalid",
+			metricsRequest: MetricsRequest{
+				PeerCount:             0,
+				BestBlockHeight:       1000,
+				FinalizedBlockHeight:  995,
+				ReadyTransactionCount: 0,
+			},
+			nodeId:     "1",
+			httpStatus: http.StatusOK,
+			// NodeRepo.FindByID
+			nodeRepoIsNodeOnCooldownReturns: false,
+			nodeRepoIsNodeOnCooldownError:   nil,
+			nodeRepoIsNodeOnNumOfCalls:      1,
+			// NodeRepo.AddNodeToActive
+			nodeRepoAddNodeToActiveError:      nil,
+			nodeRepoAddNodeToActiveNumOfCalls: 0,
+			// NodeRepo.IsNodeActive
+			nodeRepoIsNodeActiveReturn: false,
+			// MetricsRepo.FindByID
+			metricsRepoFindByIDReturn: &models.Metrics{
+				NodeId:                "1",
+				PeerCount:             0,
+				BestBlockHeight:       1000,
+				FinalizedBlockHeight:  995,
+				ReadyTransactionCount: 0,
+			},
+			metricsRepoFindByIDError:      nil,
+			metricsRepoFindByIDNumOfCalls: 1,
+			// MetricsRepo.GetLatestBlockMetrics
+			metricsRepoGetLatestBlockMetricsReturn: &models.LatestBlockMetrics{
+				BestBlockHeight:      1021,
+				FinalizedBlockHeight: 1017,
+			},
+			metricsRepoGetLatestBlockMetricsError:      nil,
+			metricsRepoGetLatestBlockMetricsNumOfCalls: 1,
+			// MetricsRepo.Save
+			metricsRepoSaveError:      nil,
+			metricsRepoSaveNumOfCalls: 1,
 		},
 		{
-			name: "Database fails on save",
+			name:           "Invalid metrics save request",
+			metricsRequest: struct{ PeerCount string }{PeerCount: "10"},
+			nodeId:         "1",
+			httpStatus:     http.StatusBadRequest,
+		},
+		{
+			name: "Database fails on saving metrics",
 			metricsRequest: MetricsRequest{
 				PeerCount:             10,
 				BestBlockHeight:       100,
 				FinalizedBlockHeight:  100,
 				ReadyTransactionCount: 10,
 			},
-			httpStatus:            http.StatusInternalServerError,
-			repoReturn:            errors.New("database error"),
-			numberOfRepoSaveCalls: 1,
+			nodeId:                    "1",
+			httpStatus:                http.StatusInternalServerError,
+			metricsRepoSaveNumOfCalls: 1,
+			metricsRepoSaveError:      errors.New("db error"),
 		},
 	}
 	for _, test := range tests {
@@ -62,25 +213,47 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 			timestamp := time.Now()
 
 			// create mock controller
-			nodeRepoMock := mocks.NodeRepository{}
 			pingRepoMock := mocks.PingRepository{}
+			recordRepoMock := mocks.RecordRepository{}
+
+			nodeRepoMock := mocks.NodeRepository{}
+			nodeRepoMock.On("IsNodeOnCooldown", test.nodeId).Return(
+				test.nodeRepoIsNodeOnCooldownReturns, test.nodeRepoIsNodeOnCooldownError,
+			)
+			nodeRepoMock.On("AddNodeToActive", test.nodeId).Return(
+				test.nodeRepoAddNodeToActiveError,
+			)
+			nodeRepoMock.On("IsNodeActive", test.nodeId).Return(
+				test.nodeRepoIsNodeActiveReturn,
+			)
+
 			metricsRepoMock := mocks.MetricsRepository{}
-			metricsRepoMock.On("Save", &models.Metrics{
-				NodeId:                "1",
-				PeerCount:             10,
-				BestBlockHeight:       100,
-				FinalizedBlockHeight:  100,
-				ReadyTransactionCount: 10,
-			}).Return(test.repoReturn)
+			metricsRepoMock.On("FindByID", test.nodeId).Return(
+				test.metricsRepoFindByIDReturn, test.metricsRepoFindByIDError,
+			)
+			metricsRepoMock.On("GetLatestBlockMetrics").Return(
+				test.metricsRepoGetLatestBlockMetricsReturn, test.metricsRepoGetLatestBlockMetricsError,
+			)
+			metricsRepoMock.On("Save", mock.Anything).Return(
+				test.metricsRepoSaveError,
+			)
 			downtimeRepoMock := mocks.DowntimeRepository{}
-			apiController := NewApiController(false, &nodeRepoMock, &pingRepoMock, &metricsRepoMock, &downtimeRepoMock)
+
+			apiController := NewApiController(false, repositories.Repos{
+				NodeRepo:     &nodeRepoMock,
+				PingRepo:     &pingRepoMock,
+				MetricsRepo:  &metricsRepoMock,
+				RecordRepo:   &recordRepoMock,
+				DowntimeRepo: &downtimeRepoMock,
+			}, nil)
+
 			handler := http.HandlerFunc(apiController.SaveMetricsHandler)
 
 			// create test request
 			rb, _ := json.Marshal(test.metricsRequest)
 			req, _ := http.NewRequest("POST", "/api/v1/metrics", bytes.NewReader(rb))
 			c := &auth.RequestContext{
-				NodeId:    "1",
+				NodeId:    test.nodeId,
 				Timestamp: timestamp,
 			}
 			ctx := context.WithValue(req.Context(), auth.RequestContextKey, c)
@@ -92,7 +265,12 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 
 			// asserts
 			assert.Equal(t, test.httpStatus, rr.Code, fmt.Sprintf("Response status code should be %d", test.httpStatus))
-			assert.True(t, metricsRepoMock.AssertNumberOfCalls(t, "Save", test.numberOfRepoSaveCalls))
+
+			nodeRepoMock.AssertNumberOfCalls(t, "IsNodeOnCooldown", test.nodeRepoIsNodeOnNumOfCalls)
+			nodeRepoMock.AssertNumberOfCalls(t, "AddNodeToActive", test.nodeRepoAddNodeToActiveNumOfCalls)
+			metricsRepoMock.AssertNumberOfCalls(t, "FindByID", test.metricsRepoFindByIDNumOfCalls)
+			metricsRepoMock.AssertNumberOfCalls(t, "GetLatestBlockMetrics", test.metricsRepoGetLatestBlockMetricsNumOfCalls)
+			metricsRepoMock.AssertNumberOfCalls(t, "Save", test.metricsRepoSaveNumOfCalls)
 		})
 	}
 }

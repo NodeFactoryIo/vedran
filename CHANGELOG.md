@@ -1,5 +1,31 @@
 # Changelog
 
+## [v0.2.0]((https://github.com/NodeFactoryIo/vedran/tree/v0.2.0))
+
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v.0.1.1...v.0.2.0)
+
+### Added
+- Implement tunnel server in load balancer [\#63](https://github.com/NodeFactoryIo/vedran/pull/63) ([MakMuftic](https://github.com/MakMuftic))
+- Implement penalizing nodes [\#68](https://github.com/NodeFactoryIo/vedran/pull/68) ([MakMuftic](https://github.com/MakMuftic))
+- Add instructions for running Vedran load balancer in README file [\#86](https://github.com/NodeFactoryIo/vedran/pull/86) ([MakMuftic](https://github.com/MakMuftic))
+
+### Fix
+- Fix panic if no nodes in database after startup [\#62](https://github.com/NodeFactoryIo/vedran/pull/62) ([mpetrun5](https://github.com/mpetrun5))
+- Fix error on provided public IP [\#72](https://github.com/NodeFactoryIo/vedran/pull/72) ([MakMuftic](https://github.com/MakMuftic))
+- Fix register handler [\#83](https://github.com/NodeFactoryIo/vedran/pull/83) ([MakMuftic](https://github.com/MakMuftic))
+- Fix error saving node cooldown [\#82](https://github.com/NodeFactoryIo/vedran/pull/82) ([mpetrun5](https://github.com/mpetrun5))
+- Fix setting cooldown on penalize check [\#84](https://github.com/NodeFactoryIo/vedran/pull/84) ([MakMuftic](https://github.com/MakMuftic))
+- Restructure penalizing for bad metrics [\#86](https://github.com/NodeFactoryIo/vedran/pull/86) ([MakMuftic](https://github.com/MakMuftic))
+- Fix error saving downtime [\#100](https://github.com/NodeFactoryIo/vedran/pull/100) ([mpetrun5](https://github.com/mpetrun5))
+- Fix missing is node active check on new metrics [\#102](https://github.com/NodeFactoryIo/vedran/pull/102) ([MakMuftic](https://github.com/MakMuftic))
+
+### Changed
+- Use port from tunnel map for calling node [\#65](https://github.com/NodeFactoryIo/vedran/pull/65) ([mpetrun5](https://github.com/mpetrun5))
+- Reset all node pings after restart [\#94](https://github.com/NodeFactoryIo/vedran/pull/94) ([mpetrun5](https://github.com/mpetrun5))
+- Refactor whitelisting [\#75](https://github.com/NodeFactoryIo/vedran/pull/75) ([MakMuftic](https://github.com/MakMuftic))
+- Refactor how nodes are added to active [\#85](https://github.com/NodeFactoryIo/vedran/pull/85) ([MakMuftic](https://github.com/MakMuftic))
+- Improve logging [\#91](https://github.com/NodeFactoryIo/vedran/pull/91) ([MakMuftic](https://github.com/MakMuftic))
+
 ## [v0.1.1]((https://github.com/NodeFactoryIo/vedran/tree/v0.1.1))
 
 [Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v.0.1.0...v.0.1.1)

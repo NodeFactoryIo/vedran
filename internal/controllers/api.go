@@ -1,29 +1,24 @@
 package controllers
 
 import (
-	"github.com/NodeFactoryIo/vedran/internal/models"
+	"github.com/NodeFactoryIo/vedran/internal/actions"
+	"github.com/NodeFactoryIo/vedran/internal/repositories"
 )
 
 type ApiController struct {
 	whitelistEnabled bool
-	nodeRepo         models.NodeRepository
-	pingRepo         models.PingRepository
-	metricsRepo      models.MetricsRepository
-	downtimeRepo     models.DowntimeRepository
+	repositories     repositories.Repos
+	actions          actions.Actions
 }
 
 func NewApiController(
 	whitelistEnabled bool,
-	nodeRepo models.NodeRepository,
-	pingRepo models.PingRepository,
-	metricsRepo models.MetricsRepository,
-	downtimeRepo models.DowntimeRepository,
+	repositories repositories.Repos,
+	actions actions.Actions,
 ) *ApiController {
 	return &ApiController{
 		whitelistEnabled: whitelistEnabled,
-		nodeRepo:         nodeRepo,
-		pingRepo:         pingRepo,
-		metricsRepo:      metricsRepo,
-		downtimeRepo:     downtimeRepo,
+		repositories:     repositories,
+		actions:          actions,
 	}
 }

@@ -5,26 +5,29 @@ import (
 	"net/http"
 
 	"github.com/NodeFactoryIo/vedran/internal/auth"
-	"github.com/NodeFactoryIo/vedran/internal/config"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	log "github.com/sirupsen/logrus"
+)
+
+const (
+	pingIntervalSeconds = 10
 )
 
 func (c ApiController) PingHandler(w http.ResponseWriter, r *http.Request) {
 	request := r.Context().Value(auth.RequestContextKey).(*auth.RequestContext)
 
-	lastPingTime, downtimeDuration, err := c.pingRepo.CalculateDowntime(request.NodeId, request.Timestamp)
+	lastPingTime, downtimeDuration, err := c.repositories.PingRepo.CalculateDowntime(request.NodeId, request.Timestamp)
 	if err != nil {
 		log.Errorf("Unable to calculate node downtime, error: %v", err)
 	}
 
-	if math.Abs(downtimeDuration.Seconds()) > config.PingIntervalSeconds {
+	if math.Abs(downtimeDuration.Seconds()) > pingIntervalSeconds {
 		downtime := models.Downtime{
 			Start:  lastPingTime,
 			End:    request.Timestamp,
 			NodeId: request.NodeId,
 		}
-		err = c.downtimeRepo.Save(&downtime)
+		err = c.repositories.DowntimeRepo.Save(&downtime)
 		if err != nil {
 			log.Errorf("Unable to save node downtime, error: %v", err)
 		}
@@ -37,7 +40,7 @@ func (c ApiController) PingHandler(w http.ResponseWriter, r *http.Request) {
 		NodeId:    request.NodeId,
 		Timestamp: request.Timestamp,
 	}
-	err = c.pingRepo.Save(&ping)
+	err = c.repositories.PingRepo.Save(&ping)
 	if err != nil {
 		log.Errorf("Unable to save ping %v to database, error: %v", ping, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
