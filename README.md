@@ -45,6 +45,8 @@ For example `./vedran-linux-amd64 start --auth-secret=supersecret`.
 
 You can always run vedran with `--help` flag for list of all commands `vedran --help` or for list of all options for specific command `vedran start --help`.
 
+**Load balancer will expose Polkadot RPC API on port 4000 by default (can be changed using flag `--server-port`)**
+
 Start command will start application on 2 ports that need to be exposed to public:
  1. - RPC entrypoint to nodes and API for nodes to register to load balancer (default: 4000)
  2. - http tunnel server for creating tunnels between the node and load balancer so node operators don't to have expose nodes to public network (default: 5223)
@@ -55,7 +57,7 @@ Start command will start application on 2 ports that need to be exposed to publi
 
 ### Most important flags
 
-`--server-port` - port on which API is exposed  - **DEFAULT** [4000]
+`--server-port` - port on which RPC API is exposed  - **DEFAULT** [4000]
 
 `--public-ip` - public IP address of loadbalancer - **DEFAULT** uses multiple services to find out public IP
 
