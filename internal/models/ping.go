@@ -6,4 +6,3 @@ type Ping struct {
 	NodeId    string `storm:"id"`
 	Timestamp time.Time
 }
-

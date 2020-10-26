@@ -5,17 +5,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"testing"
+	"time"
+
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"github.com/NodeFactoryIo/vedran/internal/whitelist"
 	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
 	"github.com/stretchr/testify/assert"
-	"net/http"
-	"net/http/httptest"
-	"os"
-	"testing"
-	"time"
 )
 
 func TestApiController_RegisterHandler(t *testing.T) {
@@ -136,12 +137,14 @@ func TestApiController_RegisterHandler(t *testing.T) {
 			nodeRepoMock.On("FindByID", test.registerRequest.Id).Return(
 				test.findByIDReturns, test.findByIDError,
 			)
+			downtimeRepoMock := mocks.DowntimeRepository{}
 
 			apiController := NewApiController(test.isWhitelisted, repositories.Repos{
-				NodeRepo:    &nodeRepoMock,
-				PingRepo:    &pingRepoMock,
-				MetricsRepo: &metricsRepoMock,
-				RecordRepo:  &recordRepoMock,
+				NodeRepo:     &nodeRepoMock,
+				PingRepo:     &pingRepoMock,
+				MetricsRepo:  &metricsRepoMock,
+				RecordRepo:   &recordRepoMock,
+				DowntimeRepo: &downtimeRepoMock,
 			}, nil)
 
 			handler := http.HandlerFunc(apiController.RegisterHandler)
