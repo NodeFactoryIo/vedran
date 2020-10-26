@@ -226,10 +226,10 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 			// is mocked function called in test
 			if test.addToActiveNode != nil {
 				if len(test.addToActiveNode) == 1 { // same return value
-					nodeRepoMock.On("AddNodeToActive", test.addToActiveNode[0]).Return(nil)
+					nodeRepoMock.On("AddNodeToActive", test.addToActiveNode[0].ID).Return(nil)
 				} else { // multiple return values
 					for _, n := range test.addToActiveNode {
-						nodeRepoMock.On("AddNodeToActive", n).Return().Once()
+						nodeRepoMock.On("AddNodeToActive", n.ID).Return().Once()
 					}
 				}
 			}

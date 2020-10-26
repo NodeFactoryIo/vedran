@@ -2,13 +2,12 @@ package repositories
 
 import (
 	"fmt"
-	"math/rand"
-	"sort"
-	"time"
-
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/asdine/storm/v3"
 	log "github.com/sirupsen/logrus"
+	"math/rand"
+	"sort"
+	"time"
 )
 
 var activeNodes []models.Node
@@ -19,11 +18,12 @@ type NodeRepository interface {
 	GetAll() (*[]models.Node, error)
 	GetActiveNodes(selection string) *[]models.Node
 	GetAllActiveNodes() *[]models.Node
-	RemoveNodeFromActive(node models.Node) error
-	AddNodeToActive(node models.Node) error
+	RemoveNodeFromActive(ID string) error
+	AddNodeToActive(ID string) error
 	RewardNode(node models.Node)
 	IncreaseNodeCooldown(ID string) (*models.Node, error)
 	ResetNodeCooldown(ID string) (*models.Node, error)
+	IsNodeOnCooldown(ID string) (bool, error)
 }
 
 type nodeRepo struct {
@@ -105,25 +105,32 @@ func (r *nodeRepo) updateMemoryLastUsedTime(targetNode models.Node) {
 	}
 }
 
-func (r *nodeRepo) RemoveNodeFromActive(targetNode models.Node) error {
+func (r *nodeRepo) RemoveNodeFromActive(ID string) error {
 	for i, node := range activeNodes {
-		if targetNode.ID == node.ID {
+		if ID == node.ID {
 			activeNodes[i] = activeNodes[len(activeNodes)-1]
 			activeNodes = activeNodes[:len(activeNodes)-1]
 			return nil
 		}
 	}
 
-	return fmt.Errorf("No target node %s in memory", targetNode.ID)
+	return fmt.Errorf("no target node %s in memory", ID)
 }
 
-func (r *nodeRepo) AddNodeToActive(node models.Node) error {
+func (r *nodeRepo) AddNodeToActive(ID string) error {
+	// check if node exists
+	node, err := r.FindByID(ID)
+	if err != nil {
+		return err
+	}
+	// check if already active
 	for _, activeNode := range activeNodes {
-		if activeNode.ID == node.ID {
-			return fmt.Errorf("node %s already set as active", node.ID)
+		if activeNode.ID == ID {
+			return fmt.Errorf("node %s already set as active", ID)
 		}
 	}
-	activeNodes = append(activeNodes, node)
+
+	activeNodes = append(activeNodes, *node)
 	return nil
 }
 
@@ -165,3 +172,15 @@ func (r *nodeRepo) ResetNodeCooldown(ID string) (*models.Node, error) {
 	err = r.db.Save(&node)
 	return &node, err
 }
+
+// IsNodeOnCooldown check if node is on cooldown
+func (r *nodeRepo) IsNodeOnCooldown(ID string) (bool, error) {
+	var node models.Node
+	err := r.db.One("ID", ID, &node)
+	if err != nil {
+		return false, err
+	}
+
+	return node.Cooldown != 0, err
+}
+

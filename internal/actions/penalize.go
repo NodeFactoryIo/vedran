@@ -13,7 +13,7 @@ const InitialPenalizeIntervalInMins = 1
 // penalized node by invoking penalize.ScheduleCheckForPenalizedNode
 func (a *actions) PenalizeNode(node models.Node, repositories repositories.Repos) {
 	// remove node from active
-	err := repositories.NodeRepo.RemoveNodeFromActive(node)
+	err := repositories.NodeRepo.RemoveNodeFromActive(node.ID)
 	if err != nil {
 		log.Errorf("Failed penalizing node %s because of: %v", node.ID, err)
 		return
@@ -28,5 +28,5 @@ func (a *actions) PenalizeNode(node models.Node, repositories repositories.Repos
 	}
 
 	log.Debugf("Penalized node %s, on cooldown for 1 minute ", node.ID)
-	penalize.ScheduleCheckForPenalizedNode(node, repositories)
+	go penalize.ScheduleCheckForPenalizedNode(node, repositories)
 }
