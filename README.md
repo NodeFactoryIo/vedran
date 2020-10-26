@@ -18,6 +18,8 @@ _Vedran loadbalancer_ is used in conjunction with [Vedran daemon](https://github
 
 **Run demo with `docker-compose up`**
 
+_After all components have been started, you can invoke RPC methods on `localhost:4000`_
+
 This demo starts three separate dockerized components:
 - _Polkadot node_ ([repository](https://github.com/paritytech/polkadot))
 - _Vedran daemon_ ([repository](https://github.com/NodeFactoryIo/vedran-daemon))
