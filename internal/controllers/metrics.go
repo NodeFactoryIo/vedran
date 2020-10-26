@@ -57,9 +57,11 @@ func (c ApiController) SaveMetricsHandler(w http.ResponseWriter, r *http.Request
 		metricsRequest.BestBlockHeight,
 	)
 
-	err = active.ActivateNodeIfReady(requestContext.NodeId, c.repositories)
-	if err != nil {
-		log.Errorf("Unable to activate node %s, error: %v", requestContext.NodeId, err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	if !c.repositories.NodeRepo.IsNodeActive(requestContext.NodeId) {
+		err = active.ActivateNodeIfReady(requestContext.NodeId, c.repositories)
+		if err != nil {
+			log.Errorf("Unable to activate node %s, error: %v", requestContext.NodeId, err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
 	}
 }
