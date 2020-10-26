@@ -16,6 +16,7 @@
 - Fix error saving node cooldown [\#82](https://github.com/NodeFactoryIo/vedran/pull/82) ([mpetrun5](https://github.com/mpetrun5))
 - Fix setting cooldown on penalize check [\#84](https://github.com/NodeFactoryIo/vedran/pull/84) ([MakMuftic](https://github.com/MakMuftic))
 - Restructure penalizing for bad metrics [\#86](https://github.com/NodeFactoryIo/vedran/pull/86) ([MakMuftic](https://github.com/MakMuftic))
+- Fix error saving downtime [\#100](https://github.com/NodeFactoryIo/vedran/pull/100) ([mpetrun5](https://github.com/mpetrun5))
 
 ### Changed
 - Use port from tunnel map for calling node [\#65](https://github.com/NodeFactoryIo/vedran/pull/65) ([mpetrun5](https://github.com/mpetrun5))
