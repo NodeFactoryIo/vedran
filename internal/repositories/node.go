@@ -2,12 +2,13 @@ package repositories
 
 import (
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/internal/models"
-	"github.com/asdine/storm/v3"
-	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"sort"
 	"time"
+
+	"github.com/NodeFactoryIo/vedran/internal/models"
+	"github.com/asdine/storm/v3"
+	log "github.com/sirupsen/logrus"
 )
 
 var activeNodes []models.Node
@@ -183,4 +184,3 @@ func (r *nodeRepo) IsNodeOnCooldown(ID string) (bool, error) {
 
 	return node.Cooldown != 0, err
 }
-

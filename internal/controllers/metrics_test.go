@@ -6,16 +6,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"net/http"
-	"net/http/httptest"
-	"testing"
-	"time"
 )
 
 func TestApiController_SaveMetricsHandler(t *testing.T) {
@@ -55,8 +56,8 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 			httpStatus: http.StatusOK,
 			// NodeRepo.FindByID
 			nodeRepoIsNodeOnCooldownReturns: false,
-			nodeRepoIsNodeOnCooldownError: nil,
-			nodeRepoIsNodeOnNumOfCalls:    1,
+			nodeRepoIsNodeOnCooldownError:   nil,
+			nodeRepoIsNodeOnNumOfCalls:      1,
 			// NodeRepo.AddNodeToActive
 			nodeRepoAddNodeToActiveError:      nil,
 			nodeRepoAddNodeToActiveNumOfCalls: 1,
@@ -93,8 +94,8 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 			httpStatus: http.StatusOK,
 			// NodeRepo.FindByID
 			nodeRepoIsNodeOnCooldownReturns: true,
-			nodeRepoIsNodeOnCooldownError:      nil,
-			nodeRepoIsNodeOnNumOfCalls: 1,
+			nodeRepoIsNodeOnCooldownError:   nil,
+			nodeRepoIsNodeOnNumOfCalls:      1,
 			// NodeRepo.AddNodeToActive
 			nodeRepoAddNodeToActiveError:      nil,
 			nodeRepoAddNodeToActiveNumOfCalls: 0,
@@ -122,8 +123,8 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 			httpStatus: http.StatusOK,
 			// NodeRepo.FindByID
 			nodeRepoIsNodeOnCooldownReturns: false,
-			nodeRepoIsNodeOnCooldownError:      nil,
-			nodeRepoIsNodeOnNumOfCalls: 1,
+			nodeRepoIsNodeOnCooldownError:   nil,
+			nodeRepoIsNodeOnNumOfCalls:      1,
 			// NodeRepo.AddNodeToActive
 			nodeRepoAddNodeToActiveError:      nil,
 			nodeRepoAddNodeToActiveNumOfCalls: 0,
@@ -194,12 +195,14 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 			metricsRepoMock.On("Save", mock.Anything).Return(
 				test.metricsRepoSaveError,
 			)
+			downtimeRepoMock := mocks.DowntimeRepository{}
 
 			apiController := NewApiController(false, repositories.Repos{
-				NodeRepo:    &nodeRepoMock,
-				PingRepo:    &pingRepoMock,
-				MetricsRepo: &metricsRepoMock,
-				RecordRepo:  &recordRepoMock,
+				NodeRepo:     &nodeRepoMock,
+				PingRepo:     &pingRepoMock,
+				MetricsRepo:  &metricsRepoMock,
+				RecordRepo:   &recordRepoMock,
+				DowntimeRepo: &downtimeRepoMock,
 			}, nil)
 
 			handler := http.HandlerFunc(apiController.SaveMetricsHandler)

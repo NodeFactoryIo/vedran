@@ -12,6 +12,7 @@ type PingRepository interface {
 	Save(ping *models.Ping) error
 	GetAll() (*[]models.Ping, error)
 	ResetAllPings() error
+	CalculateDowntime(nodeId string, pingTime time.Time) (time.Time, time.Duration, error)
 }
 
 type pingRepo struct {
@@ -55,4 +56,13 @@ func (r *pingRepo) ResetAllPings() error {
 	}
 
 	return nil
+}
+
+func (r *pingRepo) CalculateDowntime(nodeId string, pingTime time.Time) (time.Time, time.Duration, error) {
+	lastPing, err := r.FindByNodeID(nodeId)
+	if err != nil {
+		return pingTime, time.Duration(0), err
+	}
+
+	return lastPing.Timestamp, lastPing.Timestamp.Sub(pingTime), nil
 }

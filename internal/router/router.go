@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/NodeFactoryIo/vedran/internal/actions"
+
 	"github.com/NodeFactoryIo/vedran/internal/controllers"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"github.com/gorilla/mux"
