@@ -19,6 +19,7 @@ type NodeRepository interface {
 	GetAll() (*[]models.Node, error)
 	GetActiveNodes(selection string) *[]models.Node
 	GetAllActiveNodes() *[]models.Node
+	IsNodeActive(ID string) bool
 	RemoveNodeFromActive(ID string) error
 	AddNodeToActive(ID string) error
 	RewardNode(node models.Node)
@@ -184,3 +185,13 @@ func (r *nodeRepo) IsNodeOnCooldown(ID string) (bool, error) {
 
 	return node.Cooldown != 0, err
 }
+
+func (r *nodeRepo) IsNodeActive(ID string) bool {
+	for _, node := range *r.GetAllActiveNodes() {
+		if node.ID == ID {
+			return true
+		}
+	}
+	return false
+}
+
