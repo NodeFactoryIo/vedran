@@ -61,6 +61,10 @@ func (r *pingRepo) ResetAllPings() error {
 func (r *pingRepo) CalculateDowntime(nodeId string, pingTime time.Time) (time.Time, time.Duration, error) {
 	lastPing, err := r.FindByNodeID(nodeId)
 	if err != nil {
+		if err.Error() == "not found" {
+			return pingTime, time.Duration(0), nil
+		}
+
 		return pingTime, time.Duration(0), err
 	}
 
