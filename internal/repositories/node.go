@@ -183,6 +183,10 @@ func (r *nodeRepo) IsNodeOnCooldown(ID string) (bool, error) {
 		return false, err
 	}
 
+	if node.Active == false {
+		return true, err
+	}
+
 	return node.Cooldown != 0, err
 }
 
@@ -194,4 +198,3 @@ func (r *nodeRepo) IsNodeActive(ID string) bool {
 	}
 	return false
 }
-
