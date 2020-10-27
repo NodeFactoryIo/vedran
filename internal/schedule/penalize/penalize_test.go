@@ -1,12 +1,14 @@
 package penalize
 
 import (
+	"testing"
+	"time"
+
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"github.com/NodeFactoryIo/vedran/internal/whitelist"
 	repoMocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
-	"testing"
-	"time"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestScheduleCheckForPenalizedNode(t *testing.T) {
@@ -17,6 +19,7 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 		increaseNodeCooldownNumberOfCalls int
 		addToActiveNode                   []models.Node
 		addToActiveNodesNumberOfCalls     int
+		setNodeAsInactiveNumberOfCalls    int
 		resetNodeCooldownNumberOfCalls    int
 		nodePing                          []*models.Ping
 		nodeMetrics                       []*models.Metrics
@@ -36,7 +39,8 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 					Cooldown: 0,
 				},
 			},
-			addToActiveNodesNumberOfCalls: 1,
+			addToActiveNodesNumberOfCalls:  1,
+			setNodeAsInactiveNumberOfCalls: 0,
 			resetNodeCooldownNumberOfCalls: 1,
 			nodePing: []*models.Ping{
 				{
@@ -57,7 +61,7 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 					FinalizedBlockHeight: 998,
 				},
 			},
-			increaseNodeCooldown: nil,
+			increaseNodeCooldown:              nil,
 			increaseNodeCooldownNumberOfCalls: 0,
 		},
 		{
@@ -73,7 +77,8 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 					Cooldown: 0,
 				},
 			},
-			addToActiveNodesNumberOfCalls: 1,
+			addToActiveNodesNumberOfCalls:  1,
+			setNodeAsInactiveNumberOfCalls: 0,
 			resetNodeCooldownNumberOfCalls: 1,
 			nodePing: []*models.Ping{
 				{
@@ -123,7 +128,8 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 					Cooldown: 0,
 				},
 			},
-			addToActiveNodesNumberOfCalls: 1,
+			addToActiveNodesNumberOfCalls:  1,
+			setNodeAsInactiveNumberOfCalls: 0,
 			resetNodeCooldownNumberOfCalls: 1,
 			nodePing: []*models.Ping{
 				{
@@ -182,8 +188,9 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 				ID:       "1",
 				Cooldown: 510,
 			},
-			addToActiveNode:                   nil,
-			addToActiveNodesNumberOfCalls:     0,
+			addToActiveNode:                nil,
+			addToActiveNodesNumberOfCalls:  0,
+			setNodeAsInactiveNumberOfCalls: 1,
 			resetNodeCooldownNumberOfCalls: 0,
 			nodePing: []*models.Ping{
 				{
@@ -238,6 +245,7 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 				ID:       test.nodeID,
 				Cooldown: 0,
 			}, nil)
+			nodeRepoMock.On("Save", mock.Anything).Return(nil)
 
 			// is mocked function called in test
 			if test.increaseNodeCooldown != nil {
@@ -297,6 +305,7 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 			nodeRepoMock.AssertNumberOfCalls(t, "AddNodeToActive", test.addToActiveNodesNumberOfCalls)
 			nodeRepoMock.AssertNumberOfCalls(t, "IncreaseNodeCooldown", test.increaseNodeCooldownNumberOfCalls)
 			nodeRepoMock.AssertNumberOfCalls(t, "ResetNodeCooldown", test.resetNodeCooldownNumberOfCalls)
+			nodeRepoMock.AssertNumberOfCalls(t, "Save", test.setNodeAsInactiveNumberOfCalls)
 		})
 	}
 }
