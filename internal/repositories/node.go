@@ -8,6 +8,7 @@ import (
 
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/asdine/storm/v3"
+	"github.com/asdine/storm/v3/q"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -18,6 +19,7 @@ type NodeRepository interface {
 	Save(node *models.Node) error
 	GetAll() (*[]models.Node, error)
 	GetActiveNodes(selection string) *[]models.Node
+	GetPenalizedNodes() (*[]models.Node, error)
 	GetAllActiveNodes() *[]models.Node
 	IsNodeActive(ID string) bool
 	RemoveNodeFromActive(ID string) error
@@ -95,6 +97,19 @@ func (r *nodeRepo) GetActiveNodes(selection string) *[]models.Node {
 
 func (r *nodeRepo) GetAllActiveNodes() *[]models.Node {
 	return &activeNodes
+}
+
+func (r *nodeRepo) GetPenalizedNodes() (*[]models.Node, error) {
+	var nodes []models.Node
+
+	query := r.db.Select(q.Gt("Cooldown", 0), q.StrictEq("Active", true))
+	err := query.Find(&nodes)
+
+	if err != nil && err.Error() == "not found" {
+		return &nodes, nil
+	}
+
+	return &nodes, err
 }
 
 func (r *nodeRepo) updateMemoryLastUsedTime(targetNode models.Node) {
@@ -183,7 +198,7 @@ func (r *nodeRepo) IsNodeOnCooldown(ID string) (bool, error) {
 		return false, err
 	}
 
-	if node.Active == false {
+	if !node.Active {
 		return true, err
 	}
 
