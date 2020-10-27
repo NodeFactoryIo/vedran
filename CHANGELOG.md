@@ -1,8 +1,19 @@
 # Changelog
 
+## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
+
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.2.0...HEAD)
+
+### Added
+- Check if port range valid [\#104](https://github.com/NodeFactoryIo/vedran/pull/104) ([mpetrun5](https://github.com/mpetrun5))
+
+### Fix
+
+### Changed
+
 ## [v0.2.0]((https://github.com/NodeFactoryIo/vedran/tree/v0.2.0))
 
-[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v.0.1.1...v.0.2.0)
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.1.1...v0.2.0)
 
 ### Added
 - Implement tunnel server in load balancer [\#63](https://github.com/NodeFactoryIo/vedran/pull/63) ([MakMuftic](https://github.com/MakMuftic))
@@ -28,7 +39,7 @@
 
 ## [v0.1.1]((https://github.com/NodeFactoryIo/vedran/tree/v0.1.1))
 
-[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v.0.1.0...v.0.1.1)
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.1.0...v0.1.1)
 
 ### Added
 - Docker compose setup [\#24](https://github.com/NodeFactoryIo/vedran/pull/24) ([MakMuftic](https://github.com/MakMuftic))

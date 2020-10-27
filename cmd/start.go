@@ -3,8 +3,10 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/internal/whitelist"
+	"strconv"
 	"strings"
+
+	"github.com/NodeFactoryIo/vedran/internal/whitelist"
 
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/ip"
@@ -80,6 +82,15 @@ var startCmd = &cobra.Command{
 		if !util.IsValidPortAsStr(prt[1]) {
 			return errors.New("invalid port number provided for max port inside port range")
 		}
+
+		minPort, _ := strconv.Atoi(prt[0])
+		maxPort, _ := strconv.Atoi(prt[1])
+		if capacity == -1 {
+			capacity = int64(maxPort - minPort)
+		} else if int64(maxPort-minPort) < capacity {
+			return errors.New("port range too small for target capacity")
+		}
+
 		if whitelistArray != nil && whitelistFile != "" {
 			return errors.New("only one flag for setting whitelisted nodes should be set")
 		}
