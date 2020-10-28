@@ -39,11 +39,11 @@ Note that if you need to do this, you probably want to add your Go bin directory
 
 ## Starting loadbalancer
 
-First download latest prebuilt binaries [from releases](https://github.com/NodeFactoryIo/vedran/releases).
+First download latest prebuilt binaries [from releases](https://github.com/NodeFactoryIo/vedran/releases) and unzip it.
 
 Load balancer is started by invoking **start** command.
 
-For example `./vedran-linux-amd64 start --auth-secret=supersecret`.
+For example `./vedran start --auth-secret=supersecret`.
 
 You can always run vedran with `--help` flag for list of all commands `vedran --help` or for list of all options for specific command `vedran start --help`.
 
