@@ -59,7 +59,7 @@ jobs:
       - name: Sign Windows Binary
         uses: jonfriesen/windows-signer-action@v0.0.1
         env:
-          NAME: SignerName
+          NAME: NodeFactory
           DOMAIN: https://nodefactory.io/
           BINARY: build/windows/vedran.exe
           WINDOWS_CERT: ${{ secrets.WINDOWS_CERT }}
