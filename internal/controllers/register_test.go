@@ -132,6 +132,7 @@ func TestApiController_RegisterHandler(t *testing.T) {
 				PayoutAddress: test.registerRequest.PayoutAddress,
 				Token:         test.registerResponse.Token,
 				LastUsed:      time.Now().Unix(),
+				Active:        true,
 			}).Return(test.saveMockReturns)
 
 			nodeRepoMock.On("FindByID", test.registerRequest.Id).Return(
