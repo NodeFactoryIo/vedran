@@ -56,6 +56,15 @@ jobs:
           version: ${{ needs.tag.outputs.tag }}
           path: ./CHANGELOG.md
 
+      - name: Sign Windows Binary
+        uses: jonfriesen/windows-signer-action@v0.0.1
+        env:
+          NAME: SignerName
+          DOMAIN: https://nodefactory.io/
+          BINARY: build/windows/vedran.exe
+          WINDOWS_CERT: ${{ secrets.WINDOWS_CERT }}
+          WINDOWS_KEY: ${{ secrets.WINDOWS_KEY }}
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -99,8 +108,8 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./build/linux-amd64/vedran-linux-amd64.zip
-          asset_name: vedran-linux-amd64
-          asset_content_type: application/x-binary
+          asset_name: vedran-linux-amd64.zip
+          asset_content_type: application/zip
 
       - name: Upload Linux Arm
         id: vedran-linux-arm
@@ -110,8 +119,8 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./build/linux-arm/vedran-linux-arm.zip
-          asset_name: vedran-linux-arm
-          asset_content_type: application/x-binary
+          asset_name: vedran-linux-arm.zip
+          asset_content_type: application/zip
 
       - name: Upload Windows
         id: vedran-windows
@@ -121,8 +130,8 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./build/windows/vedran-windows.zip
-          asset_name: vedran-windows
-          asset_content_type: application/x-binary
+          asset_name: vedran-windows.zip
+          asset_content_type: application/zip
 
       - name: Upload MacOS
         id: vedran-macos
@@ -132,8 +141,8 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./build/darwin-amd64/vedran-darwin-amd64.zip
-          asset_name: vedran-macos
-          asset_content_type: application/x-binary
+          asset_name: vedran-macos.zip
+          asset_content_type: application/zip
 
       #in case of failure
       - name: Rollback on failure
