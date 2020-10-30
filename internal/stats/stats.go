@@ -3,7 +3,7 @@ package stats
 import (
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
-	"math"
+	log "github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -11,68 +11,51 @@ const (
 	pingIntervalSeconds = 10
 )
 
-func CalculateStatisticsForPayout(repos repositories.Repos) (map[string]models.NodePaymentDetails, error) {
+func CalculateStatisticsForPayout(repos repositories.Repos, intervalStart time.Time, intervalEnd time.Time) (map[string]models.NodePaymentDetails, error) {
 	allNodes, err := repos.NodeRepo.GetAll()
 	if err != nil {
-		// todo
+		if err.Error() == "not found" {
+			log.Debugf("Unable to calculate statistics if there isn't any saved nodes")
+		}
 		return nil, err
 	}
 
-	IntervalStart := time.Now().Add(-48 * time.Hour)
-	IntervalEnd := time.Now()
-
 	var allNodesStats = make(map[string]models.NodePaymentDetails)
 	for _, node := range *allNodes {
-		recordsInInterval, err := repos.RecordRepo.FindSuccessfulRecordsInsideInterval(node.ID, IntervalStart, IntervalEnd)
+		nodeStats, err := CalculateStatisticsForNode(repos, node.ID, intervalStart, intervalEnd)
 		if err != nil {
-			if err.Error() == "not found" {
-				recordsInInterval = []models.Record{}
-			} else {
-				return nil, err
-			}
+			return nil, err
 		}
-		downtimesInInterval, err := repos.DowntimeRepo.FindDowntimesInsideInterval(node.ID, IntervalStart, IntervalEnd)
-		if err != nil {
-			if err.Error() == "not found" {
-				downtimesInInterval = []models.Downtime{}
-			} else {
-				return nil, err
-			}
-		}
-
-		totalTime := IntervalEnd.Sub(IntervalStart)
-		leftTime := totalTime
-		for _, downtime := range downtimesInInterval {
-			var downtimeLength time.Duration
-			// case 1: whole downtime inside interval
-			if downtime.Start.After(IntervalStart) && downtime.End.Before(IntervalEnd) {
-				downtimeLength = downtime.End.Sub(downtime.Start)
-			}
-			// case 2: downtime started before interval
-			if downtime.Start.Before(IntervalStart) {
-				downtimeLength = downtime.End.Sub(IntervalStart)
-			}
-			if downtimeLength == time.Duration(0) {
-				// todo
-			}
-			leftTime -= downtimeLength
-		}
-		// case 3: downtime still active
-		_, duration, err := repos.PingRepo.CalculateDowntime(node.ID, IntervalEnd)
-		if err != nil {
-			return nil, err // todo
-		}
-		if math.Abs(duration.Seconds()) > pingIntervalSeconds { // todo
-			leftTime -= duration
-		}
-
-		totalPings := leftTime.Seconds() / pingIntervalSeconds
-
-		allNodesStats[node.ID] = models.NodePaymentDetails{
-			TotalPings:    totalPings,
-			TotalRequests: float64(len(recordsInInterval)),
-		}
+		allNodesStats[node.ID] = *nodeStats
 	}
 
 	return allNodesStats, nil
 }
+
+func CalculateStatisticsForNode(
+	repos repositories.Repos,
+	nodeId string,
+	intervalStart time.Time,
+	intervalEnd time.Time,
+) (*models.NodePaymentDetails, error) {
+	recordsInInterval, err := repos.RecordRepo.FindSuccessfulRecordsInsideInterval(nodeId, intervalStart, intervalEnd)
+	if err != nil {
+		if err.Error() == "not found" {
+			recordsInInterval = []models.Record{}
+		} else {
+			return nil, err
+		}
+	}
+
+	totalPings, err := CalculateTotalPingsForNode(repos, nodeId, intervalStart, intervalEnd)
+	if err != nil {
+		log.Errorf("Unable to calculate total number of pings for node %s, because %v", nodeId, err)
+		return nil, err
+	}
+
+	return &models.NodePaymentDetails{
+		TotalPings:    totalPings,
+		TotalRequests: float64(len(recordsInInterval)),
+	}, nil
+}
+
