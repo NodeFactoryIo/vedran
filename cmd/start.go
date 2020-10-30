@@ -160,7 +160,7 @@ func init() {
 	startCmd.Flags().Int32Var(
 		&serverPort,
 		"server-port",
-		4000,
+		80,
 		"[OPTIONAL] Port on which load balancer rpc server will be started")
 
 	startCmd.Flags().StringVar(
