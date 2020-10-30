@@ -45,10 +45,10 @@ func CalculateTotalPingsForNode(
 		// if node was down for entire observed interval
 		return 0, nil
 	}
-	if math.Abs(duration.Seconds()) > pingIntervalSeconds {
+	if math.Abs(duration.Seconds()) > PingIntervalInSeconds {
 		leftTime -= duration
 	}
 
-	totalPings := leftTime.Seconds() / pingIntervalSeconds
+	totalPings := leftTime.Seconds() / PingIntervalInSeconds
 	return totalPings, nil
 }

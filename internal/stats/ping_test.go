@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func TestCalculateTotalPingsForNode(t *testing.T) {
+func Test_CalculateTotalPingsForNode(t *testing.T) {
 	now := time.Now()
 
 	tests := []struct {
@@ -46,7 +46,7 @@ func TestCalculateTotalPingsForNode(t *testing.T) {
 			pingRepoCalculateDowntimeNumOfCalls:     1,
 			// [total_interval - total_downtime]   / ping_interval = num_of_pings
 			// [24h (86400s) - 0min (0s)]          / 10            = 8640
-			calculateTotalPingsForNodeReturns: float64(8640),
+			calculateTotalPingsForNodeReturns: float64(86400 / PingIntervalInSeconds),
 			calculateTotalPingsForNodeError:   nil,
 		},
 		{
@@ -84,7 +84,7 @@ func TestCalculateTotalPingsForNode(t *testing.T) {
 			pingRepoCalculateDowntimeNumOfCalls:     1,
 			// [total_interval - total_downtime]   / ping_interval = num_of_pings
 			// [24h (86400s) - 1h20min20s (4820s)] / 10            = 8158
-			calculateTotalPingsForNodeReturns: float64(8158),
+			calculateTotalPingsForNodeReturns: float64(81580 / PingIntervalInSeconds),
 			calculateTotalPingsForNodeError:   nil,
 		},
 		{
@@ -110,7 +110,7 @@ func TestCalculateTotalPingsForNode(t *testing.T) {
 			pingRepoCalculateDowntimeNumOfCalls:     1,
 			// [total_interval - total_downtime]   / ping_interval = num_of_pings
 			// [24h (86400s) - 30min (1800s)]      / 10            = 8460
-			calculateTotalPingsForNodeReturns: float64(8460),
+			calculateTotalPingsForNodeReturns: float64(84600 / PingIntervalInSeconds),
 			calculateTotalPingsForNodeError:   nil,
 		},
 		{
@@ -129,7 +129,7 @@ func TestCalculateTotalPingsForNode(t *testing.T) {
 			pingRepoCalculateDowntimeNumOfCalls:     1,
 			// [total_interval - total_downtime]   / ping_interval = num_of_pings
 			// [24h (86400s) - 30min (1800s)]      / 10            = 8460
-			calculateTotalPingsForNodeReturns: float64(8460),
+			calculateTotalPingsForNodeReturns: float64(84600 / PingIntervalInSeconds),
 			calculateTotalPingsForNodeError:   nil,
 		},
 		{
@@ -161,7 +161,7 @@ func TestCalculateTotalPingsForNode(t *testing.T) {
 			pingRepoCalculateDowntimeNumOfCalls:     1,
 			// [total_interval - total_downtime]   / ping_interval = num_of_pings
 			// [24h (86400s) - 3x20min (3600s)]    / 10            = 8280
-			calculateTotalPingsForNodeReturns: float64(8280),
+			calculateTotalPingsForNodeReturns: float64(82800 / PingIntervalInSeconds),
 			calculateTotalPingsForNodeError:   nil,
 		},
 		{

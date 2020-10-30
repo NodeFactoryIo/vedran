@@ -7,11 +7,13 @@ import (
 	"time"
 )
 
-const (
-	pingIntervalSeconds = 10
-)
+// CalculateStatisticsForInterval TODO
+func CalculateStatisticsForInterval(
+	repos repositories.Repos,
+	intervalStart time.Time,
+	intervalEnd time.Time,
+) (map[string]models.NodeStatsDetails, error) {
 
-func CalculateStatisticsForPayout(repos repositories.Repos, intervalStart time.Time, intervalEnd time.Time) (map[string]models.NodePaymentDetails, error) {
 	allNodes, err := repos.NodeRepo.GetAll()
 	if err != nil {
 		if err.Error() == "not found" {
@@ -20,9 +22,9 @@ func CalculateStatisticsForPayout(repos repositories.Repos, intervalStart time.T
 		return nil, err
 	}
 
-	var allNodesStats = make(map[string]models.NodePaymentDetails)
+	var allNodesStats = make(map[string]models.NodeStatsDetails)
 	for _, node := range *allNodes {
-		nodeStats, err := CalculateStatisticsForNode(repos, node.ID, intervalStart, intervalEnd)
+		nodeStats, err := CalculateNodeStatisticsForInterval(repos, node.ID, intervalStart, intervalEnd)
 		if err != nil {
 			return nil, err
 		}
@@ -32,12 +34,13 @@ func CalculateStatisticsForPayout(repos repositories.Repos, intervalStart time.T
 	return allNodesStats, nil
 }
 
-func CalculateStatisticsForNode(
+// CalculateNodeStatisticsForInterval TODO
+func CalculateNodeStatisticsForInterval(
 	repos repositories.Repos,
 	nodeId string,
 	intervalStart time.Time,
 	intervalEnd time.Time,
-) (*models.NodePaymentDetails, error) {
+) (*models.NodeStatsDetails, error) {
 	recordsInInterval, err := repos.RecordRepo.FindSuccessfulRecordsInsideInterval(nodeId, intervalStart, intervalEnd)
 	if err != nil {
 		if err.Error() == "not found" {
@@ -53,9 +56,8 @@ func CalculateStatisticsForNode(
 		return nil, err
 	}
 
-	return &models.NodePaymentDetails{
+	return &models.NodeStatsDetails{
 		TotalPings:    totalPings,
 		TotalRequests: float64(len(recordsInInterval)),
 	}, nil
 }
-

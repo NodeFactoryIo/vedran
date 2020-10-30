@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func TestCalculateStatisticsForNode(t *testing.T) {
+func Test_CalculateStatisticsForNode(t *testing.T) {
 	now := time.Now()
 
 	tests := []struct {
@@ -30,9 +30,9 @@ func TestCalculateStatisticsForNode(t *testing.T) {
 		pingRepoCalculateDowntimeReturnDuration time.Duration
 		pingRepoCalculateDowntimeError          error
 		pingRepoCalculateDowntimeNumOfCalls     int
-		// CalculateStatisticsForNode
-		calculateStatisticsForNodeReturns *models.NodePaymentDetails
-		calculateStatisticsForNodeError   error
+		// CalculateNodeStatisticsForInterval
+		calculateNodeStatisticsForIntervalReturns *models.NodeStatsDetails
+		calculateNodeStatisticsForIntervalError   error
 	}{
 		{
 			name:   "valid statistics with multiple records and no downtime",
@@ -58,12 +58,12 @@ func TestCalculateStatisticsForNode(t *testing.T) {
 			pingRepoCalculateDowntimeReturnDuration: 5 * time.Second,
 			pingRepoCalculateDowntimeError:          nil,
 			pingRepoCalculateDowntimeNumOfCalls:     1,
-			// CalculateStatisticsForNode
-			calculateStatisticsForNodeReturns: &models.NodePaymentDetails{
+			// CalculateNodeStatisticsForInterval
+			calculateNodeStatisticsForIntervalReturns: &models.NodeStatsDetails{
 				TotalPings:    8640, // no downtime - max number of pings
 				TotalRequests: 5,
 			},
-			calculateStatisticsForNodeError: nil,
+			calculateNodeStatisticsForIntervalError: nil,
 		},
 		{
 			name:          "valid statistics with no records and no downtime",
@@ -82,12 +82,12 @@ func TestCalculateStatisticsForNode(t *testing.T) {
 			pingRepoCalculateDowntimeReturnDuration: 5 * time.Second,
 			pingRepoCalculateDowntimeError:          nil,
 			pingRepoCalculateDowntimeNumOfCalls:     1,
-			// CalculateStatisticsForNode
-			calculateStatisticsForNodeReturns: &models.NodePaymentDetails{
+			// CalculateNodeStatisticsForInterval
+			calculateNodeStatisticsForIntervalReturns: &models.NodeStatsDetails{
 				TotalPings:    8640, // no downtime - max number of pings
 				TotalRequests: 0,
 			},
-			calculateStatisticsForNodeError: nil,
+			calculateNodeStatisticsForIntervalError: nil,
 		},
 		{
 			name:          "error on fetching records",
@@ -98,9 +98,9 @@ func TestCalculateStatisticsForNode(t *testing.T) {
 			recordRepoFindSuccessfulRecordsInsideIntervalReturns:    nil,
 			recordRepoFindSuccessfulRecordsInsideIntervalError:      errors.New("db error"),
 			recordRepoFindSuccessfulRecordsInsideIntervalNumOfCalls: 1,
-			// CalculateStatisticsForNode
-			calculateStatisticsForNodeReturns: nil,
-			calculateStatisticsForNodeError:   errors.New("db error"),
+			// CalculateNodeStatisticsForInterval
+			calculateNodeStatisticsForIntervalReturns: nil,
+			calculateNodeStatisticsForIntervalError:   errors.New("db error"),
 		},
 		{
 			name:          "error on fetching pings",
@@ -115,9 +115,9 @@ func TestCalculateStatisticsForNode(t *testing.T) {
 			downtimeRepoFindDowntimesInsideIntervalReturns:    nil,
 			downtimeRepoFindDowntimesInsideIntervalError:      errors.New("db error"),
 			downtimeRepoFindDowntimesInsideIntervalNumOfCalls: 1,
-			// CalculateStatisticsForNode
-			calculateStatisticsForNodeReturns: nil,
-			calculateStatisticsForNodeError:   errors.New("db error"),
+			// CalculateNodeStatisticsForInterval
+			calculateNodeStatisticsForIntervalReturns: nil,
+			calculateNodeStatisticsForIntervalError:   errors.New("db error"),
 		},
 	}
 	for _, test := range tests {
@@ -151,10 +151,10 @@ func TestCalculateStatisticsForNode(t *testing.T) {
 				DowntimeRepo: &downtimeRepoMock,
 			}
 
-			statisticsForPayout, err := CalculateStatisticsForNode(repos, test.nodeID, test.intervalStart, test.intervalEnd)
+			statisticsForPayout, err := CalculateNodeStatisticsForInterval(repos, test.nodeID, test.intervalStart, test.intervalEnd)
 
-			assert.Equal(t, test.calculateStatisticsForNodeError, err)
-			assert.Equal(t, test.calculateStatisticsForNodeReturns, statisticsForPayout)
+			assert.Equal(t, test.calculateNodeStatisticsForIntervalError, err)
+			assert.Equal(t, test.calculateNodeStatisticsForIntervalReturns, statisticsForPayout)
 
 			recordRepoMock.AssertNumberOfCalls(t,
 				"FindSuccessfulRecordsInsideInterval",
@@ -172,7 +172,7 @@ func TestCalculateStatisticsForNode(t *testing.T) {
 	}
 }
 
-func TestCalculateStatisticsForPayout(t *testing.T) {
+func Test_CalculateStatisticsForPayout(t *testing.T) {
 	now := time.Now()
 
 	tests := []struct {
@@ -196,9 +196,9 @@ func TestCalculateStatisticsForPayout(t *testing.T) {
 		pingRepoCalculateDowntimeReturnDuration time.Duration
 		pingRepoCalculateDowntimeError          error
 		pingRepoCalculateDowntimeNumOfCalls     int
-		// CalculateStatisticsForNode
-		calculateStatisticsForPayoutReturns map[string]models.NodePaymentDetails
-		calculateStatisticsForPayoutError   error
+		// CalculateNodeStatisticsForInterval
+		calculateStatisticsForIntervalReturns map[string]models.NodeStatsDetails
+		calculateStatisticsForIntervalError   error
 	}{
 		{
 			name:   "valid statistics with multiple records and no downtime",
@@ -232,14 +232,14 @@ func TestCalculateStatisticsForPayout(t *testing.T) {
 			pingRepoCalculateDowntimeReturnDuration: 5 * time.Second,
 			pingRepoCalculateDowntimeError:          nil,
 			pingRepoCalculateDowntimeNumOfCalls:     1,
-			// CalculateStatisticsForNode
-			calculateStatisticsForPayoutReturns: map[string]models.NodePaymentDetails{
+			// CalculateNodeStatisticsForInterval
+			calculateStatisticsForIntervalReturns: map[string]models.NodeStatsDetails{
 				"1": {
 					TotalPings:    8640, // no downtime - max number of pings
 					TotalRequests: 5,
 				},
 			},
-			calculateStatisticsForPayoutError: nil,
+			calculateStatisticsForIntervalError: nil,
 		},
 		{
 			name:   "get all nodes fails",
@@ -248,12 +248,12 @@ func TestCalculateStatisticsForPayout(t *testing.T) {
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,
 			// NodeRepo.GetAll
-			nodeRepoGetAllReturns: nil,
+			nodeRepoGetAllReturns:    nil,
 			nodeRepoGetAllError:      errors.New("not found"),
 			nodeRepoGetAllNumOfCalls: 1,
-			// CalculateStatisticsForNode
-			calculateStatisticsForPayoutReturns: nil,
-			calculateStatisticsForPayoutError: errors.New("not found"),
+			// CalculateNodeStatisticsForInterval
+			calculateStatisticsForIntervalReturns: nil,
+			calculateStatisticsForIntervalError:   errors.New("not found"),
 		},
 		{
 			name:   "calculating statistics for node fails",
@@ -273,9 +273,9 @@ func TestCalculateStatisticsForPayout(t *testing.T) {
 			recordRepoFindSuccessfulRecordsInsideIntervalReturns:    nil,
 			recordRepoFindSuccessfulRecordsInsideIntervalError:      errors.New("db error"),
 			recordRepoFindSuccessfulRecordsInsideIntervalNumOfCalls: 1,
-			// CalculateStatisticsForNode
-			calculateStatisticsForPayoutReturns: nil,
-			calculateStatisticsForPayoutError:   errors.New("db error"),
+			// CalculateNodeStatisticsForInterval
+			calculateStatisticsForIntervalReturns: nil,
+			calculateStatisticsForIntervalError:   errors.New("db error"),
 		},
 	}
 
@@ -315,10 +315,10 @@ func TestCalculateStatisticsForPayout(t *testing.T) {
 				NodeRepo:     &nodeRepoMock,
 			}
 
-			statisticsForPayout, err := CalculateStatisticsForPayout(repos, test.intervalStart, test.intervalEnd)
+			statisticsForPayout, err := CalculateStatisticsForInterval(repos, test.intervalStart, test.intervalEnd)
 
-			assert.Equal(t, test.calculateStatisticsForPayoutError, err)
-			assert.Equal(t, test.calculateStatisticsForPayoutReturns, statisticsForPayout)
+			assert.Equal(t, test.calculateStatisticsForIntervalError, err)
+			assert.Equal(t, test.calculateStatisticsForIntervalReturns, statisticsForPayout)
 
 			nodeRepoMock.AssertNumberOfCalls(t,
 				"GetAll",
