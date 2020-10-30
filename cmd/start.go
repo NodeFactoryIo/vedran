@@ -24,6 +24,8 @@ var (
 	// load balancer related flags
 	authSecret     string
 	name           string
+	certFile       string
+	keyFile        string
 	capacity       int64
 	whitelistArray []string
 	whitelistFile  string
@@ -143,6 +145,18 @@ func init() {
 		"round-robin",
 		"[OPTIONAL] Type of selection used for choosing nodes (round-robin, random)")
 
+	startCmd.Flags().StringVar(
+		&certFile,
+		"cert-file",
+		"",
+		"[OPTIONAL] SSL certificate file")
+
+	startCmd.Flags().StringVar(
+		&keyFile,
+		"key-file",
+		"",
+		"[OPTIONAL] SSL matching private key")
+
 	startCmd.Flags().Int32Var(
 		&serverPort,
 		"server-port",
@@ -216,6 +230,8 @@ func startCommand(_ *cobra.Command, _ []string) {
 	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
 		AuthSecret:          authSecret,
 		Name:                name,
+		CertFile:            certFile,
+		KeyFile:             keyFile,
 		Capacity:            capacity,
 		Fee:                 fee,
 		Selection:           selection,
