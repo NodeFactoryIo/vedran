@@ -85,6 +85,11 @@ var startCmd = &cobra.Command{
 			return errors.New("invalid port number provided for max port inside port range")
 		}
 
+		// valid certificates
+		if (certFile != "" && keyFile == "") || (keyFile != "" && certFile == "") {
+			return errors.New("both cert and key file flags need to be set for valid certificate")
+		}
+
 		minPort, _ := strconv.Atoi(prt[0])
 		maxPort, _ := strconv.Atoi(prt[1])
 		if capacity == -1 {
