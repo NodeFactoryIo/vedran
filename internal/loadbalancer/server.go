@@ -9,6 +9,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"github.com/NodeFactoryIo/vedran/internal/router"
 	"github.com/NodeFactoryIo/vedran/internal/schedule/checkactive"
+	"github.com/NodeFactoryIo/vedran/internal/schedule/penalize"
 	"github.com/asdine/storm/v3"
 	log "github.com/sirupsen/logrus"
 )
@@ -42,6 +43,15 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 	err = repos.PingRepo.ResetAllPings()
 	if err != nil {
 		log.Fatalf("Failed reseting pings because of: %v", err)
+	}
+
+	penalizedNodes, err := repos.NodeRepo.GetPenalizedNodes()
+	if err != nil {
+		log.Fatalf("Failed fetching penalized nodes because of: %v", err)
+	}
+
+	for _, node := range *penalizedNodes {
+		go penalize.ScheduleCheckForPenalizedNode(node, *repos)
 	}
 
 	// starts task that checks active nodes

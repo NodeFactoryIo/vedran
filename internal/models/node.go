@@ -7,5 +7,5 @@ type Node struct {
 	Token         string
 	Cooldown      int
 	LastUsed      int64
+	Active        bool
 }
-
