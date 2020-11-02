@@ -128,7 +128,6 @@ func SendRequestToNode(isBatch bool, nodeID string, reqBody []byte) ([]byte, err
 		return nil, err
 	}
 
-	var _ interface{}
 	if isBatch {
 		_, err = CheckBatchRPCResponse(body)
 	} else {
