@@ -169,7 +169,7 @@ func TestSendRequestToNode(t *testing.T) {
 				return
 			}
 
-			if bytes.Compare(got, tt.want) != 0 {
+			if bytes.Compare(got, tt.want) == 1 {
 				t.Errorf("SendRequestToNode() = %v, want %v", got, tt.want)
 			}
 
