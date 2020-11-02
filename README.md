@@ -50,7 +50,7 @@ You can always run vedran with `--help` flag for list of all commands `vedran --
 **Load balancer will expose Polkadot RPC API on port 80 by default (can be changed using flag `--server-port`)**
 
 
-**For production use [certificates](https://certbot.eff.org/) should be generated and passsed via flags: `--key-file`, `--cert-file` and port changed to 443**
+**For production use certificates (e.g. https://certbot.eff.org/) should be generated and passsed via flags: `--key-file`, `--cert-file` and port changed to 443**
 
 Start command will start application on 2 ports that need to be exposed to public:
  1. - RPC entrypoint to nodes and API for nodes to register to load balancer (default: 80)
