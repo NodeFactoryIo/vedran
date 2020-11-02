@@ -11,11 +11,11 @@ type PaymentRepository struct {
 }
 
 // Save provides a mock function with given fields: payment
-func (_m *PaymentRepository) Save(payment *models.Payment) error {
+func (_m *PaymentRepository) Save(payment *models.Payout) error {
 	ret := _m.Called(payment)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Payment) error); ok {
+	if rf, ok := ret.Get(0).(func(*models.Payout) error); ok {
 		r0 = rf(payment)
 	} else {
 		r0 = ret.Error(0)

@@ -7,5 +7,5 @@ type Repos struct {
 	MetricsRepo  MetricsRepository
 	RecordRepo   RecordRepository
 	DowntimeRepo DowntimeRepository
-	PaymentRepo  PaymentRepository
+	PayoutRepo   PayoutRepository
 }
