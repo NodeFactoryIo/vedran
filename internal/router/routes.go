@@ -27,4 +27,6 @@ func createRoutes(apiController *controllers.ApiController, router *mux.Router) 
 	createRoute("/api/v1/nodes", "POST", apiController.RegisterHandler, router, false)
 	createRoute("/api/v1/nodes/pings", "POST", apiController.PingHandler, router, true)
 	createRoute("/api/v1/nodes/metrics", "PUT", apiController.SaveMetricsHandler, router, true)
+	createRoute("/api/v1/stats", "GET", apiController.StatisticsHandlerAllStats, router, false)
+	createRoute("/api/v1/stats/node/{id}", "GET", apiController.StatisticsHandlerStatsForNode, router, false)
 }
