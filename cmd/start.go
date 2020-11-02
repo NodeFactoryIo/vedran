@@ -24,6 +24,8 @@ var (
 	// load balancer related flags
 	authSecret     string
 	name           string
+	certFile       string
+	keyFile        string
 	capacity       int64
 	whitelistArray []string
 	whitelistFile  string
@@ -81,6 +83,11 @@ var startCmd = &cobra.Command{
 		}
 		if !util.IsValidPortAsStr(prt[1]) {
 			return errors.New("invalid port number provided for max port inside port range")
+		}
+
+		// valid certificates
+		if (certFile != "" && keyFile == "") || (keyFile != "" && certFile == "") {
+			return errors.New("both cert and key file flags need to be set for valid certificate")
 		}
 
 		minPort, _ := strconv.Atoi(prt[0])
@@ -143,10 +150,22 @@ func init() {
 		"round-robin",
 		"[OPTIONAL] Type of selection used for choosing nodes (round-robin, random)")
 
+	startCmd.Flags().StringVar(
+		&certFile,
+		"cert-file",
+		"",
+		"[OPTIONAL] SSL certificate file")
+
+	startCmd.Flags().StringVar(
+		&keyFile,
+		"key-file",
+		"",
+		"[OPTIONAL] SSL matching private key")
+
 	startCmd.Flags().Int32Var(
 		&serverPort,
 		"server-port",
-		4000,
+		80,
 		"[OPTIONAL] Port on which load balancer rpc server will be started")
 
 	startCmd.Flags().StringVar(
@@ -216,6 +235,8 @@ func startCommand(_ *cobra.Command, _ []string) {
 	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
 		AuthSecret:          authSecret,
 		Name:                name,
+		CertFile:            certFile,
+		KeyFile:             keyFile,
 		Capacity:            capacity,
 		Fee:                 fee,
 		Selection:           selection,

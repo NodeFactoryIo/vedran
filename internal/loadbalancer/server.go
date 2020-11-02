@@ -59,7 +59,11 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 	// start server
 	log.Infof("Starting vedran load balancer on port :%d...", props.Port)
 	r := router.CreateNewApiRouter(*repos, props.WhitelistEnabled)
-	err = http.ListenAndServe(fmt.Sprintf(":%d", props.Port), r)
+	if props.CertFile != "" {
+		err = http.ListenAndServeTLS(fmt.Sprintf(":%d", props.Port), props.CertFile, props.KeyFile, r)
+	} else {
+		err = http.ListenAndServe(fmt.Sprintf(":%d", props.Port), r)
+	}
 	if err != nil {
 		log.Error(err)
 	}

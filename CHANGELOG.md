@@ -7,6 +7,7 @@
 ### Added
 - Check if port range valid [\#104](https://github.com/NodeFactoryIo/vedran/pull/104) ([mpetrun5](https://github.com/mpetrun5))
 - Valid flag on node [\#105](https://github.com/NodeFactoryIo/vedran/pull/105) ([mpetrun5](https://github.com/mpetrun5))
+- Passing SSL certificates [\#112](https://github.com/NodeFactoryIo/vedran/pull/112) ([mpetrun5](https://github.com/mpetrun5))
 
 ### Fix
 
