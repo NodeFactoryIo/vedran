@@ -2,12 +2,12 @@ package models
 
 import "time"
 
-type Payment struct {
+type Payout struct {
 	Timestamp      time.Time `json:"timestamp"`
-	PaymentDetails map[string]NodePaymentDetails
+	PaymentDetails map[string]NodeStatsDetails
 }
 
-type NodePaymentDetails struct {
+type NodeStatsDetails struct {
 	TotalPings    float64 `json:"total_pings"`
 	TotalRequests float64 `json:"total_requests"`
 }

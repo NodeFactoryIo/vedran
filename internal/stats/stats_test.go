@@ -10,7 +10,307 @@ import (
 	"time"
 )
 
-func Test_CalculateStatisticsForNode(t *testing.T) {
+func Test_CalculateNodeStatisticsFromLastPayout(t *testing.T) {
+	now := time.Now()
+	nowFunc = func() time.Time {
+		return now
+	}
+	tests := []struct {
+		name          string
+		nodeID        string
+		intervalStart time.Time
+		intervalEnd   time.Time
+		// RecordRepo.FindByNodeID
+		recordRepoFindSuccessfulRecordsInsideIntervalReturns    []models.Record
+		recordRepoFindSuccessfulRecordsInsideIntervalError      error
+		recordRepoFindSuccessfulRecordsInsideIntervalNumOfCalls int
+		// DowntimeRepo.FindByNodeID
+		downtimeRepoFindDowntimesInsideIntervalReturns    []models.Downtime
+		downtimeRepoFindDowntimesInsideIntervalError      error
+		downtimeRepoFindDowntimesInsideIntervalNumOfCalls int
+		// PingRepo.CalculateDowntime
+		pingRepoCalculateDowntimeReturnDuration time.Duration
+		pingRepoCalculateDowntimeError          error
+		pingRepoCalculateDowntimeNumOfCalls     int
+		// PayoutRepo.FindLatestPayout
+		payoutRepoFindLatestPayoutReturns    *models.Payout
+		payoutRepoFindLatestPayoutError      error
+		payoutRepoFindLatestPayoutNumOfCalls int
+		// CalculateNodeStatisticsForInterval
+		calculateNodeStatisticsFromLastPayoutReturns *models.NodeStatsDetails
+		calculateNodeStatisticsFromLastPayoutError   error
+	}{
+		{
+			name:          "valid statistics with no records and no downtime",
+			nodeID:        "1",
+			intervalStart: now.Add(-24 * time.Hour),
+			intervalEnd:   now,
+			// RecordRepo.FindByNodeID
+			recordRepoFindSuccessfulRecordsInsideIntervalReturns:    nil,
+			recordRepoFindSuccessfulRecordsInsideIntervalError:      errors.New("not found"),
+			recordRepoFindSuccessfulRecordsInsideIntervalNumOfCalls: 1,
+			// DowntimeRepo.FindByNodeID
+			downtimeRepoFindDowntimesInsideIntervalReturns:    nil,
+			downtimeRepoFindDowntimesInsideIntervalError:      errors.New("not found"),
+			downtimeRepoFindDowntimesInsideIntervalNumOfCalls: 1,
+			// PingRepo.CalculateDowntime
+			pingRepoCalculateDowntimeReturnDuration: 5 * time.Second,
+			pingRepoCalculateDowntimeError:          nil,
+			pingRepoCalculateDowntimeNumOfCalls:     1,
+			// PayoutRepo.FindLatestPayout
+			payoutRepoFindLatestPayoutReturns: &models.Payout{
+				Timestamp:      now.Add(-24 * time.Hour),
+				PaymentDetails: nil,
+			},
+			payoutRepoFindLatestPayoutError:      nil,
+			payoutRepoFindLatestPayoutNumOfCalls: 1,
+			// CalculateNodeStatisticsForInterval
+			calculateNodeStatisticsFromLastPayoutReturns: &models.NodeStatsDetails{
+				TotalPings:    8640, // no downtime - max number of pings
+				TotalRequests: 0,
+			},
+			calculateNodeStatisticsFromLastPayoutError: nil,
+		},
+		{
+			name:          "error on fetching latest payout",
+			nodeID:        "1",
+			intervalStart: now.Add(-24 * time.Hour),
+			intervalEnd:   now,
+			// PayoutRepo.FindLatestPayout
+			payoutRepoFindLatestPayoutReturns:    nil,
+			payoutRepoFindLatestPayoutError:      errors.New("db error"),
+			payoutRepoFindLatestPayoutNumOfCalls: 1,
+			// CalculateNodeStatisticsForInterval
+			calculateNodeStatisticsFromLastPayoutReturns: nil,
+			calculateNodeStatisticsFromLastPayoutError:   errors.New("db error"),
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			// create mock controller
+			recordRepoMock := mocks.RecordRepository{}
+			recordRepoMock.On("FindSuccessfulRecordsInsideInterval",
+				test.nodeID, test.intervalStart, test.intervalEnd,
+			).Return(
+				test.recordRepoFindSuccessfulRecordsInsideIntervalReturns,
+				test.recordRepoFindSuccessfulRecordsInsideIntervalError,
+			)
+			downtimeRepoMock := mocks.DowntimeRepository{}
+			downtimeRepoMock.On("FindDowntimesInsideInterval",
+				test.nodeID, test.intervalStart, test.intervalEnd,
+			).Return(
+				test.downtimeRepoFindDowntimesInsideIntervalReturns,
+				test.downtimeRepoFindDowntimesInsideIntervalError,
+			)
+			pingRepoMock := mocks.PingRepository{}
+			pingRepoMock.On("CalculateDowntime",
+				test.nodeID, test.intervalEnd,
+			).Return(
+				time.Now(),
+				test.pingRepoCalculateDowntimeReturnDuration,
+				test.pingRepoCalculateDowntimeError,
+			)
+			payoutRepoMock := mocks.PayoutRepository{}
+			payoutRepoMock.On("FindLatestPayout").Return(
+				test.payoutRepoFindLatestPayoutReturns,
+				test.payoutRepoFindLatestPayoutError,
+			)
+			repos := repositories.Repos{
+				PingRepo:     &pingRepoMock,
+				RecordRepo:   &recordRepoMock,
+				DowntimeRepo: &downtimeRepoMock,
+				PayoutRepo:   &payoutRepoMock,
+			}
+
+			statisticsForPayout, err := CalculateNodeStatisticsFromLastPayout(repos, test.nodeID)
+
+			assert.Equal(t, test.calculateNodeStatisticsFromLastPayoutError, err)
+			assert.Equal(t, test.calculateNodeStatisticsFromLastPayoutReturns, statisticsForPayout)
+
+			recordRepoMock.AssertNumberOfCalls(t,
+				"FindSuccessfulRecordsInsideInterval",
+				test.recordRepoFindSuccessfulRecordsInsideIntervalNumOfCalls,
+			)
+			downtimeRepoMock.AssertNumberOfCalls(t,
+				"FindDowntimesInsideInterval",
+				test.downtimeRepoFindDowntimesInsideIntervalNumOfCalls,
+			)
+			pingRepoMock.AssertNumberOfCalls(t,
+				"CalculateDowntime",
+				test.pingRepoCalculateDowntimeNumOfCalls,
+			)
+			payoutRepoMock.AssertNumberOfCalls(t,
+				"FindLatestPayout",
+				test.payoutRepoFindLatestPayoutNumOfCalls,
+			)
+		})
+	}
+	nowFunc = time.Now
+}
+
+func Test_CalculateStatisticsFromLastPayout(t *testing.T) {
+	now := time.Now()
+	nowFunc = func() time.Time {
+		return now
+	}
+
+	tests := []struct {
+		name          string
+		nodeID        string
+		intervalStart time.Time
+		intervalEnd   time.Time
+		// NodeRepo.GetAll
+		nodeRepoGetAllReturns    *[]models.Node
+		nodeRepoGetAllError      error
+		nodeRepoGetAllNumOfCalls int
+		// RecordRepo.FindByNodeID
+		recordRepoFindSuccessfulRecordsInsideIntervalReturns    []models.Record
+		recordRepoFindSuccessfulRecordsInsideIntervalError      error
+		recordRepoFindSuccessfulRecordsInsideIntervalNumOfCalls int
+		// DowntimeRepo.FindByNodeID
+		downtimeRepoFindDowntimesInsideIntervalReturns    []models.Downtime
+		downtimeRepoFindDowntimesInsideIntervalError      error
+		downtimeRepoFindDowntimesInsideIntervalNumOfCalls int
+		// PingRepo.CalculateDowntime
+		pingRepoCalculateDowntimeReturnDuration time.Duration
+		pingRepoCalculateDowntimeError          error
+		pingRepoCalculateDowntimeNumOfCalls     int
+		// PayoutRepo.FindLatestPayout
+		payoutRepoFindLatestPayoutReturns    *models.Payout
+		payoutRepoFindLatestPayoutError      error
+		payoutRepoFindLatestPayoutNumOfCalls int
+		// CalculateNodeStatisticsForInterval
+		calculateStatisticsFromLastPayoutReturns map[string]models.NodeStatsDetails
+		calculateStatisticsFromLastPayoutError   error
+	}{
+		{
+			name:   "valid statistics with multiple records and no downtime",
+			nodeID: "1",
+			// interval of 24 hours
+			intervalStart: now.Add(-24 * time.Hour),
+			intervalEnd:   now,
+			// NodeRepo.GetAll
+			nodeRepoGetAllReturns: &[]models.Node{
+				{
+					ID: "1",
+				},
+			},
+			nodeRepoGetAllError:      nil,
+			nodeRepoGetAllNumOfCalls: 1,
+			// RecordRepo.FindByNodeID
+			recordRepoFindSuccessfulRecordsInsideIntervalReturns:    nil,
+			recordRepoFindSuccessfulRecordsInsideIntervalError:      errors.New("not found"),
+			recordRepoFindSuccessfulRecordsInsideIntervalNumOfCalls: 1,
+			// DowntimeRepo.FindByNodeID
+			downtimeRepoFindDowntimesInsideIntervalReturns:    nil,
+			downtimeRepoFindDowntimesInsideIntervalError:      errors.New("not found"),
+			downtimeRepoFindDowntimesInsideIntervalNumOfCalls: 1,
+			// PingRepo.CalculateDowntime
+			pingRepoCalculateDowntimeReturnDuration: 5 * time.Second,
+			pingRepoCalculateDowntimeError:          nil,
+			pingRepoCalculateDowntimeNumOfCalls:     1,
+			// PayoutRepo.FindLatestPayout
+			payoutRepoFindLatestPayoutReturns: &models.Payout{
+				Timestamp:      now.Add(-24 * time.Hour),
+				PaymentDetails: nil,
+			},
+			payoutRepoFindLatestPayoutError:      nil,
+			payoutRepoFindLatestPayoutNumOfCalls: 1,
+			// CalculateNodeStatisticsForInterval
+			calculateStatisticsFromLastPayoutReturns: map[string]models.NodeStatsDetails{
+				"1": {
+					TotalPings:    8640, // no downtime - max number of pings
+					TotalRequests: 0,
+				},
+			},
+			calculateStatisticsFromLastPayoutError: nil,
+		},
+		{
+			name:   "error on fetching latest payout",
+			nodeID: "1",
+			// interval of 24 hours
+			intervalStart: now.Add(-24 * time.Hour),
+			intervalEnd:   now,
+			// PayoutRepo.FindLatestPayout
+			payoutRepoFindLatestPayoutReturns: nil,
+			payoutRepoFindLatestPayoutError:      errors.New("db error"),
+			payoutRepoFindLatestPayoutNumOfCalls: 1,
+			// CalculateNodeStatisticsForInterval
+			calculateStatisticsFromLastPayoutReturns: nil,
+			calculateStatisticsFromLastPayoutError: errors.New("db error"),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			// create mock controller
+			nodeRepoMock := mocks.NodeRepository{}
+			nodeRepoMock.On("GetAll").Return(
+				test.nodeRepoGetAllReturns, test.nodeRepoGetAllError,
+			)
+			recordRepoMock := mocks.RecordRepository{}
+			recordRepoMock.On("FindSuccessfulRecordsInsideInterval",
+				test.nodeID, test.intervalStart, test.intervalEnd,
+			).Return(
+				test.recordRepoFindSuccessfulRecordsInsideIntervalReturns,
+				test.recordRepoFindSuccessfulRecordsInsideIntervalError,
+			)
+			downtimeRepoMock := mocks.DowntimeRepository{}
+			downtimeRepoMock.On("FindDowntimesInsideInterval",
+				test.nodeID, test.intervalStart, test.intervalEnd,
+			).Return(
+				test.downtimeRepoFindDowntimesInsideIntervalReturns,
+				test.downtimeRepoFindDowntimesInsideIntervalError,
+			)
+			pingRepoMock := mocks.PingRepository{}
+			pingRepoMock.On("CalculateDowntime",
+				test.nodeID, test.intervalEnd,
+			).Return(
+				time.Now(),
+				test.pingRepoCalculateDowntimeReturnDuration,
+				test.pingRepoCalculateDowntimeError,
+			)
+			payoutRepoMock := mocks.PayoutRepository{}
+			payoutRepoMock.On("FindLatestPayout").Return(
+				test.payoutRepoFindLatestPayoutReturns,
+				test.payoutRepoFindLatestPayoutError,
+			)
+			repos := repositories.Repos{
+				PingRepo:     &pingRepoMock,
+				RecordRepo:   &recordRepoMock,
+				DowntimeRepo: &downtimeRepoMock,
+				NodeRepo:     &nodeRepoMock,
+				PayoutRepo:   &payoutRepoMock,
+			}
+
+			statisticsForPayout, err := CalculateStatisticsFromLastPayout(repos)
+
+			assert.Equal(t, test.calculateStatisticsFromLastPayoutError, err)
+			assert.Equal(t, test.calculateStatisticsFromLastPayoutReturns, statisticsForPayout)
+
+			nodeRepoMock.AssertNumberOfCalls(t,
+				"GetAll",
+				test.nodeRepoGetAllNumOfCalls,
+			)
+			recordRepoMock.AssertNumberOfCalls(t,
+				"FindSuccessfulRecordsInsideInterval",
+				test.recordRepoFindSuccessfulRecordsInsideIntervalNumOfCalls,
+			)
+			downtimeRepoMock.AssertNumberOfCalls(t,
+				"FindDowntimesInsideInterval",
+				test.downtimeRepoFindDowntimesInsideIntervalNumOfCalls,
+			)
+			pingRepoMock.AssertNumberOfCalls(t,
+				"CalculateDowntime",
+				test.pingRepoCalculateDowntimeNumOfCalls,
+			)
+		})
+	}
+
+	nowFunc = time.Now
+}
+
+func Test_CalculateNodeStatisticsForInterval(t *testing.T) {
 	now := time.Now()
 
 	tests := []struct {
@@ -172,7 +472,7 @@ func Test_CalculateStatisticsForNode(t *testing.T) {
 	}
 }
 
-func Test_CalculateStatisticsForPayout(t *testing.T) {
+func Test_CalculateStatisticsForInterval(t *testing.T) {
 	now := time.Now()
 
 	tests := []struct {
