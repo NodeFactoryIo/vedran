@@ -66,7 +66,7 @@ func Test_CalculateNodeStatisticsFromLastPayout(t *testing.T) {
 			payoutRepoFindLatestPayoutNumOfCalls: 1,
 			// CalculateNodeStatisticsForInterval
 			calculateNodeStatisticsFromLastPayoutReturns: &models.NodeStatsDetails{
-				TotalPings:    8640, // no downtime - max number of pings
+				TotalPings:    17280, // no downtime - max number of pings
 				TotalRequests: 0,
 			},
 			calculateNodeStatisticsFromLastPayoutError: nil,
@@ -219,7 +219,7 @@ func Test_CalculateStatisticsFromLastPayout(t *testing.T) {
 			// CalculateNodeStatisticsForInterval
 			calculateStatisticsFromLastPayoutReturns: map[string]models.NodeStatsDetails{
 				"1": {
-					TotalPings:    8640, // no downtime - max number of pings
+					TotalPings:    17280, // no downtime - max number of pings
 					TotalRequests: 0,
 				},
 			},
@@ -360,7 +360,7 @@ func Test_CalculateNodeStatisticsForInterval(t *testing.T) {
 			pingRepoCalculateDowntimeNumOfCalls:     1,
 			// CalculateNodeStatisticsForInterval
 			calculateNodeStatisticsForIntervalReturns: &models.NodeStatsDetails{
-				TotalPings:    8640, // no downtime - max number of pings
+				TotalPings:    17280, // no downtime - max number of pings
 				TotalRequests: 5,
 			},
 			calculateNodeStatisticsForIntervalError: nil,
@@ -384,7 +384,7 @@ func Test_CalculateNodeStatisticsForInterval(t *testing.T) {
 			pingRepoCalculateDowntimeNumOfCalls:     1,
 			// CalculateNodeStatisticsForInterval
 			calculateNodeStatisticsForIntervalReturns: &models.NodeStatsDetails{
-				TotalPings:    8640, // no downtime - max number of pings
+				TotalPings:    17280, // no downtime - max number of pings
 				TotalRequests: 0,
 			},
 			calculateNodeStatisticsForIntervalError: nil,
@@ -535,7 +535,7 @@ func Test_CalculateStatisticsForInterval(t *testing.T) {
 			// CalculateNodeStatisticsForInterval
 			calculateStatisticsForIntervalReturns: map[string]models.NodeStatsDetails{
 				"1": {
-					TotalPings:    8640, // no downtime - max number of pings
+					TotalPings:    17280, // no downtime - max number of pings
 					TotalRequests: 5,
 				},
 			},

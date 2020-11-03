@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/stats"
 	muxhelpper "github.com/gorilla/mux"
@@ -33,7 +32,7 @@ func (c *ApiController) StatisticsHandlerStatsForNode(w http.ResponseWriter, r *
 	nodeId, ok := vars["id"]
 	if !ok || len(nodeId) < 1 {
 		log.Error("Missing URL parameter node id")
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		http.NotFound(w, r)
 		return
 	}
 
@@ -41,7 +40,7 @@ func (c *ApiController) StatisticsHandlerStatsForNode(w http.ResponseWriter, r *
 	if err != nil {
 		log.Errorf("Failed to calculate statistics for node %s, because %v", nodeId, err)
 		if err.Error() == "not found" {
-			http.Error(w, fmt.Sprintf("Node %s doesn't exist", nodeId), http.StatusBadRequest)
+			http.NotFound(w, r)
 		} else {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}

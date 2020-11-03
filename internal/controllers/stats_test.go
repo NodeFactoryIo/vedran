@@ -40,7 +40,7 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 		payoutRepoFindLatestPayoutReturns *models.Payout
 		payoutRepoFindLatestPayoutError   error
 		// Stats
-		nodeNumberOfPings float64
+		nodeNumberOfPings    float64
 		nodeNumberOfRequests float64
 	}{
 		{
@@ -71,7 +71,7 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 			payoutRepoFindLatestPayoutError: nil,
 			// Stats
 			nodeNumberOfRequests: float64(0),
-			nodeNumberOfPings: float64(8640),
+			nodeNumberOfPings:    float64(8640),
 		},
 		{
 			name:                            "unable to get latest interval, server error",
@@ -148,6 +148,7 @@ func TestApiController_StatisticsHandlerStatsForNode(t *testing.T) {
 		name       string
 		httpStatus int
 		nodeId     string
+		contextKey string
 		// RecordRepo.FindSuccessfulRecordsInsideInterval
 		recordRepoFindSuccessfulRecordsInsideIntervalReturns []models.Record
 		recordRepoFindSuccessfulRecordsInsideIntervalError   error
@@ -161,13 +162,14 @@ func TestApiController_StatisticsHandlerStatsForNode(t *testing.T) {
 		payoutRepoFindLatestPayoutReturns *models.Payout
 		payoutRepoFindLatestPayoutError   error
 		// Stats
-		nodeNumberOfPings float64
+		nodeNumberOfPings    float64
 		nodeNumberOfRequests float64
 	}{
 		{
 			name:       "get valid stats",
 			nodeId:     "1",
 			httpStatus: http.StatusOK,
+			contextKey: "id",
 			// RecordRepo.FindSuccessfulRecordsInsideInterval
 			recordRepoFindSuccessfulRecordsInsideIntervalReturns: nil,
 			recordRepoFindSuccessfulRecordsInsideIntervalError:   errors.New("not found"),
@@ -185,12 +187,19 @@ func TestApiController_StatisticsHandlerStatsForNode(t *testing.T) {
 			payoutRepoFindLatestPayoutError: nil,
 			// Stats
 			nodeNumberOfRequests: float64(0),
-			nodeNumberOfPings: float64(8640),
+			nodeNumberOfPings:    float64(8640),
 		},
 		{
 			name:                            "unable to get latest interval, server error",
 			httpStatus:                      http.StatusInternalServerError,
+			contextKey:                      "id",
 			payoutRepoFindLatestPayoutError: errors.New("db-error"),
+		},
+		{
+			name:                            "unable to find id from request, server error",
+			httpStatus:                      http.StatusNotFound,
+			contextKey:                      "id",
+			payoutRepoFindLatestPayoutError: errors.New("not found"),
 		},
 	}
 	for _, test := range tests {
@@ -233,7 +242,7 @@ func TestApiController_StatisticsHandlerStatsForNode(t *testing.T) {
 			}, nil)
 			type ContextKey string
 			req, _ := http.NewRequest("GET", "/api/v1/stats/node/1", bytes.NewReader(nil))
-			req = req.WithContext(context.WithValue(req.Context(), ContextKey("id"), "1"))
+			req = req.WithContext(context.WithValue(req.Context(), ContextKey(test.contextKey), "1"))
 			rr := httptest.NewRecorder()
 
 			// invoke test request
