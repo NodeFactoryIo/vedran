@@ -83,5 +83,3 @@ func CalculateNodeStatisticsForInterval(
 		TotalRequests: float64(len(recordsInInterval)),
 	}, nil
 }
-
-

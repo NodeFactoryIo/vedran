@@ -10,20 +10,34 @@ import (
 )
 
 type StatsResponse struct {
-	Stats map[string]models.NodeStatsDetails `json:"stats"`
+	Stats map[string]NodePayoutDetails `json:"stats"`
+}
+
+type NodePayoutDetails struct {
+	Stats         models.NodeStatsDetails `json:"stats"`
+	PayoutAddress string                  `json:"payout_address"`
 }
 
 func (c *ApiController) StatisticsHandlerAllStats(w http.ResponseWriter, r *http.Request) {
-	statisticsForPayout, err := stats.CalculateStatisticsFromLastPayout(c.repositories)
+	statistics, err := stats.CalculateStatisticsFromLastPayout(c.repositories)
 	if err != nil {
 		log.Errorf("Failed to calculate statistics, because %v", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
+	payoutStatistics := make(map[string]NodePayoutDetails, len(statistics))
+	for nodeId, statsDetails := range statistics {
+		node, _ := c.repositories.NodeRepo.FindByID(nodeId)
+		payoutStatistics[nodeId] = NodePayoutDetails{
+			Stats:         statsDetails,
+			PayoutAddress: node.PayoutAddress,
+		}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(StatsResponse{
-		Stats: statisticsForPayout,
+		Stats: payoutStatistics,
 	})
 }
 
