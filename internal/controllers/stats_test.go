@@ -231,9 +231,9 @@ func TestApiController_StatisticsHandlerStatsForNode(t *testing.T) {
 				DowntimeRepo: &downtimeRepoMock,
 				PayoutRepo:   &payoutRepoMock,
 			}, nil)
-
+			type ContextKey string
 			req, _ := http.NewRequest("GET", "/api/v1/stats/node/1", bytes.NewReader(nil))
-			req = req.WithContext(context.WithValue(req.Context(), "id", "1"))
+			req = req.WithContext(context.WithValue(req.Context(), ContextKey("id"), "1"))
 			rr := httptest.NewRecorder()
 
 			// invoke test request
