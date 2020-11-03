@@ -7,10 +7,12 @@
 ### Added
 - Check if port range valid [\#104](https://github.com/NodeFactoryIo/vedran/pull/104) ([mpetrun5](https://github.com/mpetrun5))
 - Valid flag on node [\#105](https://github.com/NodeFactoryIo/vedran/pull/105) ([mpetrun5](https://github.com/mpetrun5))
+- Passing SSL certificates [\#112](https://github.com/NodeFactoryIo/vedran/pull/112) ([mpetrun5](https://github.com/mpetrun5))
 
 ### Fix
 
 ### Changed
+- Write byte response directly with io.Write [\#113](https://github.com/NodeFactoryIo/vedran/pull/113) ([mpetrun5](https://github.com/mpetrun5))
 
 ## [v0.2.0]((https://github.com/NodeFactoryIo/vedran/tree/v0.2.0))
 

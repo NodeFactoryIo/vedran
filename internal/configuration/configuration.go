@@ -5,6 +5,8 @@ import "github.com/NodeFactoryIo/vedran/pkg/http-tunnel/server"
 type Configuration struct {
 	AuthSecret          string
 	Name                string
+	CertFile            string
+	KeyFile             string
 	Capacity            int64
 	WhitelistEnabled    bool
 	Fee                 float32
