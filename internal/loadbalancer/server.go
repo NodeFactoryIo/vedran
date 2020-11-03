@@ -39,6 +39,7 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 	repos.RecordRepo = repositories.NewRecordRepo(database)
 	repos.NodeRepo = repositories.NewNodeRepo(database)
 	repos.DowntimeRepo = repositories.NewDowntimeRepo(database)
+	repos.PayoutRepo = repositories.NewPayoutRepo(database)
 	err = repos.PingRepo.ResetAllPings()
 	if err != nil {
 		log.Fatalf("Failed reseting pings because of: %v", err)
