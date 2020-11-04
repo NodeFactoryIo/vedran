@@ -11,29 +11,23 @@ import (
 )
 
 func Test_GetIntervalFromLastPayout(t *testing.T) {
-	now := time.Now()
-	hourAgo := now.Add(-24 * time.Hour)
-	nowFunc = func() time.Time {
-		return now
-	}
+	hourAgo := time.Now().Add(-24 * time.Hour)
 
 	tests := []struct {
 		name string
 		payoutRepoFindLatestPayoutReturns *models.Payout
 		payoutRepoFindLatestPayoutError error
 		getIntervalFromLastPayoutIntervalStart *time.Time
-		getIntervalFromLastPayoutIntervalEnd *time.Time
 		getIntervalFromLastPayoutError error
 	}{
 		{
 			name: "calculate interval from existing last payment to now",
 			payoutRepoFindLatestPayoutReturns: &models.Payout{
-				Timestamp:      now.Add(-24 * time.Hour),
+				Timestamp:      hourAgo,
 				PaymentDetails: nil,
 			},
 			payoutRepoFindLatestPayoutError: nil,
 			getIntervalFromLastPayoutIntervalStart: &hourAgo,
-			getIntervalFromLastPayoutIntervalEnd: &now,
 			getIntervalFromLastPayoutError: nil,
 		},
 		{
@@ -41,7 +35,6 @@ func Test_GetIntervalFromLastPayout(t *testing.T) {
 			payoutRepoFindLatestPayoutReturns: nil,
 			payoutRepoFindLatestPayoutError: errors.New("db error"),
 			getIntervalFromLastPayoutIntervalStart: nil,
-			getIntervalFromLastPayoutIntervalEnd: nil,
 			getIntervalFromLastPayoutError: errors.New("db error"),
 		},
 	}
@@ -56,12 +49,9 @@ func Test_GetIntervalFromLastPayout(t *testing.T) {
 				PayoutRepo:   &payoutRepoMock,
 			}
 
-			intervalStart, intervalEnd, err := GetIntervalFromLastPayout(repos)
+			intervalStart, err := GetIntervalFromLastPayout(repos)
 			assert.Equal(t, test.getIntervalFromLastPayoutIntervalStart, intervalStart)
-			assert.Equal(t, test.getIntervalFromLastPayoutIntervalEnd, intervalEnd)
 			assert.Equal(t, test.getIntervalFromLastPayoutError, err)
 		})
 	}
-
-	nowFunc = time.Now
 }
