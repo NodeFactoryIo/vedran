@@ -31,7 +31,7 @@ func (r *DowntimeRepo) Save(downtime *models.Downtime) error {
 func (r *DowntimeRepo) FindDowntimesInsideInterval(nodeID string, from time.Time, to time.Time) ([]models.Downtime, error) {
 	var downtimes []models.Downtime
 	err := r.db.Select(q.And(
-		q.Eq("id", nodeID),
+		q.Eq("NodeId", nodeID),
 		q.Or(
 			q.And( // start inside interval
 				q.Gte("start", from),
@@ -42,7 +42,7 @@ func (r *DowntimeRepo) FindDowntimesInsideInterval(nodeID string, from time.Time
 				q.Lte("end", to),
 			),
 		),
-	)).Find(downtimes)
+	)).Find(&downtimes)
 	return downtimes, err
 }
 
