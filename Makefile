@@ -14,7 +14,7 @@ dep:
 	go get ./...
 
 test:
-	go test ./...
+	go test ./... -cover
 
 lint:
 	golangci-lint run
