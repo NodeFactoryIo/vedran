@@ -20,6 +20,9 @@ import (
 
 func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 	now := time.Now()
+	getNow = func() time.Time {
+		return now
+	}
 	tests := []struct {
 		name       string
 		httpStatus int
@@ -118,6 +121,7 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 				test.payoutRepoFindLatestPayoutReturns,
 				test.payoutRepoFindLatestPayoutError,
 			)
+			payoutRepoMock.On("Save", mock.Anything).Return(nil)
 			apiController := NewApiController(false, repositories.Repos{
 				NodeRepo:     &nodeRepoMock,
 				PingRepo:     &pingRepoMock,
@@ -149,6 +153,9 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 
 func TestApiController_StatisticsHandlerStatsForNode(t *testing.T) {
 	now := time.Now()
+	getNow = func() time.Time {
+		return now
+	}
 	tests := []struct {
 		name       string
 		httpStatus int
