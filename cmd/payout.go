@@ -18,7 +18,7 @@ var (
 	secret string
 	totalReward string
 	loadbalancerUrl string
-	//
+
 	totalRewardAsFloat64 float64
 )
 
@@ -46,23 +46,21 @@ func init() {
 		&secret,
 		"secret",
 		"",
-		"[REQUIRED] ", // TODO
+		"[REQUIRED] loadbalancer wallet secret",
 	)
 	payoutCmd.Flags().StringVar(
 		&totalReward,
 		"total-reward",
 		"",
-		"[REQUIRED]",
+		"[REQUIRED] total reward pool in Planck",
 	)
 	payoutCmd.Flags().StringVar(
 		&loadbalancerUrl,
 		"load-balancer-url",
-		"http://localhost:4444",
-		"[OPTIONAL]")
+		"localhost:80",
+		"[OPTIONAL] url on which loadbalancer is listening")
 	RootCmd.AddCommand(payoutCmd)
 }
-
-
 
 func payoutCommand(_ *cobra.Command, _ []string) {
 	DisplayBanner()
@@ -79,7 +77,11 @@ func payoutCommand(_ *cobra.Command, _ []string) {
 		nodeStatsDetails[nodeId] = nodeStats.Stats
 	}
 
-	distributionByNode := payout.CalculatePayoutDistributionByNode(nodeStatsDetails, totalRewardAsFloat64, float64(stats.Fee))
+	distributionByNode := payout.CalculatePayoutDistributionByNode(
+		nodeStatsDetails,
+		totalRewardAsFloat64,
+		float64(stats.Fee),
+	)
 
 	transactionDetails, err := payout.ExecuteAllPayoutTransactions(
 		distributionByNode,
