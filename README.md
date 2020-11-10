@@ -123,6 +123,33 @@ Send metrics for node. Auth token should be in header as `X-Auth-Header`. Body s
 }
 ```
 
+## Development
+
+### Clone
+
+```bash
+git clone git@github.com:NodeFactoryIo/vedran.git
+```
+
+### Lint
+[Golangci-lint](https://golangci-lint.run/usage/install/#local-installation) is expected to be installed.
+
+```bash
+make lint
+```
+
+### Build
+
+```bash
+make build
+```
+
+### Test
+
+```bash
+make test
+```
+
 ## License
 
 This project is licensed under Apache 2.0:
