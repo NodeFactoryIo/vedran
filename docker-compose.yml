@@ -21,5 +21,12 @@ services:
       - polkadot
     command: --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-metrics http://polkadot:9615 --payout-address 0xtestaddress --log-level info
 
+  client:
+    image: curlimages/curl:latest
+    command: |-
+      sh -c "while sleep 15; do curl -H Content-Type: application/json -d '{\"id\":1, \"jsonrpc\":\"2.0\", \"method\": \"chain_getBlock\"}' http://vedran:4000; done"
+
+
+
 volumes:
   polkadot-data:

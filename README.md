@@ -20,6 +20,12 @@ _Vedran loadbalancer_ is used in conjunction with [Vedran daemon](https://github
 
 _After all components have been started and node has sent first valid metrics report (after 30 seconds), you can invoke RPC methods on `localhost:4000`_
 
+You can check available rpc methods with:
+
+```bash
+curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "rpc_methods"}' http://localhost:4000
+```
+
 This demo starts three separate dockerized components:
 - _Polkadot node_ ([repository](https://github.com/paritytech/polkadot))
 - _Vedran daemon_ ([repository](https://github.com/NodeFactoryIo/vedran-daemon))
