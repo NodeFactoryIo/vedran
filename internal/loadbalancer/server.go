@@ -47,9 +47,12 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 	}
 
 	// save initial payout if there isn't any saved payouts
-	_, err = repos.PayoutRepo.GetAll()
-	if err != nil && err.Error() == "not found" {
+	p, err := repos.PayoutRepo.GetAll()
+	if err != nil {
+		log.Fatalf("Failed creating initial payout because of: %v", err)
+	} else if len(*p) == 0 {
 		err := repos.PayoutRepo.Save(&models.Payout{
+			ID: "1",
 			Timestamp:      time.Now(),
 			PaymentDetails: nil,
 		})
@@ -57,6 +60,7 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 			log.Fatalf("Failed creating initial payout because of: %v", err)
 		}
 	}
+	log.Info(p)
 
 	penalizedNodes, err := repos.NodeRepo.GetPenalizedNodes()
 	if err != nil {
