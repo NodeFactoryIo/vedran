@@ -68,6 +68,7 @@ func payoutCommand(_ *cobra.Command, _ []string) {
 
 	stats, err := fetchStatsFromEndpoint(loadbalancerUrl + "/api/v1/stats")
 	if err != nil {
+		log.Errorf("Unable to fetch stats from loadbalancer, because of %v", err)
 		return
 	}
 
@@ -90,6 +91,7 @@ func payoutCommand(_ *cobra.Command, _ []string) {
 		loadbalancerUrl,
 	)
 	if err != nil {
+		log.Errorf("Unable to execute payout transactions, because of %v", err)
 		return
 	}
 
@@ -100,7 +102,6 @@ func payoutCommand(_ *cobra.Command, _ []string) {
 func fetchStatsFromEndpoint(endpoint string) (*controllers.StatsResponse, error) {
 	resp, err := http.Get(endpoint)
 	if err != nil {
-		log.Errorf("Unable to fetch stats, because %v", err)
 		return nil, err
 	}
 	dec := json.NewDecoder(resp.Body)
@@ -108,7 +109,6 @@ func fetchStatsFromEndpoint(endpoint string) (*controllers.StatsResponse, error)
 	stats := controllers.StatsResponse{}
 	err = dec.Decode(&stats)
 	if err != nil {
-		log.Errorf("Unable to fetch stats, because %v", err)
 		return nil, err
 	}
 	return &stats, nil
