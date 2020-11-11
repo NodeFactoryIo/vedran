@@ -24,6 +24,7 @@ func (c *ApiController) StatisticsHandlerAllStats(w http.ResponseWriter, r *http
 	if err != nil {
 		log.Errorf("Failed to calculate statistics, because %v", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
