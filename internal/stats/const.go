@@ -2,5 +2,5 @@ package stats
 
 const (
 	// PingIntervalInSeconds
-	PingIntervalInSeconds = 10
+	PingIntervalInSeconds = 5
 )

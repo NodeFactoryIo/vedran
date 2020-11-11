@@ -10,6 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const pingOffset = 5
 
 func (c ApiController) PingHandler(w http.ResponseWriter, r *http.Request) {
 	request := r.Context().Value(auth.RequestContextKey).(*auth.RequestContext)
@@ -19,7 +20,7 @@ func (c ApiController) PingHandler(w http.ResponseWriter, r *http.Request) {
 		log.Errorf("Unable to calculate node downtime, error: %v", err)
 	}
 
-	if math.Abs(downtimeDuration.Seconds()) > stats.PingIntervalInSeconds {
+	if math.Abs(downtimeDuration.Seconds()) > (stats.PingIntervalInSeconds + pingOffset) {
 		downtime := models.Downtime{
 			Start:  lastPingTime,
 			End:    request.Timestamp,

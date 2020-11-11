@@ -12,9 +12,7 @@ import (
 
 func Test_CalculateNodeStatisticsFromLastPayout(t *testing.T) {
 	now := time.Now()
-	nowFunc = func() time.Time {
-		return now
-	}
+
 	tests := []struct {
 		name          string
 		nodeID        string
@@ -66,7 +64,7 @@ func Test_CalculateNodeStatisticsFromLastPayout(t *testing.T) {
 			payoutRepoFindLatestPayoutNumOfCalls: 1,
 			// CalculateNodeStatisticsForInterval
 			calculateNodeStatisticsFromLastPayoutReturns: &models.NodeStatsDetails{
-				TotalPings:    8640, // no downtime - max number of pings
+				TotalPings:    17280, // no downtime - max number of pings
 				TotalRequests: 0,
 			},
 			calculateNodeStatisticsFromLastPayoutError: nil,
@@ -122,7 +120,7 @@ func Test_CalculateNodeStatisticsFromLastPayout(t *testing.T) {
 				PayoutRepo:   &payoutRepoMock,
 			}
 
-			statisticsForPayout, err := CalculateNodeStatisticsFromLastPayout(repos, test.nodeID)
+			statisticsForPayout, err := CalculateNodeStatisticsFromLastPayout(repos, test.nodeID, test.intervalEnd)
 
 			assert.Equal(t, test.calculateNodeStatisticsFromLastPayoutError, err)
 			assert.Equal(t, test.calculateNodeStatisticsFromLastPayoutReturns, statisticsForPayout)
@@ -145,14 +143,10 @@ func Test_CalculateNodeStatisticsFromLastPayout(t *testing.T) {
 			)
 		})
 	}
-	nowFunc = time.Now
 }
 
 func Test_CalculateStatisticsFromLastPayout(t *testing.T) {
 	now := time.Now()
-	nowFunc = func() time.Time {
-		return now
-	}
 
 	tests := []struct {
 		name          string
@@ -219,7 +213,7 @@ func Test_CalculateStatisticsFromLastPayout(t *testing.T) {
 			// CalculateNodeStatisticsForInterval
 			calculateStatisticsFromLastPayoutReturns: map[string]models.NodeStatsDetails{
 				"1": {
-					TotalPings:    8640, // no downtime - max number of pings
+					TotalPings:    17280, // no downtime - max number of pings
 					TotalRequests: 0,
 				},
 			},
@@ -232,12 +226,12 @@ func Test_CalculateStatisticsFromLastPayout(t *testing.T) {
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,
 			// PayoutRepo.FindLatestPayout
-			payoutRepoFindLatestPayoutReturns: nil,
+			payoutRepoFindLatestPayoutReturns:    nil,
 			payoutRepoFindLatestPayoutError:      errors.New("db error"),
 			payoutRepoFindLatestPayoutNumOfCalls: 1,
 			// CalculateNodeStatisticsForInterval
 			calculateStatisticsFromLastPayoutReturns: nil,
-			calculateStatisticsFromLastPayoutError: errors.New("db error"),
+			calculateStatisticsFromLastPayoutError:   errors.New("db error"),
 		},
 	}
 
@@ -283,7 +277,7 @@ func Test_CalculateStatisticsFromLastPayout(t *testing.T) {
 				PayoutRepo:   &payoutRepoMock,
 			}
 
-			statisticsForPayout, err := CalculateStatisticsFromLastPayout(repos)
+			statisticsForPayout, err := CalculateStatisticsFromLastPayout(repos, test.intervalEnd)
 
 			assert.Equal(t, test.calculateStatisticsFromLastPayoutError, err)
 			assert.Equal(t, test.calculateStatisticsFromLastPayoutReturns, statisticsForPayout)
@@ -306,8 +300,6 @@ func Test_CalculateStatisticsFromLastPayout(t *testing.T) {
 			)
 		})
 	}
-
-	nowFunc = time.Now
 }
 
 func Test_CalculateNodeStatisticsForInterval(t *testing.T) {
@@ -360,7 +352,7 @@ func Test_CalculateNodeStatisticsForInterval(t *testing.T) {
 			pingRepoCalculateDowntimeNumOfCalls:     1,
 			// CalculateNodeStatisticsForInterval
 			calculateNodeStatisticsForIntervalReturns: &models.NodeStatsDetails{
-				TotalPings:    8640, // no downtime - max number of pings
+				TotalPings:    17280, // no downtime - max number of pings
 				TotalRequests: 5,
 			},
 			calculateNodeStatisticsForIntervalError: nil,
@@ -384,7 +376,7 @@ func Test_CalculateNodeStatisticsForInterval(t *testing.T) {
 			pingRepoCalculateDowntimeNumOfCalls:     1,
 			// CalculateNodeStatisticsForInterval
 			calculateNodeStatisticsForIntervalReturns: &models.NodeStatsDetails{
-				TotalPings:    8640, // no downtime - max number of pings
+				TotalPings:    17280, // no downtime - max number of pings
 				TotalRequests: 0,
 			},
 			calculateNodeStatisticsForIntervalError: nil,
@@ -535,7 +527,7 @@ func Test_CalculateStatisticsForInterval(t *testing.T) {
 			// CalculateNodeStatisticsForInterval
 			calculateStatisticsForIntervalReturns: map[string]models.NodeStatsDetails{
 				"1": {
-					TotalPings:    8640, // no downtime - max number of pings
+					TotalPings:    17280, // no downtime - max number of pings
 					TotalRequests: 5,
 				},
 			},

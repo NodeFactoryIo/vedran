@@ -9,22 +9,22 @@ import (
 
 // CalculateStatisticsFromLastPayout calculates stats for all nodes for interval, that starts from last recorded payout
 // until now, as map[string]models.NodeStatsDetails where keys represent node id-s
-func CalculateStatisticsFromLastPayout(repos repositories.Repos) (map[string]models.NodeStatsDetails, error) {
-	intervalStart, intervalEnd, err := GetIntervalFromLastPayout(repos)
+func CalculateStatisticsFromLastPayout(repos repositories.Repos, intervalEnd time.Time) (map[string]models.NodeStatsDetails, error) {
+	intervalStart, err := GetIntervalFromLastPayout(repos)
 	if err != nil {
 		return nil, err
 	}
-	return CalculateStatisticsForInterval(repos, *intervalStart, *intervalEnd)
+	return CalculateStatisticsForInterval(repos, *intervalStart, intervalEnd)
 }
 
 // CalculateNodeStatisticsFromLastPayout calculates stats for specific node for interval, that starts from last recorded payout
 // until now, as models.NodeStatsDetails where node is specified with argument nodeId
-func CalculateNodeStatisticsFromLastPayout(repos repositories.Repos, nodeId string) (*models.NodeStatsDetails, error) {
-	intervalStart, intervalEnd, err := GetIntervalFromLastPayout(repos)
+func CalculateNodeStatisticsFromLastPayout(repos repositories.Repos, nodeId string, intervalEnd time.Time) (*models.NodeStatsDetails, error) {
+	intervalStart, err := GetIntervalFromLastPayout(repos)
 	if err != nil {
 		return nil, err
 	}
-	return CalculateNodeStatisticsForInterval(repos, nodeId, *intervalStart, *intervalEnd)
+	return CalculateNodeStatisticsForInterval(repos, nodeId, *intervalStart, intervalEnd)
 }
 
 // CalculateStatisticsForInterval calculates stats for all nodes for interval, specified with arguments
@@ -83,5 +83,3 @@ func CalculateNodeStatisticsForInterval(
 		TotalRequests: float64(len(recordsInInterval)),
 	}, nil
 }
-
-
