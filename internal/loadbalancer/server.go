@@ -60,7 +60,6 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 			log.Fatalf("Failed creating initial payout because of: %v", err)
 		}
 	}
-	log.Info(p)
 
 	penalizedNodes, err := repos.NodeRepo.GetPenalizedNodes()
 	if err != nil {

@@ -89,6 +89,8 @@ func executeTransaction(
 	keyringPair signature.KeyringPair,
 	mux *sync.Mutex,
 ) (*TransactionDetails, error) {
+
+	// lock segment so goroutines don't access api at the same time
 	mux.Lock()
 
 	metadataLatest, err := api.RPC.State.GetMetadataLatest()
@@ -159,6 +161,7 @@ func executeTransaction(
 		return nil, err
 	}
 
+	// unlock segment
 	mux.Unlock()
 
 	defer sub.Unsubscribe()
