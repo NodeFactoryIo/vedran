@@ -9,7 +9,6 @@ import (
 const (
 	livelinessRewardPercentage = 0.1
 	requestsRewardPercentage   = 0.9
-	roundPrecision             = 1_000_000_000_000_000
 )
 
 func CalculatePayoutDistributionByNode(
@@ -39,19 +38,16 @@ func CalculatePayoutDistributionByNode(
 	for nodeId, nodeStatsDetails := range payoutDetails {
 		// liveliness rewards
 		nodeLivelinessRewardPercentage := nodeStatsDetails.TotalPings / totalNumberOfPings
-		roundedNodeLivelinessRewardPercentage :=
-			math.Floor(nodeLivelinessRewardPercentage*roundPrecision) / roundPrecision
-		livelinessReward := livelinessRewardPool * roundedNodeLivelinessRewardPercentage
-
+		livelinessReward := livelinessRewardPool * nodeLivelinessRewardPercentage
+		livelinessReward = math.Floor(livelinessReward)
 		totalDistributedLivelinessRewards += livelinessReward
 
 		// requests rewards
 		requestsReward := float64(0)
 		if totalNumberOfRequests != 0 && nodeStatsDetails.TotalRequests != 0 {
 			nodeRequestsRewardPercentage := nodeStatsDetails.TotalRequests / totalNumberOfRequests
-			roundedNodeRequestsRewardPercentage :=
-				math.Floor(nodeRequestsRewardPercentage*roundPrecision) / roundPrecision
-			requestsReward = requestsRewardPool * roundedNodeRequestsRewardPercentage
+			requestsReward = requestsRewardPool * nodeRequestsRewardPercentage
+			requestsReward = math.Floor(requestsReward)
 			totalDistributedRequestsRewards += requestsReward
 		}
 
