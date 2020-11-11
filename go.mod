@@ -12,7 +12,6 @@ require (
 	github.com/golang/gddo v0.0.0-20200831202555-721e228c7686
 	github.com/gorilla/mux v1.8.0
 	github.com/inconshreveable/go-vhost v0.0.0-20160627193104-06d84117953b
-	github.com/kipriz/wgwaiter v0.0.0-20190606091156-ffbaffa3dbd2
 	github.com/pierrec/xxHash v0.1.5 // indirect
 	github.com/rs/cors v1.7.0 // indirect
 	github.com/sirupsen/logrus v1.6.0
