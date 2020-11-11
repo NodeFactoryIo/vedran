@@ -2,6 +2,7 @@ package script
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/controllers"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/payout"
@@ -12,8 +13,7 @@ import (
 func ExecutePayout(secret string, totalReward float64, loadbalancerUrl string) error {
 	stats, err := fetchStatsFromEndpoint(loadbalancerUrl + "/api/v1/stats")
 	if err != nil {
-		log.Errorf("Unable to fetch stats from loadbalancer, because of %v", err)
-		return err
+		return fmt.Errorf("unable to fetch stats from loadbalancer, %v", err)
 	}
 
 	// calculate distribution
@@ -29,7 +29,6 @@ func ExecutePayout(secret string, totalReward float64, loadbalancerUrl string) e
 
 	// todo - call sending payout transactions
 	log.Info(distributionByNode)
-
 	return nil
 }
 

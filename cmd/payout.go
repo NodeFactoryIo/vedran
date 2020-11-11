@@ -44,12 +44,14 @@ func init() {
 		"",
 		"[REQUIRED] loadbalancer wallet secret",
 	)
+	_ = payoutCmd.MarkFlagRequired("secret")
 	payoutCmd.Flags().StringVar(
 		&totalReward,
 		"total-reward",
 		"",
 		"[REQUIRED] total reward pool in Planck",
 	)
+	_ = payoutCmd.MarkFlagRequired("total-reward")
 	payoutCmd.Flags().StringVar(
 		&loadbalancerUrl,
 		"load-balancer-url",
@@ -63,7 +65,7 @@ func payoutCommand(_ *cobra.Command, _ []string) {
 	fmt.Println("Payout script running...")
 	err := script.ExecutePayout(secret, totalRewardAsFloat64, loadbalancerUrl)
 	if err != nil {
-		log.Errorf("Unable to execute payout, because of %v", err)
+		log.Errorf("Unable to execute payout, because of: %v", err)
 		return
 	}
 	log.Info("Payout execution finished")
