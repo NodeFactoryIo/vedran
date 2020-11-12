@@ -19,11 +19,12 @@ type StatsResponse struct {
 var getNow = time.Now
 
 func (c *ApiController) StatisticsHandlerAllStats(w http.ResponseWriter, r *http.Request) {
-	// should check for signature in body and only than record payout
+	// should check for signature in body and only then record payout
 	payoutStatistics, err := payout.GetStatsForPayout(c.repositories, getNow(), false)
 	if err != nil {
 		log.Errorf("Failed to calculate statistics, because %v", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
