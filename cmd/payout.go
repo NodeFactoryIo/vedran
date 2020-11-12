@@ -6,22 +6,23 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/script"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"net/url"
 	"strconv"
-	"strings"
 )
 
 var (
-	secret string
-	totalReward string
-	loadbalancerUrl string
+	secret             string
+	totalReward        string
+	rawLoadbalancerUrl string
 
+	loadbalancerURL      *url.URL
 	totalRewardAsFloat64 float64
 )
 
 var payoutCmd = &cobra.Command{
-	Use: "payout",
+	Use:   "payout",
 	Short: "Starts payout script",
-	Run: payoutCommand,
+	Run:   payoutCommand,
 	Args: func(cmd *cobra.Command, args []string) error {
 		result, err := strconv.ParseFloat(totalReward, 64)
 		if err != nil {
@@ -29,10 +30,11 @@ var payoutCmd = &cobra.Command{
 		}
 		totalRewardAsFloat64 = result
 
-		if !(strings.HasPrefix(loadbalancerUrl, "http://") ||
-			strings.HasPrefix(loadbalancerUrl, "https://")) {
-			loadbalancerUrl = "http://" + loadbalancerUrl
+		loadbalancerURL, err = url.Parse(rawLoadbalancerUrl)
+		if err != nil {
+			return fmt.Errorf("invalid loadbalancer URL: %v", err)
 		}
+
 		return nil
 	},
 }
@@ -53,9 +55,9 @@ func init() {
 	)
 	_ = payoutCmd.MarkFlagRequired("total-reward")
 	payoutCmd.Flags().StringVar(
-		&loadbalancerUrl,
+		&rawLoadbalancerUrl,
 		"load-balancer-url",
-		"localhost:80",
+		"http://localhost:80",
 		"[OPTIONAL] url on which loadbalancer is listening")
 	RootCmd.AddCommand(payoutCmd)
 }
@@ -63,11 +65,10 @@ func init() {
 func payoutCommand(_ *cobra.Command, _ []string) {
 	DisplayBanner()
 	fmt.Println("Payout script running...")
-	err := script.ExecutePayout(secret, totalRewardAsFloat64, loadbalancerUrl)
+	err := script.ExecutePayout(secret, totalRewardAsFloat64, loadbalancerURL)
 	if err != nil {
 		log.Errorf("Unable to execute payout, because of: %v", err)
 		return
 	}
 	log.Info("Payout execution finished")
 }
-
