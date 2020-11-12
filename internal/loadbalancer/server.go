@@ -2,16 +2,17 @@ package loadbalancer
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"github.com/NodeFactoryIo/vedran/internal/router"
 	"github.com/NodeFactoryIo/vedran/internal/schedule/checkactive"
 	"github.com/NodeFactoryIo/vedran/internal/schedule/penalize"
 	"github.com/asdine/storm/v3"
 	log "github.com/sirupsen/logrus"
+	"net/http"
+	"time"
 )
 
 func StartLoadBalancerServer(props configuration.Configuration) {
@@ -43,6 +44,21 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 	err = repos.PingRepo.ResetAllPings()
 	if err != nil {
 		log.Fatalf("Failed reseting pings because of: %v", err)
+	}
+
+	// save initial payout if there isn't any saved payouts
+	p, err := repos.PayoutRepo.GetAll()
+	if err != nil {
+		log.Fatalf("Failed creating initial payout because of: %v", err)
+	} else if len(*p) == 0 {
+		err := repos.PayoutRepo.Save(&models.Payout{
+			ID:             "1",
+			Timestamp:      time.Now(),
+			PaymentDetails: nil,
+		})
+		if err != nil {
+			log.Fatalf("Failed creating initial payout because of: %v", err)
+		}
 	}
 
 	penalizedNodes, err := repos.NodeRepo.GetPenalizedNodes()

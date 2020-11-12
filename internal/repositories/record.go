@@ -31,10 +31,10 @@ func (r *recordRepo) Save(record *models.Record) error {
 func (r *recordRepo) FindSuccessfulRecordsInsideInterval(nodeID string, from time.Time, to time.Time) ([]models.Record, error) {
 	var records []models.Record
 	err := r.db.Select(q.And(
-		q.Eq("id", nodeID),
-		q.Gte("timestamp", from),
-		q.Lte("timestamp", to),
-		q.Eq("status", "successful"),
+		q.Eq("NodeId", nodeID),
+		q.Gte("Timestamp", from),
+		q.Lte("Timestamp", to),
+		q.Eq("Status", "successful"),
 	)).Find(&records)
 	return records, err
 }

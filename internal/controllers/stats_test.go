@@ -20,6 +20,9 @@ import (
 
 func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 	now := time.Now()
+	getNow = func() time.Time {
+		return now
+	}
 	tests := []struct {
 		name       string
 		httpStatus int
@@ -86,6 +89,10 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 			nodeRepoMock.On("GetAll").Return(
 				test.nodeRepoGetAllReturns, test.nodeRepoGetAllError,
 			)
+			nodeRepoMock.On("FindByID", test.nodeId).Return(&models.Node{
+				ID:            test.nodeId,
+				PayoutAddress: "0xtest-address",
+			}, nil)
 			recordRepoMock := mocks.RecordRepository{}
 			recordRepoMock.On("FindSuccessfulRecordsInsideInterval",
 				test.nodeId, mock.Anything, mock.Anything,
@@ -114,6 +121,7 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 				test.payoutRepoFindLatestPayoutReturns,
 				test.payoutRepoFindLatestPayoutError,
 			)
+			payoutRepoMock.On("Save", mock.Anything).Return(nil)
 			apiController := NewApiController(false, repositories.Repos{
 				NodeRepo:     &nodeRepoMock,
 				PingRepo:     &pingRepoMock,
@@ -135,8 +143,9 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 			var statsResponse StatsResponse
 			if rr.Code == http.StatusOK {
 				_ = json.Unmarshal(rr.Body.Bytes(), &statsResponse)
-				assert.LessOrEqual(t, test.nodeNumberOfPings, statsResponse.Stats[test.nodeId].TotalPings)
-				assert.Equal(t, test.nodeNumberOfRequests, statsResponse.Stats[test.nodeId].TotalRequests)
+				assert.LessOrEqual(t, test.nodeNumberOfPings, statsResponse.Stats[test.nodeId].Stats.TotalPings)
+				assert.Equal(t, test.nodeNumberOfRequests, statsResponse.Stats[test.nodeId].Stats.TotalRequests)
+				assert.Equal(t, "0xtest-address", statsResponse.Stats[test.nodeId].PayoutAddress)
 			}
 		})
 	}
@@ -144,6 +153,9 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 
 func TestApiController_StatisticsHandlerStatsForNode(t *testing.T) {
 	now := time.Now()
+	getNow = func() time.Time {
+		return now
+	}
 	tests := []struct {
 		name       string
 		httpStatus int
