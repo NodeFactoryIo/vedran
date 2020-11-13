@@ -11,6 +11,7 @@ require (
 	github.com/ethereum/go-ethereum v1.9.24 // indirect
 	github.com/golang/gddo v0.0.0-20200831202555-721e228c7686
 	github.com/gorilla/mux v1.8.0
+	github.com/gosuri/uitable v0.0.4
 	github.com/inconshreveable/go-vhost v0.0.0-20160627193104-06d84117953b
 	github.com/pierrec/xxHash v0.1.5 // indirect
 	github.com/rs/cors v1.7.0 // indirect

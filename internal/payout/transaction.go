@@ -18,10 +18,10 @@ const (
 )
 
 type TransactionDetails struct {
-	nodeId string
-	to     string
-	amount big.Int
-	status TransactionStatus
+	NodeId string
+	To     string
+	Amount big.Int
+	Status TransactionStatus
 }
 
 func ExecuteAllPayoutTransactions(
@@ -62,7 +62,7 @@ func ExecuteAllPayoutTransactions(
 	}
 
 	go func() {
-		// wait for group to finish
+		// wait for group To finish
 		wg.Wait()
 		close(wgDoneChannel)
 		close(resultsChannel)
@@ -91,7 +91,6 @@ func executeTransaction(
 	keyringPair signature.KeyringPair,
 	mux *sync.Mutex,
 ) (*TransactionDetails, error) {
-
 	// lock segment so goroutines don't access api at the same time
 	mux.Lock()
 
@@ -166,37 +165,38 @@ func executeTransaction(
 	// unlock segment
 	mux.Unlock()
 
-	// listen for transaction status
+	// listen for transaction Status
 	defer sub.Unsubscribe()
 	for {
 		status := <-sub.Chan()
 		if status.IsDropped {
-			log.Debug("Dropped transaction")
-			return &TransactionDetails{
-				nodeId: nodeId,
-				to:     to,
-				amount: amount,
-				status: Dropped,
-			}, nil
+			tx := &TransactionDetails{
+				NodeId: nodeId,
+				To:     to,
+				Amount: amount,
+				Status: Dropped,
+			}
+			log.Warningf("Dropped transaction: %v", tx)
+			return tx, nil
 		}
 		if status.IsInvalid {
-			log.Debug("Invalid transaction")
-			return &TransactionDetails{
-				nodeId: nodeId,
-				to:     to,
-				amount: amount,
-				status: Invalid,
-			}, nil
+			tx := &TransactionDetails{
+				NodeId: nodeId,
+				To:     to,
+				Amount: amount,
+				Status: Invalid,
+			}
+			log.Warningf("Invalid transaction: %v", tx)
+			return tx, nil
 		}
 		if status.IsFinalized {
-			log.Debugf("Completed at block hash: %#x\n", status.AsFinalized)
+			log.Debugf("Transaction for node %s completed at block hash: %#x\n", nodeId, status.AsFinalized)
 			return &TransactionDetails{
-				nodeId: nodeId,
-				to:     to,
-				amount: amount,
-				status: Finalized,
+				NodeId: nodeId,
+				To:     to,
+				Amount: amount,
+				Status: Finalized,
 			}, nil
 		}
-		log.Debugf("Transaction status: %v#\n", status)
 	}
 }

@@ -156,7 +156,7 @@ func Test_GetStatsForPayout(t *testing.T) {
 			getStatsForPayoutReturns: nil,
 		},
 		{
-			name:               "fail on saving to database",
+			name:               "fail on saving To database",
 			nodeId:             "1",
 			shouldRecordPayout: true,
 			// NodeRepo.GetAll

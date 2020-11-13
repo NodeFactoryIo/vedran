@@ -6,17 +6,16 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/controllers"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/payout"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
 )
 
 var statsEndpoint, _ = url.Parse("/api/v1/stats")
 
-func ExecutePayout(secret string, totalReward float64, loadbalancerUrl *url.URL) error {
+func ExecutePayout(secret string, totalReward float64, loadbalancerUrl *url.URL) ([]*payout.TransactionDetails, error) {
 	stats, err := fetchStatsFromEndpoint(loadbalancerUrl.ResolveReference(statsEndpoint))
 	if err != nil {
-		return fmt.Errorf("unable to fetch stats from loadbalancer, %v", err)
+		return nil, fmt.Errorf("unable to fetch stats from loadbalancer, %v", err)
 	}
 
 	// calculate distribution
@@ -30,20 +29,12 @@ func ExecutePayout(secret string, totalReward float64, loadbalancerUrl *url.URL)
 		float64(stats.Fee),
 	)
 
-	transactions, err := payout.ExecuteAllPayoutTransactions(
+	return payout.ExecuteAllPayoutTransactions(
 		distributionByNode,
 		stats.Stats,
 		secret,
 		loadbalancerUrl.String(),
 	)
-
-	if err != nil {
-		return fmt.Errorf("unable to execute payout transactions, %v", err)
-	}
-
-	// todo
-	log.Info(transactions)
-	return nil
 }
 
 func fetchStatsFromEndpoint(endpoint *url.URL) (*controllers.StatsResponse, error) {

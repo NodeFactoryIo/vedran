@@ -65,10 +65,15 @@ func init() {
 func payoutCommand(_ *cobra.Command, _ []string) {
 	DisplayBanner()
 	fmt.Println("Payout script running...")
-	err := script.ExecutePayout(secret, totalRewardAsFloat64, loadbalancerURL)
+	transactions, err := script.ExecutePayout(secret, totalRewardAsFloat64, loadbalancerURL)
+	if transactions != nil {
+		// display even if only part of transactions executed
+		DisplayTransactionsStatus(transactions)
+	}
 	if err != nil {
 		log.Errorf("Unable to execute payout, because of: %v", err)
 		return
+	} else {
+		log.Info("Payout execution finished")
 	}
-	log.Info("Payout execution finished")
 }
