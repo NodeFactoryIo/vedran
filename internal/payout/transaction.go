@@ -14,9 +14,11 @@ type TransactionStatus string
 const (
 	Finalized = TransactionStatus("Finalized")
 	Dropped   = TransactionStatus("Dropped")
+	Invalid   = TransactionStatus("Invalid")
 )
 
 type TransactionDetails struct {
+	nodeId string
 	to     string
 	amount big.Int
 	status TransactionStatus
@@ -47,9 +49,10 @@ func ExecuteAllPayoutTransactions(
 
 	wg.Add(len(payoutDistribution)) // define number of goroutines
 	for nodeId, amount := range payoutDistribution {
+		nId := nodeId
 		go func(to string, amount big.Int, wg *sync.WaitGroup, mux *sync.Mutex) {
 			defer wg.Done()
-			transactionDetails, err := executeTransaction(api, to, amount, keyringPair, mux)
+			transactionDetails, err := executeTransaction(api, nId, to, amount, keyringPair, mux)
 			if err != nil {
 				fatalErrorsChannel <- err
 			} else {
@@ -66,26 +69,25 @@ func ExecuteAllPayoutTransactions(
 	}()
 
 	var transactionDetails []*TransactionDetails
+	var fatalErr error
 	select {
 	case <-wgDoneChannel:
 		break
-	case err := <-fatalErrorsChannel:
-		// return if some of transaction have been executed
-		for result := range resultsChannel {
-			transactionDetails = append(transactionDetails, result)
-		}
-		return transactionDetails, err
+	case fatalErr = <-fatalErrorsChannel:
+		break
 	}
-
+	// return even if just some of transaction have been executed
 	for result := range resultsChannel {
 		transactionDetails = append(transactionDetails, result)
 	}
-	return transactionDetails, nil
+	return transactionDetails, fatalErr
 }
 
 func executeTransaction(
 	api *gsrpc.SubstrateAPI,
-	to string, amount big.Int,
+	nodeId string,
+	to string,
+	amount big.Int,
 	keyringPair signature.KeyringPair,
 	mux *sync.Mutex,
 ) (*TransactionDetails, error) {
@@ -164,20 +166,32 @@ func executeTransaction(
 	// unlock segment
 	mux.Unlock()
 
+	// listen for transaction status
 	defer sub.Unsubscribe()
 	for {
 		status := <-sub.Chan()
 		if status.IsDropped {
 			log.Debug("Dropped transaction")
 			return &TransactionDetails{
+				nodeId: nodeId,
 				to:     to,
 				amount: amount,
 				status: Dropped,
 			}, nil
 		}
+		if status.IsInvalid {
+			log.Debug("Invalid transaction")
+			return &TransactionDetails{
+				nodeId: nodeId,
+				to:     to,
+				amount: amount,
+				status: Invalid,
+			}, nil
+		}
 		if status.IsFinalized {
 			log.Debugf("Completed at block hash: %#x\n", status.AsFinalized)
 			return &TransactionDetails{
+				nodeId: nodeId,
 				to:     to,
 				amount: amount,
 				status: Finalized,

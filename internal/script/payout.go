@@ -30,8 +30,19 @@ func ExecutePayout(secret string, totalReward float64, loadbalancerUrl *url.URL)
 		float64(stats.Fee),
 	)
 
-	// todo - call sending payout transactions
-	log.Info(distributionByNode)
+	transactions, err := payout.ExecuteAllPayoutTransactions(
+		distributionByNode,
+		stats.Stats,
+		secret,
+		loadbalancerUrl.String(),
+	)
+
+	if err != nil {
+		return fmt.Errorf("unable to execute payout transactions, %v", err)
+	}
+
+	// todo
+	log.Info(transactions)
 	return nil
 }
 
