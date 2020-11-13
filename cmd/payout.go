@@ -1,31 +1,28 @@
 package cmd
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/internal/controllers"
-	"github.com/NodeFactoryIo/vedran/internal/models"
-	"github.com/NodeFactoryIo/vedran/internal/payout"
+	"github.com/NodeFactoryIo/vedran/internal/script"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"net/http"
+	"net/url"
 	"strconv"
-	"strings"
 )
 
 var (
-	secret string
-	totalReward string
-	loadbalancerUrl string
+	secret             string
+	totalReward        string
+	rawLoadbalancerUrl string
 
+	loadbalancerURL      *url.URL
 	totalRewardAsFloat64 float64
 )
 
 var payoutCmd = &cobra.Command{
-	Use: "payout",
+	Use:   "payout",
 	Short: "Starts payout script",
-	Run: payoutCommand,
+	Run:   payoutCommand,
 	Args: func(cmd *cobra.Command, args []string) error {
 		result, err := strconv.ParseFloat(totalReward, 64)
 		if err != nil {
@@ -33,10 +30,11 @@ var payoutCmd = &cobra.Command{
 		}
 		totalRewardAsFloat64 = result
 
-		if !(strings.HasPrefix(loadbalancerUrl, "http://") ||
-			strings.HasPrefix(loadbalancerUrl, "https://")) {
-			loadbalancerUrl = "http://" + loadbalancerUrl
+		loadbalancerURL, err = url.Parse(rawLoadbalancerUrl)
+		if err != nil {
+			return fmt.Errorf("invalid loadbalancer URL: %v", err)
 		}
+
 		return nil
 	},
 }
@@ -48,16 +46,18 @@ func init() {
 		"",
 		"[REQUIRED] loadbalancer wallet secret",
 	)
+	_ = payoutCmd.MarkFlagRequired("secret")
 	payoutCmd.Flags().StringVar(
 		&totalReward,
 		"total-reward",
 		"",
 		"[REQUIRED] total reward pool in Planck",
 	)
+	_ = payoutCmd.MarkFlagRequired("total-reward")
 	payoutCmd.Flags().StringVar(
-		&loadbalancerUrl,
+		&rawLoadbalancerUrl,
 		"load-balancer-url",
-		"localhost:80",
+		"http://localhost:80",
 		"[OPTIONAL] url on which loadbalancer is listening")
 	RootCmd.AddCommand(payoutCmd)
 }
@@ -65,51 +65,10 @@ func init() {
 func payoutCommand(_ *cobra.Command, _ []string) {
 	DisplayBanner()
 	fmt.Println("Payout script running...")
-
-	stats, err := fetchStatsFromEndpoint(loadbalancerUrl + "/api/v1/stats")
+	err := script.ExecutePayout(secret, totalRewardAsFloat64, loadbalancerURL)
 	if err != nil {
-		log.Errorf("Unable to fetch stats from loadbalancer, because of %v", err)
+		log.Errorf("Unable to execute payout, because of: %v", err)
 		return
 	}
-
-	// calculate distribution
-	nodeStatsDetails := make(map[string]models.NodeStatsDetails, len(stats.Stats))
-	for nodeId, nodeStats := range stats.Stats {
-		nodeStatsDetails[nodeId] = nodeStats.Stats
-	}
-
-	distributionByNode := payout.CalculatePayoutDistributionByNode(
-		nodeStatsDetails,
-		totalRewardAsFloat64,
-		float64(stats.Fee),
-	)
-
-	transactionDetails, err := payout.ExecuteAllPayoutTransactions(
-		distributionByNode,
-		stats.Stats,
-		secret,
-		loadbalancerUrl,
-	)
-	if err != nil {
-		log.Errorf("Unable to execute payout transactions, because of %v", err)
-		return
-	}
-
-	// todo - prettify displaying transactions status
-	log.Info(transactionDetails)
-}
-
-func fetchStatsFromEndpoint(endpoint string) (*controllers.StatsResponse, error) {
-	resp, err := http.Get(endpoint)
-	if err != nil {
-		return nil, err
-	}
-	dec := json.NewDecoder(resp.Body)
-	dec.DisallowUnknownFields()
-	stats := controllers.StatsResponse{}
-	err = dec.Decode(&stats)
-	if err != nil {
-		return nil, err
-	}
-	return &stats, nil
+	log.Info("Payout execution finished")
 }
