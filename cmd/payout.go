@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/script"
+	"github.com/NodeFactoryIo/vedran/internal/ui"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"net/url"
@@ -49,7 +50,7 @@ func init() {
 	_ = payoutCmd.MarkFlagRequired("secret")
 	payoutCmd.Flags().StringVar(
 		&totalReward,
-		"total-reward",
+		"reward",
 		"",
 		"[REQUIRED] total reward pool in Planck",
 	)
@@ -68,7 +69,7 @@ func payoutCommand(_ *cobra.Command, _ []string) {
 	transactions, err := script.ExecutePayout(secret, totalRewardAsFloat64, loadbalancerURL)
 	if transactions != nil {
 		// display even if only part of transactions executed
-		DisplayTransactionsStatus(transactions)
+		ui.DisplayTransactionsStatus(transactions)
 	}
 	if err != nil {
 		log.Errorf("Unable to execute payout, because of: %v", err)

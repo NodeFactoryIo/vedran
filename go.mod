@@ -3,7 +3,7 @@ module github.com/NodeFactoryIo/vedran
 go 1.15
 
 require (
-	github.com/NodeFactoryIo/go-substrate-rpc-client v1.1.1-0.20201117130410-fe8589d08563 // indirect
+	github.com/NodeFactoryIo/go-substrate-rpc-client v1.1.1-0.20201117130410-fe8589d08563
 	github.com/asdine/storm/v3 v3.2.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible

@@ -3,6 +3,8 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	schedulepayout "github.com/NodeFactoryIo/vedran/internal/schedule/payout"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -33,6 +35,11 @@ var (
 	selection      string
 	serverPort     int32
 	publicIP       string
+	// payout related flags
+	payoutNumberOfDays         int32
+	payoutSecret               string
+	payoutTotalReward          string
+	payoutTotalRewardAsFloat64 float64
 	// logging related flags
 	logLevel string
 	logFile  string
@@ -101,6 +108,17 @@ var startCmd = &cobra.Command{
 		if whitelistArray != nil && whitelistFile != "" {
 			return errors.New("only one flag for setting whitelisted nodes should be set")
 		}
+
+		// valid payout params
+		if payoutNumberOfDays <= 0 {
+			return errors.New("")
+		}
+		result, err := strconv.ParseFloat(payoutTotalReward, 64)
+		if err != nil {
+			return errors.New("invalid total reward value")
+		}
+		payoutTotalRewardAsFloat64 = result
+
 		return nil
 	},
 }
@@ -198,6 +216,24 @@ func init() {
 		"20000:30000",
 		"[OPTIONAL] Range of ports which is used to open tunnels")
 
+	startCmd.Flags().Int32Var(
+		&payoutNumberOfDays,
+		"payout-interval",
+		0,
+		"[OPTIONAL] Payout interval in days, meaning each X days automatic payout will be executed")
+	startCmd.Flags().StringVar(
+		&payoutSecret,
+		"payout-secret",
+		"",
+		"[REQUIRED] Loadbalancer wallet secret",
+	)
+	startCmd.Flags().StringVar(
+		&payoutTotalReward,
+		"payout-reward",
+		"",
+		"[REQUIRED] Total reward pool in Planck",
+	)
+
 	RootCmd.AddCommand(startCmd)
 }
 
@@ -230,6 +266,9 @@ func startCommand(_ *cobra.Command, _ []string) {
 		log.Fatal("Unable to set whitelisted nodes ", err)
 	}
 	log.Debugf("Whitelisting set to: %t", whitelistEnabled)
+
+	lbUrl, _ := url.Parse("http://" + publicIP + ":" + string(serverPort))
+	schedulepayout.StartScheduledPayout(payoutNumberOfDays, payoutSecret, payoutTotalRewardAsFloat64, lbUrl)
 
 	tunnel.StartHttpTunnelServer(tunnelServerPort, pPool)
 	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
