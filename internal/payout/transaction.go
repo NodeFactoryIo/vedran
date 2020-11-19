@@ -165,7 +165,6 @@ func executeTransaction(
 	// unlock segment
 	mux.Unlock()
 
-	// listen for transaction Status
 	defer sub.Unsubscribe()
 	for {
 		status := <-sub.Chan()
