@@ -81,9 +81,9 @@ Start command will start application on 2 ports that need to be exposed to publi
 
 `--capacity` - maximum number of nodes allowed to connect - **DEFAULT** [-1] unlimited capacity
 
-`--whitelist` - Comma separated list of node id-s, if provided only these nodes will be allowed to connect. This flag can't be used together with --whitelist-file flag, only one option for setting whitelisted nodes can be used - **DEFAULT** no nodes whitelisted
+`--whitelist` - comma separated list of node id-s, if provided only these nodes will be allowed to connect. This flag can't be used together with --whitelist-file flag, only one option for setting whitelisted nodes can be used - **DEFAULT** no nodes whitelisted
 
-`--whitelist-file` - Path to file with node id-s in each line that should be whitelisted. This flag can't be used together with --whitelist flag, only one option for setting whitelisted nodes can be used - **DEFAULT** no file used
+`--whitelist-file` - path to file with node id-s in each line that should be whitelisted. This flag can't be used together with --whitelist flag, only one option for setting whitelisted nodes can be used - **DEFAULT** no file used
 
 `--fee` - value between 0-1 representing fee percentage that loadbalancer will take - **DEFAULT** [0.1]
 
@@ -92,6 +92,33 @@ Start command will start application on 2 ports that need to be exposed to publi
 `--log-level` - log level (debug, info, warn, error) - **DEFAULT** [error]
 
 `--log-file` - path to file in which logs will be saved - **DEFAULT** [stdout]
+
+## Payouts
+
+### Automatic payout
+
+When starting _vedran loadbalancer_ it is possible to configure automatic payout by providing these flags:
+
+`--payout-interval` - automatic payout interval specified as number of days
+
+`--payout-secret` - loadbalancers wallet secret
+
+`--payout-reward` - defined reward amount that will be distributed on the payout (amount in Planck)
+
+If all flags have been provided than each {_payout-interval_} days automatic payout will be started.
+
+### Manual payout
+
+It is possible to run payout script at any time by invoking `vedran payout` command trough console.
+This command has two required flags:
+
+`--secret` - loadbalancer wallet secret
+
+`--reward` - defined reward amount that will be distributed on the payout (amount in Planck)
+
+Additionally, it is possible to change url on which payout script will connect with loadbalancer when executing transactions by setting flag (default value will be _http://localhost:80_)
+
+`--load-balancer-url` - loadbalancer url
 
 ## Vedran loadbalancer API
 
