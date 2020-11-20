@@ -150,11 +150,17 @@ func TestAddrPool_Release(t *testing.T) {
 	}
 }
 
-func TestAddrPool_GetPort(t *testing.T) {
+func TestAddrPool_GetHTTPPort(t *testing.T) {
 	addrMap := make(map[int]*RemoteID)
 	addrMap[100] = &RemoteID{
 		ClientID: "valid-id",
+		PortName: "ws",
 		Port:     20000,
+	}
+	addrMap[101] = &RemoteID{
+		ClientID: "valid-id",
+		PortName: "http",
+		Port:     20001,
 	}
 
 	type fields struct {
@@ -184,7 +190,7 @@ func TestAddrPool_GetPort(t *testing.T) {
 			name:    "Returns nil if id in pool",
 			args:    args{id: "valid-id"},
 			wantErr: false,
-			want:    20000,
+			want:    20001,
 			fields:  fields{100, 101, 1, addrMap},
 		},
 	}
@@ -197,13 +203,78 @@ func TestAddrPool_GetPort(t *testing.T) {
 				used:    tt.fields.used,
 				addrMap: tt.fields.addrMap,
 			}
-			got, err := ap.GetPort(tt.args.id)
+			got, err := ap.GetHTTPPort(tt.args.id)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AddrPool.GetPort() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AddrPool.GetHTTPPort() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
-				t.Errorf("AddrPool.GetPort() = %v, want %v", got, tt.want)
+				t.Errorf("AddrPool.GetHTTPPort() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestAddrPool_GetWSPort(t *testing.T) {
+	addrMap := make(map[int]*RemoteID)
+	addrMap[100] = &RemoteID{
+		ClientID: "valid-id",
+		PortName: "http",
+		Port:     20000,
+	}
+	addrMap[101] = &RemoteID{
+		ClientID: "valid-id",
+		PortName: "ws",
+		Port:     20001,
+	}
+
+	type fields struct {
+		first   int
+		last    int
+		used    int
+		addrMap map[int]*RemoteID
+	}
+	type args struct {
+		id string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    int
+		wantErr bool
+	}{
+		{
+			name:    "Returns error if id not found in pool",
+			args:    args{id: "invalid"},
+			wantErr: true,
+			want:    0,
+			fields:  fields{100, 100, 1, make(map[int]*RemoteID)},
+		},
+		{
+			name:    "Returns nil if id in pool",
+			args:    args{id: "valid-id"},
+			wantErr: false,
+			want:    20001,
+			fields:  fields{100, 101, 1, addrMap},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ap := &AddrPool{
+				first:   tt.fields.first,
+				last:    tt.fields.last,
+				used:    tt.fields.used,
+				addrMap: tt.fields.addrMap,
+			}
+			got, err := ap.GetWSPort(tt.args.id)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("AddrPool.GetWSPort() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("AddrPool.GetWSPort() = %v, want %v", got, tt.want)
 			}
 		})
 	}

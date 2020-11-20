@@ -103,7 +103,7 @@ func CheckBatchRPCResponse(body []byte) ([]RPCResponse, error) {
 
 // SendRequestToNode routes request to node and checks response
 func SendRequestToNode(isBatch bool, nodeID string, reqBody []byte) ([]byte, error) {
-	port, err := configuration.Config.PortPool.GetPort(nodeID)
+	port, err := configuration.Config.PortPool.GetHTTPPort(nodeID)
 	if err != nil {
 		return nil, err
 	}
