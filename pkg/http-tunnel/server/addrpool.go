@@ -25,7 +25,8 @@ type Pooler interface {
 	Init(rang string) error
 	Acquire(cname string, pname string) (int, error)
 	Release(id string) error
-	GetPort(id string) (int, error)
+	GetHTTPPort(id string) (int, error)
+	GetWSPort(id string) (int, error)
 }
 
 func (ap *AddrPool) Init(rang string) error {
@@ -96,9 +97,21 @@ func (ap *AddrPool) Release(id string) error {
 	return nil
 }
 
-func (ap *AddrPool) GetPort(id string) (int, error) {
+// GetHTTPPort retrieves port for given node id http tunnel
+func (ap *AddrPool) GetHTTPPort(id string) (int, error) {
 	for _, addr := range ap.addrMap {
-		if addr != nil && addr.ClientID == id {
+		if addr != nil && addr.ClientID == id && addr.PortName == "http" {
+			return addr.Port, nil
+		}
+	}
+
+	return 0, fmt.Errorf("No port for id %s in pool", id)
+}
+
+// GetWSPort retrieves port for given node id websocket tunel
+func (ap *AddrPool) GetWSPort(id string) (int, error) {
+	for _, addr := range ap.addrMap {
+		if addr != nil && addr.ClientID == id && addr.PortName == "ws" {
 			return addr.Port, nil
 		}
 	}
