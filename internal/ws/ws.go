@@ -25,6 +25,7 @@ func SendRequestToNode(conn *websocket.Conn, nodeConn *websocket.Conn) {
 	for {
 		msgType, msg, err := conn.ReadMessage()
 		if err != nil {
+			log.Errorf("Reading request from client failed because of %v:", err)
 			return
 		}
 		nodeConn.WriteMessage(msgType, msg)
@@ -36,7 +37,7 @@ func SendRequestToNode(conn *websocket.Conn, nodeConn *websocket.Conn) {
 func SendResponseToClient(conn *websocket.Conn, nodeConn *websocket.Conn, messages chan Message) {
 	for m := range messages {
 		if err := conn.WriteMessage(m.msgType, m.msg); err != nil {
-			log.Errorf("Establishing node connection failed because of %v:", err)
+			log.Errorf("Sending response client failed because of %v:", err)
 			return
 		}
 	}
@@ -48,6 +49,7 @@ func EstablishNodeConn(nodeID string, wsConnection chan *websocket.Conn, message
 	port, err := configuration.Config.PortPool.GetWSPort(nodeID)
 	if err != nil {
 		connErr <- err
+		wsConnection <- nil
 		return
 	}
 
@@ -55,16 +57,17 @@ func EstablishNodeConn(nodeID string, wsConnection chan *websocket.Conn, message
 	c, _, err := websocket.DefaultDialer.Dial(host.String(), http.Header{"Origin": {origin}})
 	if err != nil {
 		connErr <- err
+		wsConnection <- nil
 		return
 	}
 
+	connErr <- nil
 	wsConnection <- c
 
 	defer c.Close()
 	for {
 		msgType, m, err := c.ReadMessage()
 		if err != nil {
-			connErr <- err
 			log.Errorf("Failed reading message from node because of %v:", err)
 			return
 		}
