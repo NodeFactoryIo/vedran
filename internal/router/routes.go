@@ -1,8 +1,9 @@
 package router
 
 import (
-	log "github.com/sirupsen/logrus"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/controllers"
@@ -23,6 +24,7 @@ func createRoute(route string, method string, handler http.HandlerFunc, router *
 
 func createRoutes(apiController *controllers.ApiController, router *mux.Router) {
 	createRoute("/", "POST", apiController.RPCHandler, router, false)
+	createRoute("/ws", "GET", apiController.WSHandler, router, false)
 
 	createRoute("/api/v1/nodes", "POST", apiController.RegisterHandler, router, false)
 	createRoute("/api/v1/nodes/pings", "POST", apiController.PingHandler, router, true)

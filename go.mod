@@ -8,6 +8,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/golang/gddo v0.0.0-20200831202555-721e228c7686
 	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/websocket v1.4.0
 	github.com/inconshreveable/go-vhost v0.0.0-20160627193104-06d84117953b
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cobra v1.0.0
