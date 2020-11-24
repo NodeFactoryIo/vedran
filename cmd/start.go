@@ -35,11 +35,12 @@ var (
 	selection      string
 	serverPort     int32
 	publicIP       string
+	walletSecret   string
 	// payout related flags
 	payoutNumberOfDays         int32
-	payoutSecret               string
 	payoutTotalReward          string
 	payoutTotalRewardAsFloat64 float64
+	autoPayoutDisabled         bool
 	// logging related flags
 	logLevel string
 	logFile  string
@@ -109,15 +110,21 @@ var startCmd = &cobra.Command{
 			return errors.New("only one flag for setting whitelisted nodes should be set")
 		}
 
-		// valid payout params
-		if payoutNumberOfDays <= 0 {
-			return errors.New("")
+		if walletSecret == "" {
+			return errors.New("payout secret needs to be set")
 		}
-		result, err := strconv.ParseFloat(payoutTotalReward, 64)
-		if err != nil {
-			return errors.New("invalid total reward value")
+
+		autoPayoutDisabled = payoutNumberOfDays == 0 && payoutTotalReward == ""
+		if !autoPayoutDisabled {
+			if payoutNumberOfDays <= 0 {
+				return errors.New("invalid payout interval")
+			}
+			rewardAsFloat64, err := strconv.ParseFloat(payoutTotalReward, 64)
+			if err != nil {
+				return errors.New("invalid total reward value")
+			}
+			payoutTotalRewardAsFloat64 = rewardAsFloat64
 		}
-		payoutTotalRewardAsFloat64 = result
 
 		return nil
 	},
@@ -216,17 +223,19 @@ func init() {
 		"20000:30000",
 		"[OPTIONAL] Range of ports which is used to open tunnels")
 
+	startCmd.Flags().StringVar(
+		&walletSecret,
+		"wallet-secret",
+		"",
+		"[REQUIRED] Loadbalancer wallet secret",
+	)
+
 	startCmd.Flags().Int32Var(
 		&payoutNumberOfDays,
 		"payout-interval",
 		0,
 		"[OPTIONAL] Payout interval in days, meaning each X days automatic payout will be executed")
-	startCmd.Flags().StringVar(
-		&payoutSecret,
-		"payout-secret",
-		"",
-		"[REQUIRED] Loadbalancer wallet secret",
-	)
+
 	startCmd.Flags().StringVar(
 		&payoutTotalReward,
 		"payout-reward",
@@ -267,8 +276,10 @@ func startCommand(_ *cobra.Command, _ []string) {
 	}
 	log.Debugf("Whitelisting set to: %t", whitelistEnabled)
 
-	lbUrl, _ := url.Parse("http://" + publicIP + ":" + string(serverPort))
-	schedulepayout.StartScheduledPayout(payoutNumberOfDays, payoutSecret, payoutTotalRewardAsFloat64, lbUrl)
+	if !autoPayoutDisabled {
+		lbUrl, _ := url.Parse("http://" + publicIP + ":" + string(serverPort))
+		schedulepayout.StartScheduledPayout(payoutNumberOfDays, walletSecret, payoutTotalRewardAsFloat64, lbUrl)
+	}
 
 	tunnel.StartHttpTunnelServer(tunnelServerPort, pPool)
 	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
@@ -283,5 +294,6 @@ func startCommand(_ *cobra.Command, _ []string) {
 		TunnelServerAddress: tunnelServerAddress,
 		PortPool:            pPool,
 		WhitelistEnabled:    whitelistEnabled,
+		Secret:              walletSecret,
 	})
 }
