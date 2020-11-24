@@ -245,7 +245,7 @@ func Test_GetStatsForPayout(t *testing.T) {
 				PayoutRepo:   &payoutRepoMock,
 			}
 
-			statsForPayout, err := GetStatsForPayout(repos, now, test.shouldRecordPayout)
+			_, statsForPayout, err := GetStatsForPayout(repos, now, test.shouldRecordPayout)
 			assert.Equal(t, test.getStatsForPayoutReturns, statsForPayout)
 			assert.Equal(t, test.getStatsForPayoutError, err)
 			// check if payout saved

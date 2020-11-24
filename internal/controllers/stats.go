@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"encoding/json"
+	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/payout"
 	"github.com/NodeFactoryIo/vedran/internal/stats"
 	muxhelpper "github.com/gorilla/mux"
@@ -11,16 +13,14 @@ import (
 	"time"
 )
 
-type StatsResponse struct {
-	Stats map[string]payout.NodePayoutDetails `json:"stats"`
-	Fee   float32                             `json:"fee"`
-}
-
 var getNow = time.Now
 
+type StatsResponse struct {
+	Stats map[string]models.NodeStatsDetails `json:"stats"`
+}
+
 func (c *ApiController) StatisticsHandlerAllStats(w http.ResponseWriter, r *http.Request) {
-	// should check for signature in body and only then record payout
-	payoutStatistics, err := payout.GetStatsForPayout(c.repositories, getNow(), false)
+	statistics, _, err := payout.GetStatsForPayout(c.repositories, getNow(), false)
 	if err != nil {
 		log.Errorf("Failed to calculate statistics, because %v", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -29,6 +29,56 @@ func (c *ApiController) StatisticsHandlerAllStats(w http.ResponseWriter, r *http
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(StatsResponse{
+		Stats: statistics,
+	})
+}
+
+type LoadbalancerStatsResponse struct {
+	Stats map[string]payout.NodePayoutDetails `json:"stats"`
+	Fee   float32                             `json:"fee"`
+}
+
+type LoadbalancerStatsRequest struct {
+	StartPayout bool `json:"start_payout"`
+}
+
+func (c *ApiController) StatisticsHandlerAllStatsForLoadbalancer(w http.ResponseWriter, r *http.Request) {
+	sig := r.Header.Get("X-Signature")
+	if sig == "" {
+		log.Errorf("Missing signature header")
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	}
+	verified, err := signature.Verify([]byte("loadbalancer-request"), []byte(sig), configuration.Config.Secret)
+	if err != nil {
+		log.Errorf("Failed to verify signature, because %v", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	if !verified {
+		log.Errorf("Invalid request signature")
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+	req := LoadbalancerStatsRequest{}
+	err = dec.Decode(&req)
+	if err != nil {
+		log.Errorf("Invalid request payload")
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	_, payoutStatistics, err := payout.GetStatsForPayout(c.repositories, getNow(), req.StartPayout)
+	if err != nil {
+		log.Errorf("Failed to calculate statistics, because %v", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(LoadbalancerStatsResponse{
 		Stats: payoutStatistics,
 		Fee:   configuration.Config.Fee,
 	})

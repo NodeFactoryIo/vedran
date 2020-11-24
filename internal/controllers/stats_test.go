@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
@@ -143,10 +145,267 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 			var statsResponse StatsResponse
 			if rr.Code == http.StatusOK {
 				_ = json.Unmarshal(rr.Body.Bytes(), &statsResponse)
+				assert.LessOrEqual(t, test.nodeNumberOfPings, statsResponse.Stats[test.nodeId].TotalPings)
+				assert.Equal(t, test.nodeNumberOfRequests, statsResponse.Stats[test.nodeId].TotalRequests)
+			}
+		})
+	}
+}
+
+func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
+	now := time.Now()
+	getNow = func() time.Time {
+		return now
+	}
+	tests := []struct {
+		name       string
+		httpStatus int
+		nodeId     string
+		// NodeRepo.GetAll
+		nodeRepoGetAllReturns *[]models.Node
+		nodeRepoGetAllError   error
+		// RecordRepo.FindSuccessfulRecordsInsideInterval
+		recordRepoFindSuccessfulRecordsInsideIntervalReturns []models.Record
+		recordRepoFindSuccessfulRecordsInsideIntervalError   error
+		// DowntimeRepo.FindDowntimesInsideInterval
+		downtimeRepoFindDowntimesInsideIntervalReturns []models.Downtime
+		downtimeRepoFindDowntimesInsideIntervalError   error
+		// PingRepo.CalculateDowntime
+		pingRepoCalculateDowntimeReturnDuration time.Duration
+		pingRepoCalculateDowntimeError          error
+		// PayoutRepo.FindLatestPayout
+		payoutRepoFindLatestPayoutReturns *models.Payout
+		payoutRepoFindLatestPayoutError   error
+		// Stats
+		nodeNumberOfPings    float64
+		nodeNumberOfRequests float64
+		//
+		secret        string
+		signatureData string
+		payload       interface{}
+	}{
+		{
+			name:       "get valid stats, 200 OK",
+			nodeId:     "1",
+			httpStatus: http.StatusOK,
+			// NodeRepo.GetAll
+			nodeRepoGetAllReturns: &[]models.Node{
+				{
+					ID: "1",
+				},
+			},
+			nodeRepoGetAllError: nil,
+			// RecordRepo.FindSuccessfulRecordsInsideInterval
+			recordRepoFindSuccessfulRecordsInsideIntervalReturns: nil,
+			recordRepoFindSuccessfulRecordsInsideIntervalError:   errors.New("not found"),
+			// DowntimeRepo.FindDowntimesInsideInterval
+			downtimeRepoFindDowntimesInsideIntervalReturns: nil,
+			downtimeRepoFindDowntimesInsideIntervalError:   errors.New("not found"),
+			// PingRepo.CalculateDowntime
+			pingRepoCalculateDowntimeReturnDuration: 5 * time.Second,
+			pingRepoCalculateDowntimeError:          nil,
+			// PayoutRepo.FindLatestPayout
+			payoutRepoFindLatestPayoutReturns: &models.Payout{
+				Timestamp:      now.Add(-24 * time.Hour),
+				PaymentDetails: nil,
+			},
+			payoutRepoFindLatestPayoutError: nil,
+			// Stats
+			nodeNumberOfRequests: float64(0),
+			nodeNumberOfPings:    float64(8640),
+			//
+			payload:       LoadbalancerStatsRequest{StartPayout: true},
+			secret:        "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			signatureData: "loadbalancer-request",
+		},
+		{
+			name:       "missing signature, 400 bad request",
+			nodeId:     "1",
+			httpStatus: http.StatusBadRequest,
+			// NodeRepo.GetAll
+			nodeRepoGetAllReturns: &[]models.Node{
+				{
+					ID: "1",
+				},
+			},
+			nodeRepoGetAllError: nil,
+			// RecordRepo.FindSuccessfulRecordsInsideInterval
+			recordRepoFindSuccessfulRecordsInsideIntervalReturns: nil,
+			recordRepoFindSuccessfulRecordsInsideIntervalError:   errors.New("not found"),
+			// DowntimeRepo.FindDowntimesInsideInterval
+			downtimeRepoFindDowntimesInsideIntervalReturns: nil,
+			downtimeRepoFindDowntimesInsideIntervalError:   errors.New("not found"),
+			// PingRepo.CalculateDowntime
+			pingRepoCalculateDowntimeReturnDuration: 5 * time.Second,
+			pingRepoCalculateDowntimeError:          nil,
+			// PayoutRepo.FindLatestPayout
+			payoutRepoFindLatestPayoutReturns: &models.Payout{
+				Timestamp:      now.Add(-24 * time.Hour),
+				PaymentDetails: nil,
+			},
+			payoutRepoFindLatestPayoutError: nil,
+			// Stats
+			nodeNumberOfRequests: float64(0),
+			nodeNumberOfPings:    float64(8640),
+			//
+			payload:       LoadbalancerStatsRequest{StartPayout: true},
+			secret:        "",
+			signatureData: "loadbalancer-request",
+		},
+		{
+			name:       "invalid signature, 400 bad request",
+			nodeId:     "1",
+			httpStatus: http.StatusBadRequest,
+			// NodeRepo.GetAll
+			nodeRepoGetAllReturns: &[]models.Node{
+				{
+					ID: "1",
+				},
+			},
+			nodeRepoGetAllError: nil,
+			// RecordRepo.FindSuccessfulRecordsInsideInterval
+			recordRepoFindSuccessfulRecordsInsideIntervalReturns: nil,
+			recordRepoFindSuccessfulRecordsInsideIntervalError:   errors.New("not found"),
+			// DowntimeRepo.FindDowntimesInsideInterval
+			downtimeRepoFindDowntimesInsideIntervalReturns: nil,
+			downtimeRepoFindDowntimesInsideIntervalError:   errors.New("not found"),
+			// PingRepo.CalculateDowntime
+			pingRepoCalculateDowntimeReturnDuration: 5 * time.Second,
+			pingRepoCalculateDowntimeError:          nil,
+			// PayoutRepo.FindLatestPayout
+			payoutRepoFindLatestPayoutReturns: &models.Payout{
+				Timestamp:      now.Add(-24 * time.Hour),
+				PaymentDetails: nil,
+			},
+			payoutRepoFindLatestPayoutError: nil,
+			// Stats
+			nodeNumberOfRequests: float64(0),
+			nodeNumberOfPings:    float64(8640),
+			//
+			payload:       LoadbalancerStatsRequest{StartPayout: true},
+			secret:        "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			signatureData: "loadbalancer-invalid-request",
+		},
+		{
+			name:       "invalid payload, 400 bad request",
+			nodeId:     "1",
+			httpStatus: http.StatusBadRequest,
+			// NodeRepo.GetAll
+			nodeRepoGetAllReturns: &[]models.Node{
+				{
+					ID: "1",
+				},
+			},
+			nodeRepoGetAllError: nil,
+			// RecordRepo.FindSuccessfulRecordsInsideInterval
+			recordRepoFindSuccessfulRecordsInsideIntervalReturns: nil,
+			recordRepoFindSuccessfulRecordsInsideIntervalError:   errors.New("not found"),
+			// DowntimeRepo.FindDowntimesInsideInterval
+			downtimeRepoFindDowntimesInsideIntervalReturns: nil,
+			downtimeRepoFindDowntimesInsideIntervalError:   errors.New("not found"),
+			// PingRepo.CalculateDowntime
+			pingRepoCalculateDowntimeReturnDuration: 5 * time.Second,
+			pingRepoCalculateDowntimeError:          nil,
+			// PayoutRepo.FindLatestPayout
+			payoutRepoFindLatestPayoutReturns: &models.Payout{
+				Timestamp:      now.Add(-24 * time.Hour),
+				PaymentDetails: nil,
+			},
+			payoutRepoFindLatestPayoutError: nil,
+			// Stats
+			nodeNumberOfRequests: float64(0),
+			nodeNumberOfPings:    float64(8640),
+			//
+			payload:       map[string]string{"payload": "invalid"},
+			secret:        "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			signatureData: "loadbalancer-request",
+		},
+		{
+			name:                            "unable to get latest interval, 500 server error",
+			httpStatus:                      http.StatusInternalServerError,
+			payoutRepoFindLatestPayoutError: errors.New("db-error"),
+			payload:                         LoadbalancerStatsRequest{StartPayout: true},
+			secret:                          "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			signatureData:                   "loadbalancer-request",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			// create mock controller
+			nodeRepoMock := mocks.NodeRepository{}
+			nodeRepoMock.On("GetAll").Return(
+				test.nodeRepoGetAllReturns, test.nodeRepoGetAllError,
+			)
+			nodeRepoMock.On("FindByID", test.nodeId).Return(&models.Node{
+				ID:            test.nodeId,
+				PayoutAddress: "0xtest-address",
+			}, nil)
+			recordRepoMock := mocks.RecordRepository{}
+			recordRepoMock.On("FindSuccessfulRecordsInsideInterval",
+				test.nodeId, mock.Anything, mock.Anything,
+			).Return(
+				test.recordRepoFindSuccessfulRecordsInsideIntervalReturns,
+				test.recordRepoFindSuccessfulRecordsInsideIntervalError,
+			)
+			metricsRepoMock := mocks.MetricsRepository{}
+			pingRepoMock := mocks.PingRepository{}
+			pingRepoMock.On("CalculateDowntime",
+				test.nodeId, mock.Anything,
+			).Return(
+				time.Now(),
+				test.pingRepoCalculateDowntimeReturnDuration,
+				test.pingRepoCalculateDowntimeError,
+			)
+			downtimeRepoMock := mocks.DowntimeRepository{}
+			downtimeRepoMock.On("FindDowntimesInsideInterval",
+				test.nodeId, mock.Anything, mock.Anything,
+			).Return(
+				test.downtimeRepoFindDowntimesInsideIntervalReturns,
+				test.downtimeRepoFindDowntimesInsideIntervalError,
+			)
+			payoutRepoMock := mocks.PayoutRepository{}
+			payoutRepoMock.On("FindLatestPayout").Return(
+				test.payoutRepoFindLatestPayoutReturns,
+				test.payoutRepoFindLatestPayoutError,
+			)
+			payoutRepoMock.On("Save", mock.Anything).Return(nil)
+			apiController := NewApiController(false, repositories.Repos{
+				NodeRepo:     &nodeRepoMock,
+				PingRepo:     &pingRepoMock,
+				MetricsRepo:  &metricsRepoMock,
+				RecordRepo:   &recordRepoMock,
+				DowntimeRepo: &downtimeRepoMock,
+				PayoutRepo:   &payoutRepoMock,
+			}, nil)
+			handler := http.HandlerFunc(apiController.StatisticsHandlerAllStatsForLoadbalancer)
+
+			configuration.Config.Secret = test.secret
+
+			payload, _ := json.Marshal(test.payload)
+			req, _ := http.NewRequest("POST", "/api/v1/stats", bytes.NewReader(payload))
+
+			if test.secret != "" {
+				sig, _ := signature.Sign([]byte(test.signatureData), test.secret)
+				req.Header.Set("X-Signature", string(sig))
+			}
+
+			rr := httptest.NewRecorder()
+
+			// invoke test request
+			handler.ServeHTTP(rr, req)
+
+			// asserts
+			assert.Equal(t, test.httpStatus, rr.Code, fmt.Sprintf("Response status code should be %d", test.httpStatus))
+
+			var statsResponse LoadbalancerStatsResponse
+			if rr.Code == http.StatusOK {
+				_ = json.Unmarshal(rr.Body.Bytes(), &statsResponse)
 				assert.LessOrEqual(t, test.nodeNumberOfPings, statsResponse.Stats[test.nodeId].Stats.TotalPings)
 				assert.Equal(t, test.nodeNumberOfRequests, statsResponse.Stats[test.nodeId].Stats.TotalRequests)
 				assert.Equal(t, "0xtest-address", statsResponse.Stats[test.nodeId].PayoutAddress)
 			}
+
+			configuration.Config.Secret = ""
 		})
 	}
 }

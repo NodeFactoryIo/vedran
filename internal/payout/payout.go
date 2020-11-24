@@ -17,11 +17,11 @@ func GetStatsForPayout(
 	repos repositories.Repos,
 	intervalEnd time.Time,
 	recordPayout bool,
-) (map[string]NodePayoutDetails, error) {
+) (map[string]models.NodeStatsDetails, map[string]NodePayoutDetails, error) {
 
 	statistics, err := stats.CalculateStatisticsFromLastPayout(repos, intervalEnd)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	payoutStatistics := make(map[string]NodePayoutDetails, len(statistics))
@@ -40,9 +40,9 @@ func GetStatsForPayout(
 		})
 		if err != nil {
 			log.Errorf("Unable to save payout information To database, because of: %v", err)
-			return nil, err
+			return nil, nil, err
 		}
 	}
 
-	return payoutStatistics, nil
+	return statistics, payoutStatistics, nil
 }
