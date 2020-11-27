@@ -1,15 +1,15 @@
 package ws
 
 import (
-	"github.com/NodeFactoryIo/vedran/internal/actions"
-	"github.com/NodeFactoryIo/vedran/internal/models"
-	"github.com/NodeFactoryIo/vedran/internal/record"
-	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"net/url"
 	"strconv"
 	"time"
 
+	"github.com/NodeFactoryIo/vedran/internal/actions"
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	"github.com/NodeFactoryIo/vedran/internal/models"
+	"github.com/NodeFactoryIo/vedran/internal/record"
+	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
 )
@@ -25,26 +25,56 @@ var (
 
 // SendRequestToNode reads incoming messages to load balancer and pipes
 // them to node
-func SendRequestToNode(conn *websocket.Conn, nodeConn *websocket.Conn) {
+func SendRequestToNode(
+	connToLoadbalancer *websocket.Conn,
+	connToNode *websocket.Conn,
+	node models.Node,
+	repos repositories.Repos,
+	act actions.Actions,
+) {
 	for {
-		msgType, msg, err := conn.ReadMessage()
+		msgType, msg, err := connToLoadbalancer.ReadMessage()
 		if err != nil {
 			log.Errorf("Reading request from client failed because of %v:", err)
+			closeConnections(connToLoadbalancer, connToNode, node)
 			return
 		}
-		_ = nodeConn.WriteMessage(msgType, msg)
+		err = connToNode.WriteMessage(msgType, msg)
+		if err != nil {
+			record.FailedRequest(node, repos, act) // todo - should we penalize node or just record failed request
+			closeConnections(connToLoadbalancer, connToNode, node)
+			return
+		}
+	}
+}
+
+func closeConnections(connToLoadbalancer *websocket.Conn, connToNode *websocket.Conn, node models.Node) {
+	err := connToLoadbalancer.Close()
+	if err != nil {
+		log.Errorf("error on closing ws connection towards loadbalancer")
+	}
+	err = connToNode.Close()
+	if err != nil {
+		log.Errorf("error on closing ws connection towards node %s", node.ID)
 	}
 }
 
 // SendResponseToClient iterates through messages sent from node connection and sends them
 // to client
-func SendResponseToClient(conn *websocket.Conn, nodeConn *websocket.Conn, messages chan Message, a actions.Actions, repositories repositories.Repos, node models.Node) {
+func SendResponseToClient(
+	connToLoadbalancer *websocket.Conn,
+	connToNode *websocket.Conn,
+	messages chan Message,
+	node models.Node,
+	repos repositories.Repos,
+	act actions.Actions,
+) {
 	for m := range messages {
-		if err := conn.WriteMessage(m.msgType, m.msg); err != nil {
+		if err := connToLoadbalancer.WriteMessage(m.msgType, m.msg); err != nil {
 			log.Errorf("Sending response client failed because of %v:", err)
 			return
 		}
-		record.SuccessfulRequest(node, repositories, a)
+		record.SuccessfulRequest(node, repos, act)
 	}
 }
 
@@ -64,7 +94,7 @@ func EstablishNodeConn(nodeID string, wsConnection chan *websocket.Conn, message
 	host, _ := url.Parse("ws://127.0.0.1:" + strconv.Itoa(port))
 	dialer := websocket.DefaultDialer
 	dialer.HandshakeTimeout = ShortHandshakeTimeout
-	c, _, err := dialer.Dial(host.String(), nil) // http.Header{"Origin": {origin}}
+	c, _, err := dialer.Dial(host.String(), nil)
 	if err != nil {
 		connErr <- &ConnectionError{
 			Err:  err,
@@ -79,9 +109,11 @@ func EstablishNodeConn(nodeID string, wsConnection chan *websocket.Conn, message
 
 	defer c.Close()
 	for {
+		// cita odgovore od noda
 		msgType, m, err := c.ReadMessage()
 		if err != nil {
 			log.Errorf("Failed reading message from node because of %v:", err)
+			// record failed request
 			return
 		}
 
