@@ -1,9 +1,13 @@
 package ws
 
 import (
-	"net/http"
+	"github.com/NodeFactoryIo/vedran/internal/actions"
+	"github.com/NodeFactoryIo/vedran/internal/models"
+	"github.com/NodeFactoryIo/vedran/internal/record"
+	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"net/url"
 	"strconv"
+	"time"
 
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/gorilla/websocket"
@@ -16,7 +20,7 @@ type Message struct {
 }
 
 var (
-	origin = "http://localhost/"
+	ShortHandshakeTimeout = 3 * time.Second
 )
 
 // SendRequestToNode reads incoming messages to load balancer and pipes
@@ -34,29 +38,38 @@ func SendRequestToNode(conn *websocket.Conn, nodeConn *websocket.Conn) {
 
 // SendResponseToClient iterates through messages sent from node connection and sends them
 // to client
-func SendResponseToClient(conn *websocket.Conn, nodeConn *websocket.Conn, messages chan Message) {
+func SendResponseToClient(conn *websocket.Conn, nodeConn *websocket.Conn, messages chan Message, a actions.Actions, repositories repositories.Repos, node models.Node) {
 	for m := range messages {
 		if err := conn.WriteMessage(m.msgType, m.msg); err != nil {
 			log.Errorf("Sending response client failed because of %v:", err)
 			return
 		}
+		record.SuccessfulRequest(node, repositories, a)
 	}
 }
 
 // EstablishNodeConn dials node, pipes messages to message channel and returns connection
 // to wsConnection channel
-func EstablishNodeConn(nodeID string, wsConnection chan *websocket.Conn, messages chan Message, connErr chan error) {
+func EstablishNodeConn(nodeID string, wsConnection chan *websocket.Conn, messages chan Message, connErr chan *ConnectionError) {
 	port, err := configuration.Config.PortPool.GetWSPort(nodeID)
 	if err != nil {
-		connErr <- err
+		connErr <- &ConnectionError{
+			Err:  err,
+			Type: PortPoolError,
+		}
 		wsConnection <- nil
 		return
 	}
 
 	host, _ := url.Parse("ws://127.0.0.1:" + strconv.Itoa(port))
-	c, _, err := websocket.DefaultDialer.Dial(host.String(), http.Header{"Origin": {origin}})
+	dialer := websocket.DefaultDialer
+	dialer.HandshakeTimeout = ShortHandshakeTimeout
+	c, _, err := dialer.Dial(host.String(), nil) // http.Header{"Origin": {origin}}
 	if err != nil {
-		connErr <- err
+		connErr <- &ConnectionError{
+			Err:  err,
+			Type: NodeError,
+		}
 		wsConnection <- nil
 		return
 	}
