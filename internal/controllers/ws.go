@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
-	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/ws"
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
@@ -14,11 +13,6 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-}
-
-type Message struct {
-	msg     []byte
-	msgType int
 }
 
 func (c ApiController) WSHandler(w http.ResponseWriter, r *http.Request) {
@@ -36,27 +30,32 @@ func (c ApiController) WSHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	connErr := make(chan error)
+	connErr := make(chan *ws.ConnectionError)
 	messages := make(chan ws.Message)
 	wsConnection := make(chan *websocket.Conn)
-	nodesReversed := []models.Node{(*nodes)[0], (*nodes)[1]}
-	for _, node := range nodesReversed {
+	for _, node := range *nodes {
 		go ws.EstablishNodeConn(node.ID, wsConnection, messages, connErr)
 
-		err = <-connErr
+		connectionError := <-connErr
 		nodeConn := <-wsConnection
-		if err != nil {
+		if connectionError != nil {
 			log.Errorf("Establishing connection failed because of %v", err)
+			if connectionError.IsNodeError() {
+				c.actions.PenalizeNode(node, c.repositories)
+			}
 			continue
 		}
 
 		node.LastUsed = time.Now().Unix()
 
 		go ws.SendRequestToNode(conn, nodeConn)
-		go ws.SendResponseToClient(conn, nodeConn, messages)
+		go ws.SendResponseToClient(conn, nodeConn, messages, c.actions, c.repositories, node)
 		return
 	}
 
-	log.Error("Failed establishing connection with all nodes")
+	log.Error("Failed establishing connection with any node")
 	_ = conn.Close()
+	close(connErr)
+	close(messages)
+	close(wsConnection)
 }
