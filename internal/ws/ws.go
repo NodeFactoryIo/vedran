@@ -48,17 +48,6 @@ func SendRequestToNode(
 	}
 }
 
-func closeConnections(connToLoadbalancer *websocket.Conn, connToNode *websocket.Conn, node models.Node) {
-	err := connToLoadbalancer.Close()
-	if err != nil {
-		log.Errorf("error on closing ws connection towards loadbalancer")
-	}
-	err = connToNode.Close()
-	if err != nil {
-		log.Errorf("error on closing ws connection towards node %s", node.ID)
-	}
-}
-
 // SendResponseToClient iterates through messages sent from node connection and sends them
 // to client
 func SendResponseToClient(
@@ -72,9 +61,21 @@ func SendResponseToClient(
 	for m := range messages {
 		if err := connToLoadbalancer.WriteMessage(m.msgType, m.msg); err != nil {
 			log.Errorf("Sending response client failed because of %v:", err)
+			closeConnections(connToLoadbalancer, connToNode, node)
 			return
 		}
 		record.SuccessfulRequest(node, repos, act)
+	}
+}
+
+func closeConnections(connToLoadbalancer *websocket.Conn, connToNode *websocket.Conn, node models.Node) {
+	err := connToLoadbalancer.Close()
+	if err != nil {
+		log.Errorf("error on closing ws connection towards loadbalancer")
+	}
+	err = connToNode.Close()
+	if err != nil {
+		log.Errorf("error on closing ws connection towards node %s", node.ID)
 	}
 }
 
