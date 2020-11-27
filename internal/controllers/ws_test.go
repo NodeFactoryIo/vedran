@@ -72,6 +72,9 @@ func TestApiController_WSHandler(t *testing.T) {
 			nodeRepoMock := mocks.NodeRepository{}
 			nodeRepoMock.On("GetActiveNodes", mock.Anything).Return(&test.nodeRepoGetActiveNodesReturn)
 
+			recordRepoMock := mocks.RecordRepository{}
+			recordRepoMock.On("Save", mock.Anything).Return(nil)
+
 			actionsMockObject := new(actionMocks.Actions)
 			actionsMockObject.On(
 				"PenalizeNode", mock.MatchedBy(func(n models.Node) bool { return n.ID == "1"}), mock.Anything,
@@ -82,6 +85,7 @@ func TestApiController_WSHandler(t *testing.T) {
 
 			apiController := NewApiController(false, repositories.Repos{
 				NodeRepo: &nodeRepoMock,
+				RecordRepo: &recordRepoMock,
 			}, actionsMockObject)
 
 			// start test loadbalancer ws server

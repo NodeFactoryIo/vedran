@@ -20,7 +20,7 @@ type Message struct {
 }
 
 var (
-	ShortHandshakeTimeout = 3 * time.Second
+	ShortHandshakeTimeout = 2 * time.Second
 )
 
 // SendRequestToNode reads incoming messages to load balancer and pipes
