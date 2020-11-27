@@ -26,7 +26,7 @@ type NodeRepository interface {
 	IsNodeActive(ID string) bool
 	RemoveNodeFromActive(ID string) error
 	AddNodeToActive(ID string) error
-	RewardNode(node models.Node)
+	UpdateNodeUsed(node models.Node)
 	IncreaseNodeCooldown(ID string) (*models.Node, error)
 	ResetNodeCooldown(ID string) (*models.Node, error)
 	IsNodeOnCooldown(ID string) (bool, error)
@@ -156,7 +156,7 @@ func (r *nodeRepo) AddNodeToActive(ID string) error {
 	return nil
 }
 
-func (r *nodeRepo) RewardNode(node models.Node) {
+func (r *nodeRepo) UpdateNodeUsed(node models.Node) {
 	r.updateMemoryLastUsedTime(node)
 
 	node.LastUsed = time.Now().Unix()

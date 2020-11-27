@@ -1,13 +1,11 @@
 package controllers
 
 import (
-	"net/http"
-	"time"
-
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/ws"
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
+	"net/http"
 )
 
 var upgrader = websocket.Upgrader{
@@ -23,7 +21,7 @@ func (c ApiController) WSHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	conn, err := upgrader.Upgrade(w, r, nil)
+	connToLoadbalancer, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Errorf("Failed upgrading connection because of %v", err)
 		http.Error(w, "Failed upgrading connection", 500)
@@ -37,7 +35,7 @@ func (c ApiController) WSHandler(w http.ResponseWriter, r *http.Request) {
 		go ws.EstablishNodeConn(node.ID, wsConnection, messages, connErr)
 
 		connectionError := <-connErr
-		nodeConn := <-wsConnection
+		connToNode := <-wsConnection
 		if connectionError != nil {
 			log.Errorf("Establishing connection failed because of %v", err)
 			if connectionError.IsNodeError() {
@@ -46,15 +44,15 @@ func (c ApiController) WSHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		node.LastUsed = time.Now().Unix()
+		c.repositories.NodeRepo.UpdateNodeUsed(node)
 
-		go ws.SendRequestToNode(conn, nodeConn)
-		go ws.SendResponseToClient(conn, nodeConn, messages, c.actions, c.repositories, node)
+		go ws.SendRequestToNode(connToLoadbalancer, connToNode, node, c.repositories, c.actions)
+		go ws.SendResponseToClient(connToLoadbalancer, connToNode, messages, node, c.repositories, c.actions)
 		return
 	}
 
 	log.Error("Failed establishing connection with any node")
-	_ = conn.Close()
+	_ = connToLoadbalancer.Close()
 	close(connErr)
 	close(messages)
 	close(wsConnection)

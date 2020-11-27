@@ -24,30 +24,33 @@ import (
 
 func TestApiController_WSHandler(t *testing.T) {
 	tests := []struct {
-		name string
+		name                         string
 		nodeRepoGetActiveNodesReturn []models.Node
-		rewardNodeNumOfCalls int
-		penalizeNodeNumOfCalls int
-		requestType string
-		expectedResponses []string
-		forceNodeWStoFail bool
+		rewardNodeNumOfCalls         int
+		penalizeNodeNumOfCalls       int
+		updateNodeUsedNumOfCalls     int
+		requestType                  string
+		expectedResponses            []string
+		forceNodeWStoFail            bool
 	}{
 		{
 			name: "test simple request",
 			nodeRepoGetActiveNodesReturn: []models.Node{
 				{ID: "1", ConfigHash: "", PayoutAddress: "", Token: "", Cooldown: 0, LastUsed: 1, Active: true},
 			},
-			rewardNodeNumOfCalls: 1,
-			requestType: SimpleRequest,
-			expectedResponses: []string{SimpleRequest},
+			rewardNodeNumOfCalls:     1,
+			updateNodeUsedNumOfCalls: 1,
+			requestType:              SimpleRequest,
+			expectedResponses:        []string{SimpleRequest},
 		},
 		{
 			name: "test subscription request",
 			nodeRepoGetActiveNodesReturn: []models.Node{
 				{ID: "1", ConfigHash: "", PayoutAddress: "", Token: "", Cooldown: 0, LastUsed: 1, Active: true},
 			},
-			rewardNodeNumOfCalls: 5,
-			requestType: SubscribeRequest,
+			rewardNodeNumOfCalls:     5,
+			updateNodeUsedNumOfCalls: 1,
+			requestType:              SubscribeRequest,
 			expectedResponses: []string{
 				"subscription response 1",
 				"subscription response 2",
@@ -61,9 +64,9 @@ func TestApiController_WSHandler(t *testing.T) {
 			nodeRepoGetActiveNodesReturn: []models.Node{
 				{ID: "1", ConfigHash: "", PayoutAddress: "", Token: "", Cooldown: 0, LastUsed: 1, Active: true},
 			},
-			requestType: SimpleRequest,
-			expectedResponses: []string{},
-			forceNodeWStoFail: true,
+			requestType:            SimpleRequest,
+			expectedResponses:      []string{},
+			forceNodeWStoFail:      true,
 			penalizeNodeNumOfCalls: 1,
 		},
 	}
@@ -71,20 +74,21 @@ func TestApiController_WSHandler(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			nodeRepoMock := mocks.NodeRepository{}
 			nodeRepoMock.On("GetActiveNodes", mock.Anything).Return(&test.nodeRepoGetActiveNodesReturn)
+			nodeRepoMock.On("UpdateNodeUsed", mock.Anything).Return()
 
 			recordRepoMock := mocks.RecordRepository{}
 			recordRepoMock.On("Save", mock.Anything).Return(nil)
 
 			actionsMockObject := new(actionMocks.Actions)
 			actionsMockObject.On(
-				"PenalizeNode", mock.MatchedBy(func(n models.Node) bool { return n.ID == "1"}), mock.Anything,
+				"PenalizeNode", mock.MatchedBy(func(n models.Node) bool { return n.ID == "1" }), mock.Anything,
 			).Return()
 			actionsMockObject.On(
-				"RewardNode", mock.MatchedBy(func(n models.Node) bool { return n.ID == "1"}), mock.Anything,
+				"RewardNode", mock.MatchedBy(func(n models.Node) bool { return n.ID == "1" }), mock.Anything,
 			).Return()
 
 			apiController := NewApiController(false, repositories.Repos{
-				NodeRepo: &nodeRepoMock,
+				NodeRepo:   &nodeRepoMock,
 				RecordRepo: &recordRepoMock,
 			}, actionsMockObject)
 
@@ -124,6 +128,8 @@ func TestApiController_WSHandler(t *testing.T) {
 			actionsMockObject.AssertNumberOfCalls(t, "RewardNode", test.rewardNodeNumOfCalls)
 			actionsMockObject.AssertNumberOfCalls(t, "PenalizeNode", test.penalizeNodeNumOfCalls)
 
+			nodeRepoMock.AssertNumberOfCalls(t, "UpdateNodeUsed", test.updateNodeUsedNumOfCalls)
+
 			// cleanup
 			configuration.Config.PortPool = nil
 		})
@@ -138,9 +144,9 @@ func StartMockNodeWS(shouldFail bool) *httptest.Server {
 }
 
 const (
-	SimpleRequest = "request"
+	SimpleRequest    = "request"
 	SubscribeRequest = "subscribe"
-	FailRequest = "fail"
+	FailRequest      = "fail"
 )
 
 type MockNodeWs struct {
@@ -189,4 +195,3 @@ func (n *MockNodeWs) MockEchoWsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
-

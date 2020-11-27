@@ -7,5 +7,5 @@ import (
 
 // RewardNode updates LastUsed for provided node
 func (a actions) RewardNode(node models.Node, repositories repositories.Repos) {
-	repositories.NodeRepo.RewardNode(node)
+	repositories.NodeRepo.UpdateNodeUsed(node)
 }
