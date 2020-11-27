@@ -32,7 +32,7 @@ func SendRequestToNode(conn *websocket.Conn, nodeConn *websocket.Conn) {
 			log.Errorf("Reading request from client failed because of %v:", err)
 			return
 		}
-		nodeConn.WriteMessage(msgType, msg)
+		_ = nodeConn.WriteMessage(msgType, msg)
 	}
 }
 

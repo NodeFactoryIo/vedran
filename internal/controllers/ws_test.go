@@ -170,7 +170,6 @@ func (n *MockNodeWs) MockEchoWsHandler(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				return
 			}
-			break
 		case SubscribeRequest:
 			// emulate subscription behaviour
 			for i := 0; i < 5; i++ {
@@ -180,13 +179,11 @@ func (n *MockNodeWs) MockEchoWsHandler(w http.ResponseWriter, r *http.Request) {
 				}
 				time.Sleep(1 * time.Microsecond)
 			}
-			break
 		case FailRequest:
 			err := conn.Close()
 			if err != nil {
 				return
 			}
-			break
 		default:
 			return
 		}
