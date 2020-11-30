@@ -11,6 +11,7 @@
 - Expose stats endpoints [\#114](https://github.com/NodeFactoryIo/vedran/pull/114) ([MakMuftic](https://github.com/MakMuftic))
 - Calculating reward distribution [\#124](https://github.com/NodeFactoryIo/vedran/pull/124) ([MakMuftic](https://github.com/MakMuftic))
 - Add payout CLI command [\#126](https://github.com/NodeFactoryIo/vedran/pull/126) ([MakMuftic](https://github.com/MakMuftic))
+- Support WS connections [#\132](https://github.com/NodeFactoryIo/vedran/pull/132) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Fix
 
