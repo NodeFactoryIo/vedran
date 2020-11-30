@@ -41,7 +41,7 @@ func SendRequestToNode(
 		}
 		err = connToNode.WriteMessage(msgType, msg)
 		if err != nil {
-			record.FailedRequest(node, repos, act) // todo - should we penalize node or just record failed request
+			record.FailedRequest(node, repos, act)
 			closeConnections(connToLoadbalancer, connToNode, node)
 			return
 		}
@@ -113,7 +113,6 @@ func EstablishNodeConn(nodeID string, wsConnection chan *websocket.Conn, message
 		msgType, m, err := c.ReadMessage()
 		if err != nil {
 			log.Errorf("Failed reading message from node because of %v:", err)
-			// record failed request
 			return
 		}
 
