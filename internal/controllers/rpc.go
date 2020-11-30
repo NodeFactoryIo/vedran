@@ -59,7 +59,7 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		go record.SuccessfulRequest(node, c.repositories, c.actions)
+		go record.SuccessfulRequest(node, c.repositories)
 		_, _ = w.Write(byteResponse)
 		return
 	}

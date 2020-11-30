@@ -7,10 +7,9 @@ import (
 
 type Actions interface {
 	PenalizeNode(node models.Node, repositories repositories.Repos)
-	RewardNode(node models.Node, repositories repositories.Repos)
 }
 
-type actions struct {}
+type actions struct{}
 
 func NewActions() Actions {
 	return &actions{}

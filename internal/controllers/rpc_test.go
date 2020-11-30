@@ -46,20 +46,16 @@ func TestApiController_RPCHandler(t *testing.T) {
 	configuration.Config.PortPool = poolerMock
 
 	nodeRepoMock := repoMocks.NodeRepository{}
-	pingRepoMock := repoMocks.PingRepository{}
-	metricsRepoMock := repoMocks.MetricsRepository{}
+	nodeRepoMock.On("UpdateNodeUsed", mock.Anything).Return()
 	recordRepoMock := repoMocks.RecordRepository{}
 	recordRepoMock.On("Save", mock.Anything).Return(nil)
 
 	actionsMockObject := new(actionMocks.Actions)
 	actionsMockObject.On("PenalizeNode", mock.Anything, mock.Anything).Return()
-	actionsMockObject.On("RewardNode", mock.Anything, mock.Anything).Return()
 
 	apiController := NewApiController(false, repositories.Repos{
-		NodeRepo:    &nodeRepoMock,
-		PingRepo:    &pingRepoMock,
-		MetricsRepo: &metricsRepoMock,
-		RecordRepo:  &recordRepoMock,
+		NodeRepo:   &nodeRepoMock,
+		RecordRepo: &recordRepoMock,
 	}, actionsMockObject)
 
 	handler := http.HandlerFunc(apiController.RPCHandler)
@@ -159,20 +155,16 @@ func TestApiController_BatchRPCHandler(t *testing.T) {
 	configuration.Config.PortPool = poolerMock
 
 	nodeRepoMock := repoMocks.NodeRepository{}
-	pingRepoMock := repoMocks.PingRepository{}
-	metricsRepoMock := repoMocks.MetricsRepository{}
+	nodeRepoMock.On("UpdateNodeUsed", mock.Anything).Return()
 	recordRepoMock := repoMocks.RecordRepository{}
 	recordRepoMock.On("Save", mock.Anything).Return(nil)
 
 	actionsMockObject := new(actionMocks.Actions)
 	actionsMockObject.On("PenalizeNode", mock.Anything, mock.Anything).Return()
-	actionsMockObject.On("RewardNode", mock.Anything, mock.Anything).Return()
 
 	apiController := NewApiController(false, repositories.Repos{
-		NodeRepo:    &nodeRepoMock,
-		PingRepo:    &pingRepoMock,
-		MetricsRepo: &metricsRepoMock,
-		RecordRepo:  &recordRepoMock,
+		NodeRepo:   &nodeRepoMock,
+		RecordRepo: &recordRepoMock,
 	}, actionsMockObject)
 
 	handler := http.HandlerFunc(apiController.RPCHandler)
@@ -249,21 +241,10 @@ func TestApiController_RPCHandler_InvalidBody(t *testing.T) {
 				Error:   &rpc.RPCError{Code: -32700, Message: "Parse error"}}},
 	}
 
-	nodeRepoMock := repoMocks.NodeRepository{}
-	pingRepoMock := repoMocks.PingRepository{}
-	metricsRepoMock := repoMocks.MetricsRepository{}
-	recordRepoMock := repoMocks.RecordRepository{}
-
 	actionsMockObject := new(actionMocks.Actions)
 	actionsMockObject.On("PenalizeNode", mock.Anything, mock.Anything).Return()
-	actionsMockObject.On("RewardNode", mock.Anything, mock.Anything).Return()
 
-	apiController := NewApiController(false, repositories.Repos{
-		NodeRepo:    &nodeRepoMock,
-		PingRepo:    &pingRepoMock,
-		MetricsRepo: &metricsRepoMock,
-		RecordRepo:  &recordRepoMock,
-	}, actionsMockObject)
+	apiController := NewApiController(false, repositories.Repos{}, actionsMockObject)
 
 	handler := http.HandlerFunc(apiController.RPCHandler)
 
