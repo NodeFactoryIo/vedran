@@ -56,7 +56,6 @@ func SendResponseToClient(
 	messages chan Message,
 	node models.Node,
 	repos repositories.Repos,
-	act actions.Actions,
 ) {
 	for m := range messages {
 		if err := connToLoadbalancer.WriteMessage(m.msgType, m.msg); err != nil {
@@ -64,7 +63,7 @@ func SendResponseToClient(
 			closeConnections(connToLoadbalancer, connToNode, node)
 			return
 		}
-		record.SuccessfulRequest(node, repos, act)
+		record.SuccessfulRequest(node, repos)
 	}
 }
 

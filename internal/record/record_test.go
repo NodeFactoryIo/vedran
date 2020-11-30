@@ -11,7 +11,6 @@ import (
 )
 
 func TestFailedRequest(t *testing.T) {
-
 	tests := []struct {
 		name                    string
 		penalizedNodeCallCount  int
@@ -37,9 +36,6 @@ func TestFailedRequest(t *testing.T) {
 				ID: "test-id",
 			}
 
-			nodeRepoMock := mocks.NodeRepository{}
-			pingRepoMock := mocks.PingRepository{}
-			metricsRepoMock := mocks.MetricsRepository{}
 			recordRepoMock := mocks.RecordRepository{}
 			recordRepoMock.On("Save", mock.Anything).Once().Return(tt.saveNodeRecordResult)
 
@@ -47,10 +43,7 @@ func TestFailedRequest(t *testing.T) {
 			actionsMock.On("PenalizeNode", node, mock.Anything).Return()
 
 			FailedRequest(node, repositories.Repos{
-				NodeRepo:    &nodeRepoMock,
-				PingRepo:    &pingRepoMock,
-				MetricsRepo: &metricsRepoMock,
-				RecordRepo:  &recordRepoMock,
+				RecordRepo: &recordRepoMock,
 			}, &actionsMock)
 
 			actionsMock.AssertNumberOfCalls(t, "PenalizeNode", tt.penalizedNodeCallCount)
@@ -62,18 +55,18 @@ func TestFailedRequest(t *testing.T) {
 func TestSuccessfulRequest(t *testing.T) {
 	tests := []struct {
 		name                    string
-		rewardNodeCallCount     int
+		updateNodeUsedCallCount int
 		saveNodeRecordCallCount int
 		saveNodeRecordResult    error
 	}{
 		{
 			name:                    "Calls reward node and saves request record",
-			rewardNodeCallCount:     1,
+			updateNodeUsedCallCount: 1,
 			saveNodeRecordCallCount: 1,
 			saveNodeRecordResult:    nil},
 		{
 			name:                    "Logs error if save request record fails",
-			rewardNodeCallCount:     1,
+			updateNodeUsedCallCount: 1,
 			saveNodeRecordCallCount: 1,
 			saveNodeRecordResult:    fmt.Errorf("Error")},
 	}
@@ -81,28 +74,23 @@ func TestSuccessfulRequest(t *testing.T) {
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
-			nodeRepoMock := mocks.NodeRepository{}
-			pingRepoMock := mocks.PingRepository{}
-			metricsRepoMock := mocks.MetricsRepository{}
-			recordRepoMock := mocks.RecordRepository{}
-
 			node := models.Node{
 				ID: "test-id",
 			}
+
+			nodeRepoMock := mocks.NodeRepository{}
+			nodeRepoMock.On("UpdateNodeUsed", node).Return()
+
+			recordRepoMock := mocks.RecordRepository{}
 			recordRepoMock.On("Save", mock.Anything).Once().Return(tt.saveNodeRecordResult)
 
-			actionsMock := aMock.Actions{}
-			actionsMock.On("RewardNode", node, mock.Anything).Return()
-
 			SuccessfulRequest(node, repositories.Repos{
-				NodeRepo:    &nodeRepoMock,
-				PingRepo:    &pingRepoMock,
-				MetricsRepo: &metricsRepoMock,
-				RecordRepo:  &recordRepoMock,
-			}, &actionsMock)
+				NodeRepo:   &nodeRepoMock,
+				RecordRepo: &recordRepoMock,
+			})
 
 			recordRepoMock.AssertNumberOfCalls(t, "Save", tt.saveNodeRecordCallCount)
-			actionsMock.AssertNumberOfCalls(t, "RewardNode", tt.rewardNodeCallCount)
+			nodeRepoMock.AssertNumberOfCalls(t, "UpdateNodeUsed", tt.updateNodeUsedCallCount)
 		})
 
 	}

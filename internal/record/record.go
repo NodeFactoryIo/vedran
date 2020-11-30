@@ -27,8 +27,8 @@ func FailedRequest(node models.Node, repositories repositories.Repos, actions ac
 
 // SuccessfulRequest should be called when rpc response is valid to reward node.
 // It does not return value as it should be called in separate goroutine
-func SuccessfulRequest(node models.Node,  repositories repositories.Repos, actions actions.Actions) {
-	actions.RewardNode(node, repositories)
+func SuccessfulRequest(node models.Node, repositories repositories.Repos) {
+	repositories.NodeRepo.UpdateNodeUsed(node)
 
 	err := repositories.RecordRepo.Save(&models.Record{
 		NodeId:    node.ID,

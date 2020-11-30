@@ -47,7 +47,7 @@ func (c ApiController) WSHandler(w http.ResponseWriter, r *http.Request) {
 		go c.repositories.NodeRepo.UpdateNodeUsed(node)
 
 		go ws.SendRequestToNode(connToLoadbalancer, connToNode, node, c.repositories, c.actions)
-		go ws.SendResponseToClient(connToLoadbalancer, connToNode, messages, node, c.repositories, c.actions)
+		go ws.SendResponseToClient(connToLoadbalancer, connToNode, messages, node, c.repositories)
 		return
 	}
 

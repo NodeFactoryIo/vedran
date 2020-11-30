@@ -26,7 +26,6 @@ func TestApiController_WSHandler(t *testing.T) {
 	tests := []struct {
 		name                         string
 		nodeRepoGetActiveNodesReturn []models.Node
-		rewardNodeNumOfCalls         int
 		penalizeNodeNumOfCalls       int
 		updateNodeUsedNumOfCalls     int
 		requestType                  string
@@ -38,8 +37,8 @@ func TestApiController_WSHandler(t *testing.T) {
 			nodeRepoGetActiveNodesReturn: []models.Node{
 				{ID: "1", ConfigHash: "", PayoutAddress: "", Token: "", Cooldown: 0, LastUsed: 1, Active: true},
 			},
-			rewardNodeNumOfCalls:     1,
-			updateNodeUsedNumOfCalls: 1,
+			// 1 for starting connection + 1 for successful response
+			updateNodeUsedNumOfCalls: 2,
 			requestType:              SimpleRequest,
 			expectedResponses:        []string{SimpleRequest},
 		},
@@ -48,8 +47,8 @@ func TestApiController_WSHandler(t *testing.T) {
 			nodeRepoGetActiveNodesReturn: []models.Node{
 				{ID: "1", ConfigHash: "", PayoutAddress: "", Token: "", Cooldown: 0, LastUsed: 1, Active: true},
 			},
-			rewardNodeNumOfCalls:     5,
-			updateNodeUsedNumOfCalls: 1,
+			// 1 for starting connection + 5 for successful responses
+			updateNodeUsedNumOfCalls: 6,
 			requestType:              SubscribeRequest,
 			expectedResponses: []string{
 				"subscription response 1",
@@ -82,9 +81,6 @@ func TestApiController_WSHandler(t *testing.T) {
 			actionsMockObject := new(actionMocks.Actions)
 			actionsMockObject.On(
 				"PenalizeNode", mock.MatchedBy(func(n models.Node) bool { return n.ID == "1" }), mock.Anything,
-			).Return()
-			actionsMockObject.On(
-				"RewardNode", mock.MatchedBy(func(n models.Node) bool { return n.ID == "1" }), mock.Anything,
 			).Return()
 
 			apiController := NewApiController(false, repositories.Repos{
@@ -125,9 +121,7 @@ func TestApiController_WSHandler(t *testing.T) {
 
 			_ = ws.WriteMessage(1, []byte(test.requestType))
 			time.Sleep(1 * time.Second)
-			actionsMockObject.AssertNumberOfCalls(t, "RewardNode", test.rewardNodeNumOfCalls)
 			actionsMockObject.AssertNumberOfCalls(t, "PenalizeNode", test.penalizeNodeNumOfCalls)
-
 			nodeRepoMock.AssertNumberOfCalls(t, "UpdateNodeUsed", test.updateNodeUsedNumOfCalls)
 
 			// cleanup
