@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"fmt"
 	"net/url"
 	"strconv"
 	"time"
@@ -68,13 +69,14 @@ func SendResponseToClient(
 }
 
 func closeConnections(connToLoadbalancer *websocket.Conn, connToNode *websocket.Conn, node models.Node) {
-	err := connToLoadbalancer.Close()
+	closeConn(connToLoadbalancer, "error on closing ws connection towards loadbalancer")
+	closeConn(connToNode, fmt.Sprintf("error on closing ws connection towards node %s", node.ID))
+}
+
+func closeConn(conn *websocket.Conn, errorMessage string) {
+	err := conn.Close()
 	if err != nil {
-		log.Errorf("error on closing ws connection towards loadbalancer")
-	}
-	err = connToNode.Close()
-	if err != nil {
-		log.Errorf("error on closing ws connection towards node %s", node.ID)
+		log.Errorf(errorMessage)
 	}
 }
 
@@ -109,10 +111,10 @@ func EstablishNodeConn(nodeID string, wsConnection chan *websocket.Conn, message
 
 	defer c.Close()
 	for {
-		// cita odgovore od noda
 		msgType, m, err := c.ReadMessage()
 		if err != nil {
 			log.Errorf("Failed reading message from node because of %v:", err)
+			closeConn(c, fmt.Sprintf("error on closing ws connection towards node %s", nodeID))
 			return
 		}
 
