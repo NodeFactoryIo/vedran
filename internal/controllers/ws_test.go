@@ -163,7 +163,6 @@ func (n *MockNodeWs) MockEchoWsHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return
 		}
-		fmt.Println(string(msg))
 		switch string(msg) {
 		case SimpleRequest:
 			err = conn.WriteMessage(msgType, msg)
