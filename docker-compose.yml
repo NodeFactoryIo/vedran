@@ -5,7 +5,7 @@ services:
     image: parity/polkadot:v0.8.24
     volumes:
       - "polkadot-data:/data"
-    command: --rpc-external --prometheus-external --log error --rpc-cors=all
+    command: --rpc-external --prometheus-external --log error --rpc-cors=all --ws-external --chain=local --validator --key //Alice -d /data --node-key 0000000000000000000000000000000000000000000000000000000000000001
 
   vedran:
     command: start --auth-secret=test-secret --log-level debug --public-ip vedran --server-port 4000
@@ -19,7 +19,7 @@ services:
     depends_on:
       - vedran
       - polkadot
-    command: --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-metrics http://polkadot:9615 --payout-address 0xtestaddress --log-level info
+    command: --id test-id --lb http://vedran:4000 --node-metrics http://polkadot:9615 --payout-address 0xtestaddress --log-level info
 
 volumes:
   polkadot-data:
