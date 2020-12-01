@@ -3,7 +3,7 @@ services:
 
   node_alice:
     image: parity/polkadot:v0.8.24
-    container_name: alice
+    container_name: first_node_alice
     volumes:
       - "polkadot-data-alice:/data"
     command: --chain=polkadot-local --alice -d /data --unsafe-rpc-external --rpc-cors all --validator --node-key 0000000000000000000000000000000000000000000000000000000000000001
@@ -18,7 +18,7 @@ services:
 
   node_bob:
     image: parity/polkadot:v0.8.24
-    container_name: bob
+    container_name: second_node_bob
     volumes:
       - "polkadot-data-bob:/data"
     command: --chain=polkadot-local --bob -d /data --unsafe-rpc-external --rpc-cors all --validator --bootnodes '/ip4/172.28.1.1/tcp/30333/p2p/QmQZ8TjTqeDj3ciwr93EJ95hxfDsb9pEYDizUAbWpigtQN'
@@ -43,7 +43,7 @@ services:
       - vedran
       - node_alice
       - node_bob
-    command: --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-metrics http://polkadot:9615 --payout-address 0xtestaddress --log-level info
+    command: --id test-id --lb http://vedran:4000 --node-rpc http://172.28.1.1:9933 --node-metrics http://172.28.1.1:9615 --payout-address 0xtestaddress --log-level info # todo - change payout address
 
 volumes:
   polkadot-data-alice:
