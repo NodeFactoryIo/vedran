@@ -1,11 +1,34 @@
 version: '3'
 services:
 
-  polkadot:
+  node_alice:
     image: parity/polkadot:v0.8.24
+    container_name: alice
     volumes:
-      - "polkadot-data:/data"
-    command: --rpc-external --prometheus-external --log error --rpc-cors=all --ws-external --chain=local
+      - "polkadot-data-alice:/data"
+    command: --chain=polkadot-local --alice -d /data --unsafe-rpc-external --rpc-cors all --validator --node-key 0000000000000000000000000000000000000000000000000000000000000001
+    ports:
+    - "9615:9615"
+    - "9933:9933"
+    - "30333:30333"
+    - "9944:9944"
+    networks:
+      testing_net:
+        ipv4_address: 172.28.1.1
+
+  node_bob:
+    image: parity/polkadot:v0.8.24
+    container_name: bob
+    volumes:
+      - "polkadot-data-bob:/data"
+    command: --chain=polkadot-local --bob -d /data --unsafe-rpc-external --rpc-cors all --validator --bootnodes '/ip4/172.28.1.1/tcp/30333/p2p/QmQZ8TjTqeDj3ciwr93EJ95hxfDsb9pEYDizUAbWpigtQN'
+    ports:
+      - "9935:9933"
+      - "30335:30333"
+      - "9945:9944"
+    networks:
+      testing_net:
+        ipv4_address: 172.28.1.2
 
   vedran:
     command: start --auth-secret=test-secret --log-level debug --public-ip vedran --server-port 4000
@@ -18,8 +41,17 @@ services:
     image: nodefactory/vedran-daemon:dev
     depends_on:
       - vedran
-      - polkadot
-    command: --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9615 --node-metrics http://polkadot:9615 --payout-address 0xtestaddress --log-level info
+      - node_alice
+      - node_bob
+    command: --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-metrics http://polkadot:9615 --payout-address 0xtestaddress --log-level info
 
 volumes:
-  polkadot-data:
+  polkadot-data-alice:
+  polkadot-data-bob:
+
+networks:
+  testing_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
