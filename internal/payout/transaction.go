@@ -99,10 +99,12 @@ func executeTransaction(
 		return nil, err
 	}
 
-	toAddress, err := types.NewAddressFromHexAccountID(to)
-	if err != nil {
-		return nil, err
-	}
+	// todo
+	toAddress := types.NewAddressFromAccountID([]byte(to))
+	//_, err = types.NewAddressFromHexAccountID(to)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	call, err := types.NewCall(
 		metadataLatest,
@@ -129,7 +131,7 @@ func executeTransaction(
 	storageKey, err := types.CreateStorageKey(
 		metadataLatest,
 		"System",
-		"AccountNonce",
+		"Account",
 		keyringPair.PublicKey,
 		nil,
 	)
@@ -137,11 +139,13 @@ func executeTransaction(
 		return nil, err
 	}
 
-	var nonce uint32
-	_, err = api.RPC.State.GetStorageLatest(storageKey, nonce)
-	if err != nil {
+	var accountInfo types.AccountInfo
+	ok, err := api.RPC.State.GetStorageLatest(storageKey, &accountInfo)
+	if err != nil || !ok {
 		return nil, err
 	}
+
+	nonce := uint32(accountInfo.Nonce)
 
 	signatureOptions := types.SignatureOptions{
 		Era:         types.ExtrinsicEra{IsMortalEra: false},
