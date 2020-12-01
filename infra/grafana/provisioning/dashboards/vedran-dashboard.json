@@ -38,15 +38,25 @@
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
         },
         "overrides": []
       },
       "fill": 1,
-      "fillGradient": 0,
+      "fillGradient": 2,
       "gridPos": {
-        "h": 9,
-        "w": 12,
+        "h": 8,
+        "w": 24,
         "x": 0,
         "y": 1
       },
@@ -62,10 +72,10 @@
         "values": false
       },
       "lines": true,
-      "linewidth": 1,
+      "linewidth": 2,
       "nullPointMode": "null",
       "options": {
-        "alertThreshold": false
+        "alertThreshold": true
       },
       "percentage": false,
       "pluginVersion": "7.3.4",
@@ -82,6 +92,12 @@
           "interval": "",
           "legendFormat": "",
           "refId": "A"
+        },
+        {
+          "expr": "vedran_number_of_failed_requests",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "B"
         }
       ],
       "thresholds": [],
@@ -140,105 +156,10 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 12,
-        "y": 1
-      },
-      "hiddenSeries": false,
-      "id": 6,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "7.3.4",
-      "pointradius": 1,
-      "points": true,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "vedran_number_of_failed_requests",
-          "interval": "",
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Failed Requests",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": null,
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
-        "overrides": []
-      },
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 8,
+        "h": 7,
         "w": 12,
         "x": 0,
-        "y": 10
+        "y": 9
       },
       "hiddenSeries": false,
       "id": 8,
@@ -330,10 +251,10 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 8,
+        "h": 7,
         "w": 12,
         "x": 12,
-        "y": 10
+        "y": 9
       },
       "hiddenSeries": false,
       "id": 10,
@@ -425,10 +346,10 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 8,
+        "h": 7,
         "w": 12,
         "x": 0,
-        "y": 18
+        "y": 16
       },
       "hiddenSeries": false,
       "id": 12,
@@ -520,10 +441,10 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 8,
+        "h": 7,
         "w": 12,
         "x": 12,
-        "y": 18
+        "y": 16
       },
       "hiddenSeries": false,
       "id": 14,
@@ -618,7 +539,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 26
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 16,
@@ -713,7 +634,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 26
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 18,
@@ -759,7 +680,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Panel Title",
+      "title": "Memory utilization",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -797,7 +718,7 @@
       }
     }
   ],
-  "refresh": "10s",
+  "refresh": "5s",
   "schemaVersion": 26,
   "style": "dark",
   "tags": [],
@@ -805,12 +726,12 @@
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Vedran Dashboard",
   "uid": "7tNmHxAGz",
-  "version": 1
+  "version": 2
 }
