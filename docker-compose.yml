@@ -9,13 +9,13 @@ services:
 
   vedran:
     command: start --auth-secret=test-secret --log-level debug --public-ip vedran --server-port 4000
-    image: nodefactory/vedran:v0.2.0
+    image: nodefactory/vedran:dev
     ports:
       - "4000:4000"
     container_name: "vedran"
 
   vedran-daemon:
-    image: nodefactory/vedran-daemon:v0.2.0
+    image: nodefactory/vedran-daemon:dev
     depends_on:
       - vedran
       - polkadot
