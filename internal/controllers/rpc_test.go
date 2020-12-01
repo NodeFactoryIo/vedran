@@ -4,6 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"reflect"
+	"strconv"
+	"testing"
+
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
@@ -12,13 +20,6 @@ import (
 	tunnelMocks "github.com/NodeFactoryIo/vedran/mocks/http-tunnel/server"
 	repoMocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
 	"github.com/stretchr/testify/mock"
-	"io"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
-	"reflect"
-	"strconv"
-	"testing"
 )
 
 var (
@@ -45,20 +46,16 @@ func TestApiController_RPCHandler(t *testing.T) {
 	configuration.Config.PortPool = poolerMock
 
 	nodeRepoMock := repoMocks.NodeRepository{}
-	pingRepoMock := repoMocks.PingRepository{}
-	metricsRepoMock := repoMocks.MetricsRepository{}
+	nodeRepoMock.On("UpdateNodeUsed", mock.Anything).Return()
 	recordRepoMock := repoMocks.RecordRepository{}
 	recordRepoMock.On("Save", mock.Anything).Return(nil)
 
 	actionsMockObject := new(actionMocks.Actions)
 	actionsMockObject.On("PenalizeNode", mock.Anything, mock.Anything).Return()
-	actionsMockObject.On("RewardNode", mock.Anything, mock.Anything).Return()
 
 	apiController := NewApiController(false, repositories.Repos{
-		NodeRepo:    &nodeRepoMock,
-		PingRepo:    &pingRepoMock,
-		MetricsRepo: &metricsRepoMock,
-		RecordRepo:  &recordRepoMock,
+		NodeRepo:   &nodeRepoMock,
+		RecordRepo: &recordRepoMock,
 	}, actionsMockObject)
 
 	handler := http.HandlerFunc(apiController.RPCHandler)
@@ -126,7 +123,7 @@ func TestApiController_RPCHandler(t *testing.T) {
 
 			serverURL, _ := url.Parse(server.URL)
 			port, _ := strconv.Atoi(serverURL.Port())
-			poolerMock.On("GetPort", mock.Anything).Once().Return(port, nil)
+			poolerMock.On("GetHTTPPort", mock.Anything).Once().Return(port, nil)
 
 			mux.HandleFunc("/", test.handleFunc)
 
@@ -158,20 +155,16 @@ func TestApiController_BatchRPCHandler(t *testing.T) {
 	configuration.Config.PortPool = poolerMock
 
 	nodeRepoMock := repoMocks.NodeRepository{}
-	pingRepoMock := repoMocks.PingRepository{}
-	metricsRepoMock := repoMocks.MetricsRepository{}
+	nodeRepoMock.On("UpdateNodeUsed", mock.Anything).Return()
 	recordRepoMock := repoMocks.RecordRepository{}
 	recordRepoMock.On("Save", mock.Anything).Return(nil)
 
 	actionsMockObject := new(actionMocks.Actions)
 	actionsMockObject.On("PenalizeNode", mock.Anything, mock.Anything).Return()
-	actionsMockObject.On("RewardNode", mock.Anything, mock.Anything).Return()
 
 	apiController := NewApiController(false, repositories.Repos{
-		NodeRepo:    &nodeRepoMock,
-		PingRepo:    &pingRepoMock,
-		MetricsRepo: &metricsRepoMock,
-		RecordRepo:  &recordRepoMock,
+		NodeRepo:   &nodeRepoMock,
+		RecordRepo: &recordRepoMock,
 	}, actionsMockObject)
 
 	handler := http.HandlerFunc(apiController.RPCHandler)
@@ -201,7 +194,7 @@ func TestApiController_BatchRPCHandler(t *testing.T) {
 
 			serverURL, _ := url.Parse(server.URL)
 			port, _ := strconv.Atoi(serverURL.Port())
-			poolerMock.On("GetPort", mock.Anything).Once().Return(port, nil)
+			poolerMock.On("GetHTTPPort", mock.Anything).Once().Return(port, nil)
 
 			if test.handleFunc != nil {
 				mux.HandleFunc("/", test.handleFunc)
@@ -248,21 +241,10 @@ func TestApiController_RPCHandler_InvalidBody(t *testing.T) {
 				Error:   &rpc.RPCError{Code: -32700, Message: "Parse error"}}},
 	}
 
-	nodeRepoMock := repoMocks.NodeRepository{}
-	pingRepoMock := repoMocks.PingRepository{}
-	metricsRepoMock := repoMocks.MetricsRepository{}
-	recordRepoMock := repoMocks.RecordRepository{}
-
 	actionsMockObject := new(actionMocks.Actions)
 	actionsMockObject.On("PenalizeNode", mock.Anything, mock.Anything).Return()
-	actionsMockObject.On("RewardNode", mock.Anything, mock.Anything).Return()
 
-	apiController := NewApiController(false, repositories.Repos{
-		NodeRepo:    &nodeRepoMock,
-		PingRepo:    &pingRepoMock,
-		MetricsRepo: &metricsRepoMock,
-		RecordRepo:  &recordRepoMock,
-	}, actionsMockObject)
+	apiController := NewApiController(false, repositories.Repos{}, actionsMockObject)
 
 	handler := http.HandlerFunc(apiController.RPCHandler)
 
