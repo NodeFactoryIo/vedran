@@ -64,6 +64,8 @@ Start command will start application on 2 ports that need to be exposed to publi
 
 `--auth-secret` authentication secret used for generating tokens
 
+`--wallet-secret` - loadbalancers wallet secret
+
 ### Most important flags
 
 `--server-port` - port on which RPC API is exposed  - **DEFAULT** [80]
@@ -102,9 +104,9 @@ Start command will start application on 2 ports that need to be exposed to publi
 
 When starting _vedran loadbalancer_ it is possible to configure automatic payout by providing these flags:
 
-`--payout-interval` - automatic payout interval specified as number of days
+`--wallet-secret` - loadbalancers wallet secret
 
-`--payout-secret` - loadbalancers wallet secret
+`--payout-interval` - automatic payout interval specified as number of days
 
 `--payout-reward` - defined reward amount that will be distributed on the payout (amount in Planck)
 
