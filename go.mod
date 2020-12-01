@@ -17,7 +17,9 @@ require (
 	github.com/inconshreveable/go-vhost v0.0.0-20160627193104-06d84117953b
 	github.com/manifoldco/promptui v0.8.0
 	github.com/pkg/errors v0.8.1
+	github.com/prometheus/client_golang v1.7.1
 	github.com/sirupsen/logrus v1.6.0
+	github.com/slok/go-http-metrics v0.9.0
 	github.com/spf13/cobra v1.0.0
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/net v0.0.0-20200822124328-c89045814202
