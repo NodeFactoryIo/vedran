@@ -1,6 +1,7 @@
 package payout
 
 import (
+	"fmt"
 	"github.com/NodeFactoryIo/go-substrate-rpc-client/rpc/author"
 	log "github.com/sirupsen/logrus"
 	"math/big"
@@ -47,5 +48,6 @@ func listenForTransactionStatus(
 			)
 			return transactionDetails
 		}
+		fmt.Println(status)
 	}
 }

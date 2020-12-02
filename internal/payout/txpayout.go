@@ -3,6 +3,7 @@ package payout
 import (
 	gsrpc "github.com/NodeFactoryIo/go-substrate-rpc-client"
 	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
+	"github.com/NodeFactoryIo/go-substrate-rpc-client/types"
 	"math/big"
 	"sync"
 )
@@ -17,6 +18,9 @@ func ExecuteAllPayoutTransactions(
 	if err != nil {
 		return nil, err
 	}
+
+	opts := types.SerDeOptions{NoPalletIndices: true}
+	types.SetSerDeOptions(opts)
 
 	keyringPair, err := signature.KeyringPairFromSecret(secret, "")
 	if err != nil {

@@ -33,7 +33,7 @@ func ExecutePayout(secret string, totalReward float64, loadbalancerUrl *url.URL)
 		distributionByNode,
 		stats.Stats,
 		secret,
-		loadbalancerUrl.String(),
+		"ws://localhost:4444/ws",
 	)
 }
 
