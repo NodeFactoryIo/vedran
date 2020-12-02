@@ -2,8 +2,11 @@ package prometheus
 
 import (
 	"runtime"
+	"strconv"
 	"time"
 
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	"github.com/NodeFactoryIo/vedran/internal/payout"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -26,8 +29,16 @@ var (
 		Name: "vedran_number_of_failed_requests",
 		Help: "The total number of successful requests served via vedran",
 	})
+	payoutDistribution = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "vedran_payout_distribution",
+			Help: "Payout distribution per polkadot address",
+		},
+		[]string{"address"},
+	)
 )
 
+// RecordMetrics starts goroutines for recording metrics
 func RecordMetrics(repos repositories.Repos) {
 	version := promauto.NewGauge(
 		prometheus.GaugeOpts{
@@ -41,31 +52,66 @@ func RecordMetrics(repos repositories.Repos) {
 	)
 	version.Set(1)
 
-	go func() {
-		for {
-			activeNodes.Set(float64(len(*repos.NodeRepo.GetAllActiveNodes())))
+	go recordPayoutDistribution(repos)
+	go recordActiveNodeCount(repos.NodeRepo)
+	go recordPenalizedNodeCount(repos.NodeRepo)
+	go recordSuccessfulRequestCount(repos.RecordRepo)
+	go recordFailedRequestCount(repos.RecordRepo)
+}
+
+func recordPayoutDistribution(repos repositories.Repos) {
+	for {
+		stats, err := payout.GetStatsForPayout(repos, time.Now(), false)
+		if err != nil {
 			time.Sleep(15 * time.Second)
+			continue
 		}
-	}()
-	go func() {
-		for {
-			nodes, _ := repos.NodeRepo.GetPenalizedNodes()
-			penalizedNodes.Set(float64(len(*nodes)))
-			time.Sleep(15 * time.Second)
+		distributionByNode := payout.CalculatePayoutDistributionByNode(
+			stats,
+			100,
+			float64(configuration.Config.Fee),
+		)
+
+		for address, distribution := range distributionByNode {
+			floatDistribution, _ := strconv.ParseFloat(distribution.String(), 64)
+			payoutDistribution.With(
+				prometheus.Labels{"address": address},
+			).Set(
+				floatDistribution,
+			)
 		}
-	}()
-	go func() {
-		for {
-			count, _ := repos.RecordRepo.CountSuccessfulRequests()
-			successfulRequests.Set(float64(count))
-			time.Sleep(15 * time.Second)
-		}
-	}()
-	go func() {
-		for {
-			count, _ := repos.RecordRepo.CountFailedRequests()
-			failedRequests.Set(float64(count))
-			time.Sleep(15 * time.Second)
-		}
-	}()
+
+		time.Sleep(15 * time.Second)
+	}
+}
+
+func recordActiveNodeCount(nodeRepo repositories.NodeRepository) {
+	for {
+		activeNodes.Set(float64(len(*nodeRepo.GetAllActiveNodes())))
+		time.Sleep(15 * time.Second)
+	}
+}
+
+func recordPenalizedNodeCount(nodeRepo repositories.NodeRepository) {
+	for {
+		nodes, _ := nodeRepo.GetPenalizedNodes()
+		penalizedNodes.Set(float64(len(*nodes)))
+		time.Sleep(15 * time.Second)
+	}
+}
+
+func recordSuccessfulRequestCount(recordRepo repositories.RecordRepository) {
+	for {
+		count, _ := recordRepo.CountSuccessfulRequests()
+		successfulRequests.Set(float64(count))
+		time.Sleep(15 * time.Second)
+	}
+}
+
+func recordFailedRequestCount(recordRepo repositories.RecordRepository) {
+	for {
+		count, _ := recordRepo.CountFailedRequests()
+		failedRequests.Set(float64(count))
+		time.Sleep(15 * time.Second)
+	}
 }
