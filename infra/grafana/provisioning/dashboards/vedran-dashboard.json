@@ -49,7 +49,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
+        "h": 7,
         "w": 12,
         "x": 0,
         "y": 1
@@ -112,7 +112,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
+        "h": 7,
         "w": 12,
         "x": 12,
         "y": 1
@@ -164,18 +164,18 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 10
+        "y": 8
       },
       "hiddenSeries": false,
       "id": 8,
       "legend": {
-        "avg": false,
+        "avg": true,
         "current": false,
-        "max": false,
-        "min": false,
+        "max": true,
+        "min": true,
         "show": true,
         "total": false,
-        "values": false
+        "values": true
       },
       "lines": true,
       "linewidth": 1,
@@ -196,7 +196,7 @@
         {
           "expr": "vedran_number_of_active_nodes",
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "Active node count",
           "refId": "A"
         }
       ],
@@ -259,18 +259,18 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 10
+        "y": 8
       },
       "hiddenSeries": false,
       "id": 10,
       "legend": {
-        "avg": false,
+        "avg": true,
         "current": false,
-        "max": false,
-        "min": false,
+        "max": true,
+        "min": true,
         "show": true,
         "total": false,
-        "values": false
+        "values": true
       },
       "lines": true,
       "linewidth": 1,
@@ -291,7 +291,7 @@
         {
           "expr": "vedran_number_of_penalized_nodes",
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "Penalized node count",
           "refId": "A"
         }
       ],
@@ -371,18 +371,18 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 17
+        "y": 15
       },
       "hiddenSeries": false,
       "id": 12,
       "legend": {
-        "avg": false,
+        "avg": true,
         "current": false,
-        "max": false,
-        "min": false,
+        "max": true,
+        "min": true,
         "show": true,
         "total": false,
-        "values": false
+        "values": true
       },
       "lines": true,
       "linewidth": 1,
@@ -467,18 +467,18 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 17
+        "y": 15
       },
       "hiddenSeries": false,
       "id": 14,
       "legend": {
-        "avg": false,
+        "avg": true,
         "current": false,
-        "max": false,
-        "min": false,
+        "max": true,
+        "min": true,
         "show": true,
         "total": false,
-        "values": false
+        "values": true
       },
       "lines": true,
       "linewidth": 1,
@@ -546,13 +546,77 @@
       }
     },
     {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center",
+            "filterable": false
+          },
+          "displayName": "Name",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 50
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 33,
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true
+      },
+      "pluginVersion": "7.3.4",
+      "targets": [
+        {
+          "expr": "sum by (address) (vedran_payout_distribution)",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "{{address}}",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Payout distribution per address",
+      "transformations": [],
+      "type": "bargauge"
+    },
+    {
       "collapsed": false,
       "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 30
       },
       "id": 4,
       "panels": [],
@@ -585,7 +649,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 25
+        "y": 31
       },
       "id": 29,
       "options": {
@@ -652,7 +716,7 @@
         "h": 8,
         "w": 6,
         "x": 6,
-        "y": 25
+        "y": 31
       },
       "id": 31,
       "options": {
@@ -707,7 +771,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 25
+        "y": 31
       },
       "hiddenSeries": false,
       "id": 16,
@@ -802,18 +866,18 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 33
+        "y": 39
       },
       "hiddenSeries": false,
       "id": 20,
       "legend": {
-        "avg": false,
+        "avg": true,
         "current": false,
-        "max": false,
-        "min": false,
+        "max": true,
+        "min": true,
         "show": true,
         "total": false,
-        "values": false
+        "values": true
       },
       "lines": true,
       "linewidth": 1,
@@ -834,7 +898,7 @@
         {
           "expr": "go_goroutines",
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "goroutine count",
           "refId": "A"
         }
       ],
@@ -897,18 +961,18 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 33
+        "y": 39
       },
       "hiddenSeries": false,
       "id": 18,
       "legend": {
-        "avg": false,
+        "avg": true,
         "current": false,
-        "max": false,
-        "min": false,
+        "max": true,
+        "min": true,
         "show": true,
         "total": false,
-        "values": false
+        "values": true
       },
       "lines": true,
       "linewidth": 1,
@@ -943,7 +1007,7 @@
         {
           "expr": "go_memstats_sys_bytes",
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "process ",
           "refId": "C"
         }
       ],
@@ -1006,7 +1070,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 41
+        "y": 47
       },
       "hiddenSeries": false,
       "id": 22,
@@ -1038,7 +1102,7 @@
         {
           "expr": "go_gc_duration_seconds",
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "GS duration Quantile {{quantile}}",
           "refId": "A"
         }
       ],
@@ -1092,12 +1156,12 @@
     "list": []
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Vedran Dashboard",
   "uid": "7tNmHxAGz",
-  "version": 12
+  "version": 16
 }
