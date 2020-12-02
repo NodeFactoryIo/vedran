@@ -8,29 +8,14 @@ import (
 	"time"
 )
 
-type NodePayoutDetails struct {
-	Stats         models.NodeStatsDetails `json:"stats"`
-	PayoutAddress string                  `json:"payout_address"`
-}
-
 func GetStatsForPayout(
 	repos repositories.Repos,
 	intervalEnd time.Time,
 	recordPayout bool,
-) (map[string]NodePayoutDetails, error) {
-
+) (map[string]models.NodeStatsDetails, error) {
 	statistics, err := stats.CalculateStatisticsFromLastPayout(repos, intervalEnd)
 	if err != nil {
 		return nil, err
-	}
-
-	payoutStatistics := make(map[string]NodePayoutDetails, len(statistics))
-	for nodeId, statsDetails := range statistics {
-		node, _ := repos.NodeRepo.FindByID(nodeId)
-		payoutStatistics[nodeId] = NodePayoutDetails{
-			Stats:         statsDetails,
-			PayoutAddress: node.PayoutAddress,
-		}
 	}
 
 	if recordPayout {
@@ -44,5 +29,5 @@ func GetStatsForPayout(
 		}
 	}
 
-	return payoutStatistics, nil
+	return statistics, nil
 }

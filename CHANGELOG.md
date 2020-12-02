@@ -19,6 +19,7 @@
 ### Changed
 - Write byte response directly with io.Write [\#113](https://github.com/NodeFactoryIo/vedran/pull/113) ([mpetrun5](https://github.com/mpetrun5))
 - GetPort separated into GetHttpPort and GetWSPort [\#129](https://github.com/NodeFactoryIo/vedran/pull/129) ([mpetrun5](https://github.com/mpetrun5))
+- Use payout address to map stats [\#136](https://github.com/NodeFactoryIo/vedran/pull/136) ([MakMuftic](https://github.com/MakMuftic))
 
 ## [v0.2.0]((https://github.com/NodeFactoryIo/vedran/tree/v0.2.0))
 

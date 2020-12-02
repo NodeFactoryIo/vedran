@@ -18,27 +18,27 @@ func Test_CalculatePayoutDistributionByNode(t *testing.T) {
 		{ // this test is set for 10/90 split between liveliness and requests
 			name: "test distribution",
 			payoutDetails: map[string]models.NodeStatsDetails{
-				"1": {
+				"0x1": {
 					TotalPings:    100,
 					TotalRequests: 10,
 				},
-				"2": {
+				"0x2": {
 					TotalPings:    100,
 					TotalRequests: 5,
 				},
-				"3": {
+				"0x3": {
 					TotalPings:    90,
 					TotalRequests: 10,
 				},
-				"4": {
+				"0x4": {
 					TotalPings:    90,
 					TotalRequests: 5,
 				},
-				"5": {
+				"0x5": {
 					TotalPings:    50,
 					TotalRequests: 2,
 				},
-				"6": {
+				"0x6": {
 					TotalPings:    40,
 					TotalRequests: 0,
 				},
@@ -46,12 +46,12 @@ func Test_CalculatePayoutDistributionByNode(t *testing.T) {
 			totalReward:     100000000,
 			loadBalancerFee: 0.1,
 			resultDistribution: map[string]big.Int{
-				"1": *big.NewInt(27227393), // 27227393.617021276 // 100P 10R
-				"2": *big.NewInt(14571143), // 14571143.617021276 // 100P 5R
-				"3": *big.NewInt(27035904), // 27035904.255319147 // 90P  10R
-				"4": *big.NewInt(14379654), // 14379654.25531915  // 90P  5R
-				"5": *big.NewInt(6019946),  // 6019946.808510638  // 50P  2R
-				"6": *big.NewInt(765957),   // 765957.4468085106  // 40P  0R
+				"0x1": *big.NewInt(27227393), // 27227393.617021276 // 100P 10R
+				"0x2": *big.NewInt(14571143), // 14571143.617021276 // 100P 5R
+				"0x3": *big.NewInt(27035904), // 27035904.255319147 // 90P  10R
+				"0x4": *big.NewInt(14379654), // 14379654.25531915  // 90P  5R
+				"0x5": *big.NewInt(6019946),  // 6019946.808510638  // 50P  2R
+				"0x6": *big.NewInt(765957),   // 765957.4468085106  // 40P  0R
 			},
 		},
 	}

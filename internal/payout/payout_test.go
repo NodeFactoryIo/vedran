@@ -40,7 +40,7 @@ func Test_GetStatsForPayout(t *testing.T) {
 		payoutRepoSaveError      error
 		payoutRepoSaveNumOfCalls int
 		// GetStatsForPayout
-		getStatsForPayoutReturns map[string]NodePayoutDetails
+		getStatsForPayoutReturns map[string]models.NodeStatsDetails
 		getStatsForPayoutError   error
 	}{
 		{
@@ -51,13 +51,14 @@ func Test_GetStatsForPayout(t *testing.T) {
 			nodeRepoGetAllReturns: &[]models.Node{
 				{
 					ID: "1",
+					PayoutAddress: "0xpayout-address-1",
 				},
 			},
 			nodeRepoGetAllError: nil,
 			// NodeRepo.FindByID
 			nodeRepoFindByIDReturns: &models.Node{
 				ID:            "1",
-				PayoutAddress: "0xpayout-address",
+				PayoutAddress: "0xpayout-address-1",
 			},
 			nodeRepoFindByIDError: nil,
 			// RecordRepo.FindSuccessfulRecordsInsideInterval
@@ -84,13 +85,10 @@ func Test_GetStatsForPayout(t *testing.T) {
 			payoutRepoSaveNumOfCalls: 1,
 			// GetStatsForPayout
 			getStatsForPayoutError: nil,
-			getStatsForPayoutReturns: map[string]NodePayoutDetails{
-				"1": {
-					Stats: models.NodeStatsDetails{
-						TotalPings:    17280,
-						TotalRequests: 3,
-					},
-					PayoutAddress: "0xpayout-address",
+			getStatsForPayoutReturns: map[string]models.NodeStatsDetails{
+				"0xpayout-address-1": {
+					TotalPings:    17280,
+					TotalRequests: 3,
 				},
 			},
 		},
@@ -102,13 +100,14 @@ func Test_GetStatsForPayout(t *testing.T) {
 			nodeRepoGetAllReturns: &[]models.Node{
 				{
 					ID: "1",
+					PayoutAddress: "0xpayout-address-1",
 				},
 			},
 			nodeRepoGetAllError: nil,
 			// NodeRepo.FindByID
 			nodeRepoFindByIDReturns: &models.Node{
 				ID:            "1",
-				PayoutAddress: "0xpayout-address",
+				PayoutAddress: "0xpayout-address-1",
 			},
 			nodeRepoFindByIDError: nil,
 			// RecordRepo.FindSuccessfulRecordsInsideInterval
@@ -135,13 +134,10 @@ func Test_GetStatsForPayout(t *testing.T) {
 			payoutRepoSaveNumOfCalls: 0,
 			// GetStatsForPayout
 			getStatsForPayoutError: nil,
-			getStatsForPayoutReturns: map[string]NodePayoutDetails{
-				"1": {
-					Stats: models.NodeStatsDetails{
-						TotalPings:    17280,
-						TotalRequests: 3,
-					},
-					PayoutAddress: "0xpayout-address",
+			getStatsForPayoutReturns: map[string]models.NodeStatsDetails{
+				"0xpayout-address-1": {
+					TotalPings:    17280,
+					TotalRequests: 3,
 				},
 			},
 		},
@@ -163,13 +159,14 @@ func Test_GetStatsForPayout(t *testing.T) {
 			nodeRepoGetAllReturns: &[]models.Node{
 				{
 					ID: "1",
+					PayoutAddress: "0xpayout-address-1",
 				},
 			},
 			nodeRepoGetAllError: nil,
 			// NodeRepo.FindByID
 			nodeRepoFindByIDReturns: &models.Node{
 				ID:            "1",
-				PayoutAddress: "0xpayout-address",
+				PayoutAddress: "0xpayout-address-1",
 			},
 			nodeRepoFindByIDError: nil,
 			// RecordRepo.FindSuccessfulRecordsInsideInterval
