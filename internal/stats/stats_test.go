@@ -148,9 +148,13 @@ func Test_CalculateNodeStatisticsFromLastPayout(t *testing.T) {
 func Test_CalculateStatisticsFromLastPayout(t *testing.T) {
 	now := time.Now()
 
+	testNode := models.Node{
+		ID: "1",
+		PayoutAddress: "0xpayout-address-1",
+	}
+
 	tests := []struct {
 		name          string
-		nodeID        string
 		intervalStart time.Time
 		intervalEnd   time.Time
 		// NodeRepo.GetAll
@@ -179,15 +183,12 @@ func Test_CalculateStatisticsFromLastPayout(t *testing.T) {
 	}{
 		{
 			name:   "valid statistics with multiple records and no downtime",
-			nodeID: "1",
 			// interval of 24 hours
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,
 			// NodeRepo.GetAll
 			nodeRepoGetAllReturns: &[]models.Node{
-				{
-					ID: "1",
-				},
+				testNode,
 			},
 			nodeRepoGetAllError:      nil,
 			nodeRepoGetAllNumOfCalls: 1,
@@ -212,7 +213,7 @@ func Test_CalculateStatisticsFromLastPayout(t *testing.T) {
 			payoutRepoFindLatestPayoutNumOfCalls: 1,
 			// CalculateNodeStatisticsForInterval
 			calculateStatisticsFromLastPayoutReturns: map[string]models.NodeStatsDetails{
-				"1": {
+				testNode.PayoutAddress: {
 					TotalPings:    17280, // no downtime - max number of pings
 					TotalRequests: 0,
 				},
@@ -221,7 +222,6 @@ func Test_CalculateStatisticsFromLastPayout(t *testing.T) {
 		},
 		{
 			name:   "error on fetching latest payout",
-			nodeID: "1",
 			// interval of 24 hours
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,
@@ -244,21 +244,21 @@ func Test_CalculateStatisticsFromLastPayout(t *testing.T) {
 			)
 			recordRepoMock := mocks.RecordRepository{}
 			recordRepoMock.On("FindSuccessfulRecordsInsideInterval",
-				test.nodeID, test.intervalStart, test.intervalEnd,
+				testNode.ID, test.intervalStart, test.intervalEnd,
 			).Return(
 				test.recordRepoFindSuccessfulRecordsInsideIntervalReturns,
 				test.recordRepoFindSuccessfulRecordsInsideIntervalError,
 			)
 			downtimeRepoMock := mocks.DowntimeRepository{}
 			downtimeRepoMock.On("FindDowntimesInsideInterval",
-				test.nodeID, test.intervalStart, test.intervalEnd,
+				testNode.ID, test.intervalStart, test.intervalEnd,
 			).Return(
 				test.downtimeRepoFindDowntimesInsideIntervalReturns,
 				test.downtimeRepoFindDowntimesInsideIntervalError,
 			)
 			pingRepoMock := mocks.PingRepository{}
 			pingRepoMock.On("CalculateDowntime",
-				test.nodeID, test.intervalEnd,
+				testNode.ID, test.intervalEnd,
 			).Return(
 				time.Now(),
 				test.pingRepoCalculateDowntimeReturnDuration,
@@ -467,9 +467,13 @@ func Test_CalculateNodeStatisticsForInterval(t *testing.T) {
 func Test_CalculateStatisticsForInterval(t *testing.T) {
 	now := time.Now()
 
+	testNode := models.Node{
+		ID: "1",
+		PayoutAddress: "0xpayout-address-1",
+	}
+
 	tests := []struct {
 		name          string
-		nodeID        string
 		intervalStart time.Time
 		intervalEnd   time.Time
 		// NodeRepo.GetAll
@@ -494,25 +498,22 @@ func Test_CalculateStatisticsForInterval(t *testing.T) {
 	}{
 		{
 			name:   "valid statistics with multiple records and no downtime",
-			nodeID: "1",
 			// interval of 24 hours
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,
 			// NodeRepo.GetAll
 			nodeRepoGetAllReturns: &[]models.Node{
-				{
-					ID: "1",
-				},
+				testNode,
 			},
 			nodeRepoGetAllError:      nil,
 			nodeRepoGetAllNumOfCalls: 1,
 			// RecordRepo.FindByNodeID
 			recordRepoFindSuccessfulRecordsInsideIntervalReturns: []models.Record{
-				{ID: 1, NodeId: "1", Status: "successful", Timestamp: now.Add(-20 * time.Hour)},
-				{ID: 2, NodeId: "1", Status: "successful", Timestamp: now.Add(-18 * time.Hour)},
-				{ID: 3, NodeId: "1", Status: "successful", Timestamp: now.Add(-17 * time.Hour)},
-				{ID: 4, NodeId: "1", Status: "successful", Timestamp: now.Add(-15 * time.Hour)},
-				{ID: 5, NodeId: "1", Status: "successful", Timestamp: now.Add(-12 * time.Hour)},
+				{ID: 1, NodeId: testNode.ID, Status: "successful", Timestamp: now.Add(-20 * time.Hour)},
+				{ID: 2, NodeId: testNode.ID, Status: "successful", Timestamp: now.Add(-18 * time.Hour)},
+				{ID: 3, NodeId: testNode.ID, Status: "successful", Timestamp: now.Add(-17 * time.Hour)},
+				{ID: 4, NodeId: testNode.ID, Status: "successful", Timestamp: now.Add(-15 * time.Hour)},
+				{ID: 5, NodeId: testNode.ID, Status: "successful", Timestamp: now.Add(-12 * time.Hour)},
 			},
 			recordRepoFindSuccessfulRecordsInsideIntervalError:      nil,
 			recordRepoFindSuccessfulRecordsInsideIntervalNumOfCalls: 1,
@@ -526,7 +527,7 @@ func Test_CalculateStatisticsForInterval(t *testing.T) {
 			pingRepoCalculateDowntimeNumOfCalls:     1,
 			// CalculateNodeStatisticsForInterval
 			calculateStatisticsForIntervalReturns: map[string]models.NodeStatsDetails{
-				"1": {
+				testNode.PayoutAddress: {
 					TotalPings:    17280, // no downtime - max number of pings
 					TotalRequests: 5,
 				},
@@ -535,7 +536,6 @@ func Test_CalculateStatisticsForInterval(t *testing.T) {
 		},
 		{
 			name:   "get all nodes fails",
-			nodeID: "1",
 			// interval of 24 hours
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,
@@ -549,15 +549,12 @@ func Test_CalculateStatisticsForInterval(t *testing.T) {
 		},
 		{
 			name:   "calculating statistics for node fails",
-			nodeID: "1",
 			// interval of 24 hours
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,
 			// NodeRepo.GetAll
 			nodeRepoGetAllReturns: &[]models.Node{
-				{
-					ID: "1",
-				},
+				testNode,
 			},
 			nodeRepoGetAllError:      nil,
 			nodeRepoGetAllNumOfCalls: 1,
@@ -580,21 +577,21 @@ func Test_CalculateStatisticsForInterval(t *testing.T) {
 			)
 			recordRepoMock := mocks.RecordRepository{}
 			recordRepoMock.On("FindSuccessfulRecordsInsideInterval",
-				test.nodeID, test.intervalStart, test.intervalEnd,
+				testNode.ID, test.intervalStart, test.intervalEnd,
 			).Return(
 				test.recordRepoFindSuccessfulRecordsInsideIntervalReturns,
 				test.recordRepoFindSuccessfulRecordsInsideIntervalError,
 			)
 			downtimeRepoMock := mocks.DowntimeRepository{}
 			downtimeRepoMock.On("FindDowntimesInsideInterval",
-				test.nodeID, test.intervalStart, test.intervalEnd,
+				testNode.ID, test.intervalStart, test.intervalEnd,
 			).Return(
 				test.downtimeRepoFindDowntimesInsideIntervalReturns,
 				test.downtimeRepoFindDowntimesInsideIntervalError,
 			)
 			pingRepoMock := mocks.PingRepository{}
 			pingRepoMock.On("CalculateDowntime",
-				test.nodeID, test.intervalEnd,
+				testNode.ID, test.intervalEnd,
 			).Return(
 				time.Now(),
 				test.pingRepoCalculateDowntimeReturnDuration,

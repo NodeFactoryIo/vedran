@@ -35,7 +35,7 @@ func CalculatePayoutDistributionByNode(
 	totalDistributedRequestsRewards := float64(0)
 	payoutAmountDistributionByNodes := make(map[string]big.Int, len(payoutDetails))
 
-	for nodeId, nodeStatsDetails := range payoutDetails {
+	for nodeAddress, nodeStatsDetails := range payoutDetails {
 		// liveliness rewards
 		livelinessReward := float64(0)
 		if totalNumberOfPings != 0 && nodeStatsDetails.TotalPings != 0 {
@@ -55,7 +55,7 @@ func CalculatePayoutDistributionByNode(
 
 		totalNodeReward := livelinessReward + requestsReward
 		totalNodeRewardAsInt, _ := big.NewFloat(totalNodeReward).Int(nil)
-		payoutAmountDistributionByNodes[nodeId] = *totalNodeRewardAsInt
+		payoutAmountDistributionByNodes[nodeAddress] = *totalNodeRewardAsInt
 	}
 
 	return payoutAmountDistributionByNodes

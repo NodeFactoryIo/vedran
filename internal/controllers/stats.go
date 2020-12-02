@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/payout"
 	"github.com/NodeFactoryIo/vedran/internal/stats"
 	muxhelpper "github.com/gorilla/mux"
@@ -12,8 +13,8 @@ import (
 )
 
 type StatsResponse struct {
-	Stats map[string]payout.NodePayoutDetails `json:"stats"`
-	Fee   float32                             `json:"fee"`
+	Stats map[string]models.NodeStatsDetails `json:"stats"`
+	Fee   float32                            `json:"fee"`
 }
 
 var getNow = time.Now

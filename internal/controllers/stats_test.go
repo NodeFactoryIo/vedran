@@ -27,6 +27,7 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 		name       string
 		httpStatus int
 		nodeId     string
+		payoutAddress string
 		// NodeRepo.GetAll
 		nodeRepoGetAllReturns *[]models.Node
 		nodeRepoGetAllError   error
@@ -49,11 +50,13 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 		{
 			name:       "get valid stats",
 			nodeId:     "1",
+			payoutAddress: "0xtest-address",
 			httpStatus: http.StatusOK,
 			// NodeRepo.GetAll
 			nodeRepoGetAllReturns: &[]models.Node{
 				{
 					ID: "1",
+					PayoutAddress: "0xtest-address",
 				},
 			},
 			nodeRepoGetAllError: nil,
@@ -91,7 +94,7 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 			)
 			nodeRepoMock.On("FindByID", test.nodeId).Return(&models.Node{
 				ID:            test.nodeId,
-				PayoutAddress: "0xtest-address",
+				PayoutAddress: test.payoutAddress,
 			}, nil)
 			recordRepoMock := mocks.RecordRepository{}
 			recordRepoMock.On("FindSuccessfulRecordsInsideInterval",
@@ -143,9 +146,8 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 			var statsResponse StatsResponse
 			if rr.Code == http.StatusOK {
 				_ = json.Unmarshal(rr.Body.Bytes(), &statsResponse)
-				assert.LessOrEqual(t, test.nodeNumberOfPings, statsResponse.Stats[test.nodeId].Stats.TotalPings)
-				assert.Equal(t, test.nodeNumberOfRequests, statsResponse.Stats[test.nodeId].Stats.TotalRequests)
-				assert.Equal(t, "0xtest-address", statsResponse.Stats[test.nodeId].PayoutAddress)
+				assert.LessOrEqual(t, test.nodeNumberOfPings, statsResponse.Stats[test.payoutAddress].TotalPings)
+				assert.Equal(t, test.nodeNumberOfRequests, statsResponse.Stats[test.payoutAddress].TotalRequests)
 			}
 		})
 	}
