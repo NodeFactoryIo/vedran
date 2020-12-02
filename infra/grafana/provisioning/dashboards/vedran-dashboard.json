@@ -19,6 +19,7 @@
   "links": [],
   "panels": [
     {
+      "collapsed": false,
       "datasource": null,
       "gridPos": {
         "h": 1,
@@ -27,7 +28,8 @@
         "y": 0
       },
       "id": 4,
-      "title": "Row title",
+      "panels": [],
+      "title": "Vedran",
       "type": "row"
     },
     {
@@ -149,6 +151,115 @@
       "datasource": null,
       "fieldConfig": {
         "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "hiddenSeries": false,
+      "id": 24,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.3.4",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "rate(http_request_duration_seconds_count[5m])",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Requests Per Second",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
           "custom": {}
         },
         "overrides": []
@@ -159,7 +270,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 9
+        "y": 17
       },
       "hiddenSeries": false,
       "id": 8,
@@ -254,7 +365,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 9
+        "y": 17
       },
       "hiddenSeries": false,
       "id": 10,
@@ -339,7 +450,24 @@
       "datasource": null,
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {
+            "align": null,
+            "filterable": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
         },
         "overrides": []
       },
@@ -349,7 +477,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 24
       },
       "hiddenSeries": false,
       "id": 12,
@@ -405,7 +533,8 @@
       },
       "yaxes": [
         {
-          "format": "short",
+          "decimals": 6,
+          "format": "s",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -413,7 +542,7 @@
           "show": true
         },
         {
-          "format": "short",
+          "format": "ms",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -444,7 +573,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 24
       },
       "hiddenSeries": false,
       "id": 14,
@@ -500,7 +629,7 @@
       },
       "yaxes": [
         {
-          "format": "short",
+          "format": "bytes",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -539,7 +668,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 23
+        "y": 31
       },
       "hiddenSeries": false,
       "id": 16,
@@ -569,7 +698,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(process_cpu_seconds_total[5m])",
+          "expr": "avg(irate(process_cpu_seconds_total[5m]))*100",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -580,6 +709,204 @@
       "timeRegions": [],
       "timeShift": null,
       "title": "Cpu utilization",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 31
+      },
+      "hiddenSeries": false,
+      "id": 18,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.3.4",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "process_virtual_memory_bytes",
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "virtual",
+          "refId": "A"
+        },
+        {
+          "expr": "process_resident_memory_bytes",
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "resident",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Memory utilization",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "bytes",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 39
+      },
+      "hiddenSeries": false,
+      "id": 20,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.3.4",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "go_goroutines",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Goroutines",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -634,10 +961,10 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 23
+        "y": 39
       },
       "hiddenSeries": false,
-      "id": 18,
+      "id": 22,
       "legend": {
         "avg": false,
         "current": false,
@@ -664,23 +991,17 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "process_virtual_memory_bytes",
+          "expr": "go_gc_duration_seconds",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
-        },
-        {
-          "expr": "go_memstats_heap_inuse_bytes",
-          "interval": "",
-          "legendFormat": "",
-          "refId": "B"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Memory utilization",
+      "title": "GC duration quantities",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -696,7 +1017,7 @@
       },
       "yaxes": [
         {
-          "format": "short",
+          "format": "s",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -733,5 +1054,5 @@
   "timezone": "",
   "title": "Vedran Dashboard",
   "uid": "7tNmHxAGz",
-  "version": 2
+  "version": 7
 }
