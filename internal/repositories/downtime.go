@@ -1,10 +1,11 @@
 package repositories
 
 import (
+	"time"
+
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/asdine/storm/v3"
 	"github.com/asdine/storm/v3/q"
-	"time"
 )
 
 type DowntimeRepository interface {
