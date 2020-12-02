@@ -1,6 +1,7 @@
 package prometheus
 
 import (
+	"runtime"
 	"time"
 
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
@@ -28,6 +29,18 @@ var (
 )
 
 func RecordMetrics(repos repositories.Repos) {
+	version := promauto.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "vedran_version",
+			Help: "App and golang version of vedran",
+			ConstLabels: map[string]string{
+				"go_version":     runtime.Version(),
+				"vedran_version": "1.13.1",
+			},
+		},
+	)
+	version.Set(1)
+
 	go func() {
 		for {
 			activeNodes.Set(float64(len(*repos.NodeRepo.GetAllActiveNodes())))
