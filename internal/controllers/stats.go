@@ -14,7 +14,7 @@ import (
 
 type StatsResponse struct {
 	Stats map[string]models.NodeStatsDetails `json:"stats"`
-	Fee   float32                             `json:"fee"`
+	Fee   float32                            `json:"fee"`
 }
 
 var getNow = time.Now

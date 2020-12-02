@@ -8,7 +8,7 @@ import (
 )
 
 // CalculateStatisticsFromLastPayout calculates stats for all nodes for interval, that starts from last recorded payout
-// until now, as map[string]models.NodeStatsDetails where keys represent node id-s
+// until now, as map[string]models.NodeStatsDetails where keys represent node payout address
 func CalculateStatisticsFromLastPayout(repos repositories.Repos, intervalEnd time.Time) (map[string]models.NodeStatsDetails, error) {
 	intervalStart, err := GetIntervalFromLastPayout(repos)
 	if err != nil {
