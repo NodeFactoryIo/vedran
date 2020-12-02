@@ -25,7 +25,7 @@ func ExecutePayout(secret string, totalReward float64, loadbalancerUrl *url.URL)
 
 	return payout.ExecuteAllPayoutTransactions(
 		distributionByNode,
-		stats.Stats,
+		response.Stats,
 		secret,
 		"ws://localhost:4444/ws",
 	)
