@@ -10,7 +10,6 @@ import (
 
 func ExecuteAllPayoutTransactions(
 	payoutDistribution map[string]big.Int,
-	payoutDetails map[string]NodePayoutDetails,
 	secret string,
 	substrateRPCurl string,
 ) ([]*TransactionDetails, error) {
@@ -27,12 +26,11 @@ func ExecuteAllPayoutTransactions(
 		return nil, err
 	}
 
-	return executeAllTransactions(payoutDistribution, payoutDetails, api, keyringPair)
+	return executeAllTransactions(payoutDistribution, api, keyringPair)
 }
 
 func executeAllTransactions(
 	payoutDistribution map[string]big.Int,
-	payoutDetails map[string]NodePayoutDetails,
 	api *gsrpc.SubstrateAPI,
 	keyringPair signature.KeyringPair,
 ) ([]*TransactionDetails, error) {
@@ -46,18 +44,17 @@ func executeAllTransactions(
 	// define number of goroutines
 	wg.Add(len(payoutDistribution))
 
-	for nodeId, amount := range payoutDistribution {
-		nId := nodeId // create scoped variable to preserve value
+	for nodePayoutAddress, amount := range payoutDistribution {
+		// execute transaction in separate goroutine and collect results in channels
 		go func(to string, amount big.Int, wg *sync.WaitGroup, mux *sync.Mutex) {
-			// execute transaction in separate goroutine and collect results in channels
 			defer wg.Done()
-			transactionDetails, err := ExecuteTransaction(api, nId, to, amount, keyringPair, mux)
+			transactionDetails, err := ExecuteTransaction(api, to, amount, keyringPair, mux)
 			if err != nil {
 				fatalErrorsChannel <- err
 			} else {
 				resultsChannel <- transactionDetails
 			}
-		}(payoutDetails[nodeId].PayoutAddress, amount, &wg, &mux)
+		}(nodePayoutAddress, amount, &wg, &mux)
 	}
 
 	go func() {

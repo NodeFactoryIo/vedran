@@ -1,7 +1,6 @@
 package payout
 
 import (
-	"fmt"
 	"github.com/NodeFactoryIo/go-substrate-rpc-client/rpc/author"
 	log "github.com/sirupsen/logrus"
 	"math/big"
@@ -16,7 +15,6 @@ const (
 )
 
 type TransactionDetails struct {
-	NodeId string
 	To     string
 	Amount big.Int
 	Status TransactionStatus
@@ -43,11 +41,10 @@ func listenForTransactionStatus(
 			transactionDetails.Status = Finalized
 			log.Debugf(
 				"Transaction for node %s completed at block hash: %#x\n",
-				transactionDetails.NodeId,
+				transactionDetails.To,
 				status.AsFinalized,
 			)
 			return transactionDetails
 		}
-		fmt.Println(status)
 	}
 }

@@ -9,10 +9,8 @@ import (
 	"net/url"
 )
 
-var statsEndpoint, _ = url.Parse("/api/v1/stats")
-
 func ExecutePayout(secret string, totalReward float64, loadbalancerUrl *url.URL) ([]*payout.TransactionDetails, error) {
-	response, err := fetchStatsFromEndpoint(loadbalancerUrl.ResolveReference(statsEndpoint))
+	response, err := fetchStatsFromEndpoint(statsEndpoint(loadbalancerUrl))
 	if err != nil {
 		return nil, fmt.Errorf("unable to fetch stats from loadbalancer, %v", err)
 	}
@@ -25,9 +23,8 @@ func ExecutePayout(secret string, totalReward float64, loadbalancerUrl *url.URL)
 
 	return payout.ExecuteAllPayoutTransactions(
 		distributionByNode,
-		response.Stats,
 		secret,
-		"ws://localhost:4444/ws",
+		wsEndpoint(loadbalancerUrl).String(),
 	)
 }
 

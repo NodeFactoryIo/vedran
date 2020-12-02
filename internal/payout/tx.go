@@ -8,11 +8,8 @@ import (
 	"sync"
 )
 
-var testNonce = 3
-
 func ExecuteTransaction(
 	api *gsrpc.SubstrateAPI,
-	nodeId string,
 	to string,
 	amount big.Int,
 	keyringPair signature.KeyringPair,
@@ -55,26 +52,24 @@ func ExecuteTransaction(
 		return nil, err
 	}
 
-	//storageKey, err := types.CreateStorageKey(
-	//	metadataLatest,
-	//	"System",
-	//	"Account",
-	//	keyringPair.PublicKey,
-	//	nil,
-	//)
-	//if err != nil {
-	//	return nil, err
-	//}
+	storageKey, err := types.CreateStorageKey(
+		metadataLatest,
+		"System",
+		"Account",
+		keyringPair.PublicKey,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
 
-	//var accountInfo types.AccountInfo
-	//ok, err := api.RPC.State.GetStorageLatest(storageKey, &accountInfo)
-	//if err != nil || !ok {
-	//	return nil, err
-	//}
+	var accountInfo types.AccountInfo
+	ok, err := api.RPC.State.GetStorageLatest(storageKey, &accountInfo)
+	if err != nil || !ok {
+		return nil, err
+	}
 
-	// nonce := uint32(accountInfo.Nonce)
-	nonce := uint32(testNonce)
-	testNonce += 1
+	nonce := uint32(accountInfo.Nonce)
 
 	signatureOptions := types.SignatureOptions{
 		Era:         types.ExtrinsicEra{IsMortalEra: false},
@@ -102,7 +97,6 @@ func ExecuteTransaction(
 	txDetails := listenForTransactionStatus(
 		sub,
 		TransactionDetails{
-			NodeId: nodeId,
 			To:     to,
 			Amount: amount,
 		},
