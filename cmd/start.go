@@ -110,10 +110,6 @@ var startCmd = &cobra.Command{
 			return errors.New("only one flag for setting whitelisted nodes should be set")
 		}
 
-		if walletSecret == "" {
-			return errors.New("payout secret needs to be set")
-		}
-
 		autoPayoutDisabled = payoutNumberOfDays == 0 && payoutTotalReward == ""
 		if !autoPayoutDisabled {
 			if payoutNumberOfDays <= 0 {
@@ -242,6 +238,8 @@ func init() {
 		"",
 		"[REQUIRED] Total reward pool in Planck",
 	)
+
+	_ = startCmd.MarkFlagRequired("wallet-secret")
 
 	RootCmd.AddCommand(startCmd)
 }
