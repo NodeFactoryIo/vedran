@@ -43,7 +43,7 @@ First download latest prebuilt binaries [from releases](https://github.com/NodeF
 
 Load balancer is started by invoking **start** command.
 
-For example `./vedran start --auth-secret=supersecret`.
+For example `./vedran start --auth-secret=supersecret --private-key=lb-wallet-private-key`.
 
 You can always run vedran with `--help` flag for list of all commands `vedran --help` or for list of all options for specific command `vedran start --help`.
 
@@ -62,9 +62,9 @@ Start command will start application on 2 ports that need to be exposed to publi
 
 ### Required flags
 
-`--auth-secret` authentication secret used for generating tokens
+`--auth-secret` - authentication secret used for generating tokens
 
-`--wallet-secret` - loadbalancers wallet secret
+`--private-key` - loadbalancers wallet private key, used for sending founds on payout
 
 ### Most important flags
 
@@ -94,6 +94,10 @@ Start command will start application on 2 ports that need to be exposed to publi
 
 `--selection` - type of selection that is used for selecting nodes on new request, valid values are `round-robin` and `random` - **DEFAULT** [round-robin]
 
+`--payout-interval` - automatic payout interval specified as number of days
+
+`--payout-reward` - defined reward amount that will be distributed on the payout (amount in Planck)
+
 `--log-level` - log level (debug, info, warn, error) - **DEFAULT** [error]
 
 `--log-file` - path to file in which logs will be saved - **DEFAULT** [stdout]
@@ -104,7 +108,7 @@ Start command will start application on 2 ports that need to be exposed to publi
 
 When starting _vedran loadbalancer_ it is possible to configure automatic payout by providing these flags:
 
-`--wallet-secret` - loadbalancers wallet secret
+`--private-key` - loadbalancers wallet secret
 
 `--payout-interval` - automatic payout interval specified as number of days
 
