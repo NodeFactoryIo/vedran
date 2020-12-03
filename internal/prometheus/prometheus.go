@@ -64,7 +64,7 @@ func recordPayoutDistribution(repos repositories.Repos) {
 	for {
 		stats, err := payout.GetStatsForPayout(repos, time.Now(), false)
 		if err != nil {
-			time.Sleep(15 * time.Second)
+			time.Sleep(15 * time.Minute)
 			continue
 		}
 		distributionByNode := payout.CalculatePayoutDistributionByNode(
@@ -82,7 +82,7 @@ func recordPayoutDistribution(repos repositories.Repos) {
 			)
 		}
 
-		time.Sleep(15 * time.Second)
+		time.Sleep(15 * time.Minute)
 	}
 }
 
