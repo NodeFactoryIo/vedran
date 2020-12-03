@@ -6,6 +6,7 @@ require (
 	github.com/NodeFactoryIo/go-substrate-rpc-client v1.1.1-0.20201117130410-fe8589d08563
 	github.com/asdine/storm/v3 v3.2.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
+	github.com/decred/base58 v1.0.2
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/ethereum/go-ethereum v1.9.24 // indirect
 	github.com/golang/gddo v0.0.0-20200831202555-721e228c7686

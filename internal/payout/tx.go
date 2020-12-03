@@ -4,6 +4,7 @@ import (
 	gsrpc "github.com/NodeFactoryIo/go-substrate-rpc-client"
 	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
 	"github.com/NodeFactoryIo/go-substrate-rpc-client/types"
+	"github.com/decred/base58"
 	"math/big"
 	"sync"
 )
@@ -23,12 +24,10 @@ func ExecuteTransaction(
 		return nil, err
 	}
 
-	// todo
-	toAddress := types.NewAddressFromAccountID([]byte(to))
-	//_, err = types.NewAddressFromHexAccountID(to)
-	//if err != nil {
-	//	return nil, err
-	//}
+	decoded := base58.Decode(to)
+	// remove the 1st byte (network identifier) & last 2 bytes (blake2b hash)
+	pubKey := decoded[1 : len(decoded)-2]
+	toAddress := types.NewAddressFromAccountID(pubKey)
 
 	call, err := types.NewCall(
 		metadataLatest,
@@ -72,12 +71,12 @@ func ExecuteTransaction(
 	nonce := uint32(accountInfo.Nonce)
 
 	signatureOptions := types.SignatureOptions{
-		Era:         types.ExtrinsicEra{IsMortalEra: false},
-		Nonce:       types.NewUCompactFromUInt(uint64(nonce)),
-		Tip:         types.NewUCompactFromUInt(0),
-		SpecVersion: runtimeVersionLatest.SpecVersion,
-		GenesisHash: genesisHash,
-		BlockHash:   genesisHash,
+		Era:                types.ExtrinsicEra{IsMortalEra: false},
+		Nonce:              types.NewUCompactFromUInt(uint64(nonce)),
+		Tip:                types.NewUCompactFromUInt(0),
+		SpecVersion:        runtimeVersionLatest.SpecVersion,
+		GenesisHash:        genesisHash,
+		BlockHash:          genesisHash,
 		TransactionVersion: runtimeVersionLatest.TransactionVersion,
 	}
 
