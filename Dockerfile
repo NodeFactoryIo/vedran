@@ -18,7 +18,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN go build -o vedran .
+RUN go build -ldflags "-X 'github.com/NodeFactoryIo/vedran/pkg/version.Version=$(sed -n 's/version=//p' .version)'" -o vedran .
 
 # Move to /dist directory as the place for resulting binary folder
 WORKDIR /dist

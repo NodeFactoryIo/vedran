@@ -8,6 +8,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/payout"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
+	"github.com/NodeFactoryIo/vedran/pkg/version"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
@@ -46,7 +47,7 @@ func RecordMetrics(repos repositories.Repos) {
 			Help: "App and golang version of vedran",
 			ConstLabels: map[string]string{
 				"go_version":     runtime.Version(),
-				"vedran_version": "1.13.1",
+				"vedran_version": version.Version,
 			},
 		},
 	)

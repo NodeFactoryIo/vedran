@@ -22,8 +22,6 @@ lint:
 clean:
 	rm vedran 2> /dev/null || exit 0
 
-build:
-	go build
 
 install:
 	make clean
@@ -35,12 +33,16 @@ PLATFORMS := linux/amd64 windows/amd64 darwin/amd64 linux/arm
 temp = $(subst /, ,$@)
 os = $(word 1, $(temp))
 arch = $(word 2, $(temp))
+version = $(shell sed -n 's/version=//p' .version)
 
 $(PLATFORMS):
 	@if [ "$(os)" = "windows" ]; then \
-			GOOS=$(os) GOARCH=$(arch) go build -o 'build/windows/vedran.exe'; \
+			GOOS=$(os) GOARCH=$(arch) go build -ldflags "-X github.com/NodeFactoryIo/vedran/pkg/version.Version=$(version)" -o 'build/windows/vedran.exe'; \
 	else \
-			GOOS=$(os) GOARCH=$(arch) go build -o 'build/${os}-${arch}/vedran'; \
+			GOOS=$(os) GOARCH=$(arch) go build -ldflags "-X github.com/NodeFactoryIo/vedran/pkg/version.Version=$(version)" -o 'build/${os}-${arch}/vedran'; \
 	fi
 
 buildAll: $(PLATFORMS)
+
+build:
+	go build -ldflags "-X github.com/NodeFactoryIo/vedran/pkg/version.Version=$(version)"
