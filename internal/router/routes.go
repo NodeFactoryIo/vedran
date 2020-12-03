@@ -28,8 +28,7 @@ func createRoute(route string, method string, handler http.HandlerFunc, router *
 }
 
 func createTrackedRoute(route string, method string, handler http.Handler, router *mux.Router) {
-	var r *mux.Route
-	r = router.Handle(route, handler)
+	r := router.Handle(route, handler)
 	r.Methods(method)
 	r.Name(route)
 
