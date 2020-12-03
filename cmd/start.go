@@ -236,7 +236,7 @@ func init() {
 		&payoutTotalReward,
 		"payout-reward",
 		"",
-		"[REQUIRED] Total reward pool in Planck",
+		"[OPTIONAL] Total reward pool in Planck",
 	)
 
 	_ = startCmd.MarkFlagRequired("wallet-secret")
