@@ -29,6 +29,7 @@
 - Execute payout transactions [\#127](https://github.com/NodeFactoryIo/vedran/pull/127) ([MakMuftic](https://github.com/MakMuftic))
 - Sign stats request [\#143](https://github.com/NodeFactoryIo/vedran/pull/143) ([MakMuftic](https://github.com/MakMuftic))
 - Send all funds on payout [\#153](https://github.com/NodeFactoryIo/vedran/pull/153) ([MakMuftic](https://github.com/MakMuftic))
+- Metrics endpoint and grafana dashboard example [#\138](https://github.com/NodeFactoryIo/vedran/pull/138) ([mpetrun5](https://github.com/mpetrun5))
 
 ### Fix
 - Fix payout [\#148](https://github.com/NodeFactoryIo/vedran/pull/148) ([MakMuftic](https://github.com/MakMuftic))
