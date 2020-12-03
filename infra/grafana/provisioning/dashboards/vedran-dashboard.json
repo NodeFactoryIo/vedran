@@ -46,7 +46,38 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Failed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Successful"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 7,
@@ -147,7 +178,9 @@
       "type": "stat"
     },
     {
-      "aliasColors": {},
+      "aliasColors": {
+        "Active node count": "dark-green"
+      },
       "bars": false,
       "dashLength": 10,
       "dashes": false,
@@ -178,7 +211,7 @@
         "values": true
       },
       "lines": true,
-      "linewidth": 1,
+      "linewidth": 3,
       "nullPointMode": "null",
       "options": {
         "alertThreshold": true
@@ -242,7 +275,9 @@
       }
     },
     {
-      "aliasColors": {},
+      "aliasColors": {
+        "Penalized node count": "dark-red"
+      },
       "bars": false,
       "dashLength": 10,
       "dashes": false,
@@ -251,7 +286,15 @@
         "defaults": {
           "custom": {}
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Penalized node count"
+            },
+            "properties": []
+          }
+        ]
       },
       "fill": 1,
       "fillGradient": 0,
@@ -273,7 +316,7 @@
         "values": true
       },
       "lines": true,
-      "linewidth": 1,
+      "linewidth": 3,
       "nullPointMode": "null",
       "options": {
         "alertThreshold": true
@@ -1163,5 +1206,5 @@
   "timezone": "",
   "title": "Vedran Dashboard",
   "uid": "7tNmHxAGz",
-  "version": 16
+  "version": 17
 }
