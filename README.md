@@ -34,7 +34,9 @@ curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method":
 This demo starts three separate dockerized components:
 - _Polkadot node_ ([repository](https://github.com/paritytech/polkadot))
 - _Vedran daemon_ ([repository](https://github.com/NodeFactoryIo/vedran-daemon))
-- _Vedran loadbalancer_
+- _Vedran loadbalancer_ (port: 4000)
+- _Prometheus server_ (port: 9090) - scrapes metrics from vedran's `/metrics` endpoint
+- _Grafana_ (port: 3000) - Visualizes metrics
 
 ### Trigger Manual Payout
 
@@ -79,7 +81,7 @@ For list of all commands run `vedran --help` or for list of all options for spec
 
 **Load balancer will expose Polkadot RPC API on port 80 by default (can be changed using flag `--server-port`)**
 
-Vedran loadbalancer supports both **HTTP** and **Websockets** protocols for Polkadot RPC API. 
+Vedran loadbalancer supports both **HTTP** and **Websockets** protocols for Polkadot RPC API.
 
 - **HTTP - available on root path** `/`
 - **WS - available on separate path** `/ws`
@@ -167,6 +169,27 @@ You can find private key as _Secreet seed_. See example output of subkey command
   Account ID:       0xa4548fa9b3b15dc4d1c59789952f0ccf6138dd63faf802637895c941f0522d35
   SS58 Address:     5FnAq6wrMzri5V6jLfKgBkbR2rSAMkVAHVYWa3eU7TAV5rv9
 ```
+
+## Monitoring
+
+Monitoring is done via grafana and prometheus which are expected to be installed.
+
+### Installation
+ - [Grafana installation](https://grafana.com/docs/grafana/latest/installation/)
+ - [Prometheus installation](https://prometheus.io/docs/prometheus/latest/installation/)
+
+### Configuration
+
+-  ### Grafana
+    Should be configured to fetch data from prometheus server as data source [Tutorial](https://prometheus.io/docs/visualization/grafana/).
+
+    Should have a dashboard that visualizes data scraped from prometheus server. Example configuration can be found [here](./infra/grafana/provisioning/dashboards/vedran-dashboard.json) and can be imported like [this](https://grafana.com/docs/grafana/latest/dashboards/export-import/#importing-a-dashboard).
+
+
+-  ### Prometheus
+    Prometheus should be configured to scrape metrics from vedran's `/metrics` endpoint
+    via prometheus .yml configuration. Example of which can be found [here](./infra/prometheus/prometheus.yml)
+
 
 ## Vedran loadbalancer API
 
