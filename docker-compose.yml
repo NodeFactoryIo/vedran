@@ -49,3 +49,4 @@ services:
 
 volumes:
   polkadot-data:
+  grafana_data:
