@@ -35,8 +35,8 @@ var (
 	selection      string
 	serverPort     int32
 	publicIP       string
-	walletSecret   string
 	// payout related flags
+	payoutPrivateKey           string
 	payoutNumberOfDays         int32
 	payoutTotalReward          string
 	payoutTotalRewardAsFloat64 float64
@@ -108,10 +108,6 @@ var startCmd = &cobra.Command{
 
 		if whitelistArray != nil && whitelistFile != "" {
 			return errors.New("only one flag for setting whitelisted nodes should be set")
-		}
-
-		if walletSecret == "" {
-			return errors.New("payout secret needs to be set")
 		}
 
 		autoPayoutDisabled = payoutNumberOfDays == 0 && payoutTotalReward == ""
@@ -224,10 +220,10 @@ func init() {
 		"[OPTIONAL] Range of ports which is used to open tunnels")
 
 	startCmd.Flags().StringVar(
-		&walletSecret,
-		"wallet-secret",
+		&payoutPrivateKey,
+		"private-key",
 		"",
-		"[REQUIRED] Loadbalancer wallet secret",
+		"[REQUIRED] Loadbalancers wallet private key, used for sending funds on payout",
 	)
 
 	startCmd.Flags().Int32Var(
@@ -240,8 +236,10 @@ func init() {
 		&payoutTotalReward,
 		"payout-reward",
 		"",
-		"[REQUIRED] Total reward pool in Planck",
+		"[OPTIONAL] Total reward pool in Planck",
 	)
+
+	_ = startCmd.MarkFlagRequired("private-key")
 
 	RootCmd.AddCommand(startCmd)
 }
@@ -278,7 +276,7 @@ func startCommand(_ *cobra.Command, _ []string) {
 
 	if !autoPayoutDisabled {
 		lbUrl, _ := url.Parse("http://" + publicIP + ":" + string(serverPort))
-		schedulepayout.StartScheduledPayout(payoutNumberOfDays, walletSecret, payoutTotalRewardAsFloat64, lbUrl)
+		schedulepayout.StartScheduledPayout(payoutNumberOfDays, payoutPrivateKey, payoutTotalRewardAsFloat64, lbUrl)
 	}
 
 	tunnel.StartHttpTunnelServer(tunnelServerPort, pPool)
@@ -294,6 +292,5 @@ func startCommand(_ *cobra.Command, _ []string) {
 		TunnelServerAddress: tunnelServerAddress,
 		PortPool:            pPool,
 		WhitelistEnabled:    whitelistEnabled,
-		Secret:              walletSecret,
 	})
 }

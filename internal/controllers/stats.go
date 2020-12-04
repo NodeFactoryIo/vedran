@@ -34,7 +34,7 @@ func (c *ApiController) StatisticsHandlerAllStats(w http.ResponseWriter, r *http
 }
 
 type LoadbalancerStatsResponse struct {
-	Stats map[string]payout.NodePayoutDetails `json:"stats"`
+	Stats map[string]models.NodeStatsDetails `json:"stats"`
 	Fee   float32                             `json:"fee"`
 }
 
