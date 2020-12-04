@@ -223,7 +223,7 @@ func init() {
 		&privateKey,
 		"private-key",
 		"",
-		"[REQUIRED] Loadbalancers wallet private key, used for sending founds on payout",
+		"[REQUIRED] Loadbalancers wallet private key, used for sending funds on payout",
 	)
 
 	startCmd.Flags().Int32Var(
