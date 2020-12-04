@@ -24,7 +24,7 @@ func GetStatsForPayout(
 			PaymentDetails: statistics,
 		})
 		if err != nil {
-			log.Errorf("Unable to save payout information to database, because of: %v", err)
+			log.Errorf("Unable to save payout information To database, because of: %v", err)
 			return nil, err
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/script"
+	"github.com/NodeFactoryIo/vedran/internal/ui"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"net/url"
@@ -11,7 +12,7 @@ import (
 )
 
 var (
-	secret             string
+	privateKey         string
 	totalReward        string
 	rawLoadbalancerUrl string
 
@@ -41,34 +42,41 @@ var payoutCmd = &cobra.Command{
 
 func init() {
 	payoutCmd.Flags().StringVar(
-		&secret,
-		"secret",
+		&privateKey,
+		"private-key",
 		"",
-		"[REQUIRED] loadbalancer wallet secret",
+		"[REQUIRED] loadbalancer wallet private key",
 	)
-	_ = payoutCmd.MarkFlagRequired("secret")
 	payoutCmd.Flags().StringVar(
 		&totalReward,
-		"total-reward",
+		"payout-reward",
 		"",
 		"[REQUIRED] total reward pool in Planck",
 	)
-	_ = payoutCmd.MarkFlagRequired("total-reward")
 	payoutCmd.Flags().StringVar(
 		&rawLoadbalancerUrl,
 		"load-balancer-url",
 		"http://localhost:80",
 		"[OPTIONAL] url on which loadbalancer is listening")
+
+	_ = startCmd.MarkFlagRequired("private-key")
+	_ = startCmd.MarkFlagRequired("payout-reward")
+
 	RootCmd.AddCommand(payoutCmd)
 }
 
 func payoutCommand(_ *cobra.Command, _ []string) {
 	DisplayBanner()
 	fmt.Println("Payout script running...")
-	err := script.ExecutePayout(secret, totalRewardAsFloat64, loadbalancerURL)
+	transactions, err := script.ExecutePayout(privateKey, totalRewardAsFloat64, loadbalancerURL)
+	if transactions != nil {
+		// display even if only part of transactions executed
+		ui.DisplayTransactionsStatus(transactions)
+	}
 	if err != nil {
 		log.Errorf("Unable to execute payout, because of: %v", err)
 		return
+	} else {
+		log.Info("Payout execution finished")
 	}
-	log.Info("Payout execution finished")
 }

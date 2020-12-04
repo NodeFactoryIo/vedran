@@ -43,7 +43,7 @@ First download latest prebuilt binaries [from releases](https://github.com/NodeF
 
 Load balancer is started by invoking **start** command.
 
-For example `./vedran start --auth-secret=supersecret`.
+For example `./vedran start --auth-secret=supersecret --private-key=lb-wallet-private-key`.
 
 You can always run vedran with `--help` flag for list of all commands `vedran --help` or for list of all options for specific command `vedran start --help`.
 
@@ -62,7 +62,9 @@ Start command will start application on 2 ports that need to be exposed to publi
 
 ### Required flags
 
-`--auth-secret` authentication secret used for generating tokens
+`--auth-secret` - authentication secret used for generating tokens
+
+`--private-key` - loadbalancers wallet private key, used for sending founds on payout
 
 ### Most important flags
 
@@ -84,17 +86,48 @@ Start command will start application on 2 ports that need to be exposed to publi
 
 `--capacity` - maximum number of nodes allowed to connect - **DEFAULT** [-1] unlimited capacity
 
-`--whitelist` - Comma separated list of node id-s, if provided only these nodes will be allowed to connect. This flag can't be used together with --whitelist-file flag, only one option for setting whitelisted nodes can be used - **DEFAULT** no nodes whitelisted
+`--whitelist` - comma separated list of node id-s, if provided only these nodes will be allowed to connect. This flag can't be used together with --whitelist-file flag, only one option for setting whitelisted nodes can be used - **DEFAULT** no nodes whitelisted
 
-`--whitelist-file` - Path to file with node id-s in each line that should be whitelisted. This flag can't be used together with --whitelist flag, only one option for setting whitelisted nodes can be used - **DEFAULT** no file used
+`--whitelist-file` - path to file with node id-s in each line that should be whitelisted. This flag can't be used together with --whitelist flag, only one option for setting whitelisted nodes can be used - **DEFAULT** no file used
 
 `--fee` - value between 0-1 representing fee percentage that loadbalancer will take - **DEFAULT** [0.1]
 
 `--selection` - type of selection that is used for selecting nodes on new request, valid values are `round-robin` and `random` - **DEFAULT** [round-robin]
 
+`--payout-interval` - automatic payout interval specified as number of days
+
+`--payout-reward` - defined reward amount that will be distributed on the payout (amount in Planck)
+
 `--log-level` - log level (debug, info, warn, error) - **DEFAULT** [error]
 
 `--log-file` - path to file in which logs will be saved - **DEFAULT** [stdout]
+
+## Payouts
+
+### Automatic payout
+
+When starting _vedran loadbalancer_ it is possible to configure automatic payout by providing these flags:
+
+`--private-key` - loadbalancers wallet private key, used for sending founds on payout
+
+`--payout-interval` - automatic payout interval specified as number of days
+
+`--payout-reward` - defined reward amount that will be distributed on the payout (amount in Planck)
+
+If all flags have been provided than each {_payout-interval_} days automatic payout will be started.
+
+### Manual payout
+
+It is possible to run payout script at any time by invoking `vedran payout` command trough console.
+This command has two required flags:
+
+`--private-key` - loadbalancers wallet private key, used for sending founds on payout
+
+`--payout-reward` - defined reward amount that will be distributed on the payout (amount in Planck)
+
+Additionally, it is possible to change url on which payout script will connect with loadbalancer when executing transactions by setting flag (default value will be _http://localhost:80_)
+
+`--load-balancer-url` - loadbalancer url
 
 ## Vedran loadbalancer API
 

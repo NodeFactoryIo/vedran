@@ -8,14 +8,14 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
-var statsEndpoint, _ = url.Parse("/api/v1/stats")
-
-func ExecutePayout(secret string, totalReward float64, loadbalancerUrl *url.URL) error {
-	response, err := fetchStatsFromEndpoint(loadbalancerUrl.ResolveReference(statsEndpoint))
+func ExecutePayout(secret string, totalReward float64, loadbalancerUrl *url.URL) ([]*payout.TransactionDetails, error) {
+	log.Infof("New payout started with total reward: %s", strconv.FormatFloat(totalReward, 'f', 0, 64))
+	response, err := fetchStatsFromEndpoint(statsEndpoint(loadbalancerUrl))
 	if err != nil {
-		return fmt.Errorf("unable to fetch stats from loadbalancer, %v", err)
+		return nil, fmt.Errorf("unable to fetch stats from loadbalancer, %v", err)
 	}
 
 	distributionByNode := payout.CalculatePayoutDistributionByNode(
@@ -24,9 +24,11 @@ func ExecutePayout(secret string, totalReward float64, loadbalancerUrl *url.URL)
 		float64(response.Fee),
 	)
 
-	// todo - call sending payout transactions
-	log.Info(distributionByNode)
-	return nil
+	return payout.ExecuteAllPayoutTransactions(
+		distributionByNode,
+		secret,
+		wsEndpoint(loadbalancerUrl).String(),
+	)
 }
 
 func fetchStatsFromEndpoint(endpoint *url.URL) (*controllers.StatsResponse, error) {
