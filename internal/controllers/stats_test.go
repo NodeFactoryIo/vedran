@@ -148,8 +148,8 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 			var statsResponse StatsResponse
 			if rr.Code == http.StatusOK {
 				_ = json.Unmarshal(rr.Body.Bytes(), &statsResponse)
-				assert.LessOrEqual(t, test.nodeNumberOfPings, statsResponse.Stats[test.nodeId].TotalPings)
-				assert.Equal(t, test.nodeNumberOfRequests, statsResponse.Stats[test.nodeId].TotalRequests)
+				assert.LessOrEqual(t, test.nodeNumberOfPings, statsResponse.Stats[test.payoutAddress].TotalPings)
+				assert.Equal(t, test.nodeNumberOfRequests, statsResponse.Stats[test.payoutAddress].TotalRequests)
 			}
 		})
 	}
@@ -164,6 +164,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 		name       string
 		httpStatus int
 		nodeId     string
+		payoutAddress string
 		// NodeRepo.GetAll
 		nodeRepoGetAllReturns *[]models.Node
 		nodeRepoGetAllError   error
@@ -190,11 +191,13 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 		{
 			name:       "get valid stats, 200 OK",
 			nodeId:     "1",
+			payoutAddress: "0xtest-address",
 			httpStatus: http.StatusOK,
 			// NodeRepo.GetAll
 			nodeRepoGetAllReturns: &[]models.Node{
 				{
 					ID: "1",
+					PayoutAddress: "0xtest-address",
 				},
 			},
 			nodeRepoGetAllError: nil,
@@ -224,11 +227,13 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 		{
 			name:       "missing signature, 400 bad request",
 			nodeId:     "1",
+			payoutAddress: "0xtest-address",
 			httpStatus: http.StatusBadRequest,
 			// NodeRepo.GetAll
 			nodeRepoGetAllReturns: &[]models.Node{
 				{
 					ID: "1",
+					PayoutAddress: "0xtest-address",
 				},
 			},
 			nodeRepoGetAllError: nil,
@@ -258,11 +263,13 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 		{
 			name:       "invalid signature, 400 bad request",
 			nodeId:     "1",
+			payoutAddress: "0xtest-address",
 			httpStatus: http.StatusBadRequest,
 			// NodeRepo.GetAll
 			nodeRepoGetAllReturns: &[]models.Node{
 				{
 					ID: "1",
+					PayoutAddress: "0xtest-address",
 				},
 			},
 			nodeRepoGetAllError: nil,
@@ -292,11 +299,13 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 		{
 			name:       "invalid payload, 400 bad request",
 			nodeId:     "1",
+			payoutAddress: "0xtest-address",
 			httpStatus: http.StatusBadRequest,
 			// NodeRepo.GetAll
 			nodeRepoGetAllReturns: &[]models.Node{
 				{
 					ID: "1",
+					PayoutAddress: "0xtest-address",
 				},
 			},
 			nodeRepoGetAllError: nil,
@@ -382,7 +391,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			}, nil)
 			handler := http.HandlerFunc(apiController.StatisticsHandlerAllStatsForLoadbalancer)
 
-			configuration.Config.Secret = test.secret
+			configuration.Config.PrivateKey = test.secret
 
 			payload, _ := json.Marshal(test.payload)
 			req, _ := http.NewRequest("POST", "/api/v1/stats", bytes.NewReader(payload))
@@ -407,7 +416,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 				assert.Equal(t, test.nodeNumberOfRequests, statsResponse.Stats[test.payoutAddress].TotalRequests)
 			}
 
-			configuration.Config.Secret = ""
+			configuration.Config.PrivateKey = ""
 		})
 	}
 }

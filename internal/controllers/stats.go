@@ -20,7 +20,7 @@ type StatsResponse struct {
 }
 
 func (c *ApiController) StatisticsHandlerAllStats(w http.ResponseWriter, r *http.Request) {
-	statistics, _, err := payout.GetStatsForPayout(c.repositories, getNow(), false)
+	statistics, err := payout.GetStatsForPayout(c.repositories, getNow(), false)
 	if err != nil {
 		log.Errorf("Failed to calculate statistics, because %v", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -48,7 +48,7 @@ func (c *ApiController) StatisticsHandlerAllStatsForLoadbalancer(w http.Response
 		log.Errorf("Missing signature header")
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 	}
-	verified, err := signature.Verify([]byte("loadbalancer-request"), []byte(sig), configuration.Config.Secret)
+	verified, err := signature.Verify([]byte("loadbalancer-request"), []byte(sig), configuration.Config.PrivateKey)
 	if err != nil {
 		log.Errorf("Failed to verify signature, because %v", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -70,7 +70,7 @@ func (c *ApiController) StatisticsHandlerAllStatsForLoadbalancer(w http.Response
 		return
 	}
 
-	_, payoutStatistics, err := payout.GetStatsForPayout(c.repositories, getNow(), req.StartPayout)
+	statistics, err := payout.GetStatsForPayout(c.repositories, getNow(), req.StartPayout)
 	if err != nil {
 		log.Errorf("Failed to calculate statistics, because %v", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -79,7 +79,7 @@ func (c *ApiController) StatisticsHandlerAllStatsForLoadbalancer(w http.Response
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(LoadbalancerStatsResponse{
-		Stats: payoutStatistics,
+		Stats: statistics,
 		Fee:   configuration.Config.Fee,
 	})
 }

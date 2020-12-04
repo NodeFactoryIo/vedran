@@ -4,21 +4,20 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
-	"net/http"
-	"net/url"
-
-	"github.com/NodeFactoryIo/vedran/internal/controllers"
-	"github.com/NodeFactoryIo/vedran/internal/payout"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"github.com/NodeFactoryIo/vedran/internal/controllers"
+	"github.com/NodeFactoryIo/vedran/internal/payout"
+
+	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
+	log "github.com/sirupsen/logrus"
 )
 
 func ExecutePayout(secret string, totalReward float64, loadbalancerUrl *url.URL) ([]*payout.TransactionDetails, error) {
 	log.Infof("New payout started with total reward: %s", strconv.FormatFloat(totalReward, 'f', 0, 64))
-	response, err := fetchStatsFromEndpoint(statsEndpoint(loadbalancerUrl))
+	response, err := fetchStatsFromEndpoint(statsEndpoint(loadbalancerUrl), secret)
 	if err != nil {
 		return nil, fmt.Errorf("unable to fetch stats from loadbalancer, %v", err)
 	}
