@@ -10,7 +10,7 @@ const (
 )
 
 type ConnectionError struct {
-	Err error
+	Err  error
 	Type ConnectionErrorType
 }
 

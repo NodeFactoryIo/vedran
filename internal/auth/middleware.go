@@ -12,7 +12,7 @@ type ContextKey string
 const RequestContextKey = ContextKey("request")
 
 type RequestContext struct {
-	NodeId string
+	NodeId    string
 	Timestamp time.Time
 }
 

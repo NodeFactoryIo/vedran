@@ -9,6 +9,6 @@ type Metrics struct {
 }
 
 type LatestBlockMetrics struct {
-	BestBlockHeight       int64
-	FinalizedBlockHeight  int64
+	BestBlockHeight      int64
+	FinalizedBlockHeight int64
 }

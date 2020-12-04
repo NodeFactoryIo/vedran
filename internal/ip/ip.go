@@ -26,6 +26,7 @@ var APIURIs = []string{
 	"http://wgetip.com",
 	"http://ip.tyk.nu",
 }
+
 // Get returns public IP
 func Get() (net.IP, error) {
 	var results []net.IP
