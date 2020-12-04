@@ -11,14 +11,14 @@ import (
 func TestAuthMiddleware(t *testing.T) {
 	validToken, _ := CreateNewToken("test-node-id")
 	tests := []struct {
-		name string
-		token string
-		status int
+		name       string
+		token      string
+		status     int
 		mockHandle http.HandlerFunc
 	}{
 		{
-			name: "Authorized request",
-			token: validToken,
+			name:   "Authorized request",
+			token:  validToken,
 			status: http.StatusOK,
 			mockHandle: func(writer http.ResponseWriter, request *http.Request) {
 				r := request.Context().Value(RequestContextKey).(*RequestContext)
@@ -27,9 +27,9 @@ func TestAuthMiddleware(t *testing.T) {
 			},
 		},
 		{
-			name: "Unauthorized request",
-			token: "invalidtokenstring",
-			status: http.StatusUnauthorized,
+			name:       "Unauthorized request",
+			token:      "invalidtokenstring",
+			status:     http.StatusUnauthorized,
 			mockHandle: func(writer http.ResponseWriter, request *http.Request) {},
 		},
 	}

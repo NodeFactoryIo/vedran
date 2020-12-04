@@ -24,9 +24,9 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 		return now
 	}
 	tests := []struct {
-		name       string
-		httpStatus int
-		nodeId     string
+		name          string
+		httpStatus    int
+		nodeId        string
 		payoutAddress string
 		// NodeRepo.GetAll
 		nodeRepoGetAllReturns *[]models.Node
@@ -48,14 +48,14 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 		nodeNumberOfRequests float64
 	}{
 		{
-			name:       "get valid stats",
-			nodeId:     "1",
+			name:          "get valid stats",
+			nodeId:        "1",
 			payoutAddress: "0xtest-address",
-			httpStatus: http.StatusOK,
+			httpStatus:    http.StatusOK,
 			// NodeRepo.GetAll
 			nodeRepoGetAllReturns: &[]models.Node{
 				{
-					ID: "1",
+					ID:            "1",
 					PayoutAddress: "0xtest-address",
 				},
 			},
