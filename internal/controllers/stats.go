@@ -2,15 +2,17 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
+	"net/http"
+	"time"
+
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/payout"
 	"github.com/NodeFactoryIo/vedran/internal/stats"
+
+	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
 	muxhelpper "github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"time"
 )
 
 var getNow = time.Now
@@ -35,11 +37,7 @@ func (c *ApiController) StatisticsHandlerAllStats(w http.ResponseWriter, r *http
 
 type LoadbalancerStatsResponse struct {
 	Stats map[string]models.NodeStatsDetails `json:"stats"`
-	Fee   float32                             `json:"fee"`
-}
-
-type LoadbalancerStatsRequest struct {
-	StartPayout bool `json:"start_payout"`
+	Fee   float32                            `json:"fee"`
 }
 
 func (c *ApiController) StatisticsHandlerAllStatsForLoadbalancer(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +46,8 @@ func (c *ApiController) StatisticsHandlerAllStatsForLoadbalancer(w http.Response
 		log.Errorf("Missing signature header")
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 	}
-	verified, err := signature.Verify([]byte("loadbalancer-request"), []byte(sig), configuration.Config.PrivateKey)
+
+	verified, err := signature.Verify([]byte(GetStatsSignedData()), []byte(sig), configuration.Config.PrivateKey)
 	if err != nil {
 		log.Errorf("Failed to verify signature, because %v", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -60,17 +59,7 @@ func (c *ApiController) StatisticsHandlerAllStatsForLoadbalancer(w http.Response
 		return
 	}
 
-	dec := json.NewDecoder(r.Body)
-	dec.DisallowUnknownFields()
-	req := LoadbalancerStatsRequest{}
-	err = dec.Decode(&req)
-	if err != nil {
-		log.Errorf("Invalid request payload")
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
-	}
-
-	statistics, err := payout.GetStatsForPayout(c.repositories, getNow(), req.StartPayout)
+	statistics, err := payout.GetStatsForPayout(c.repositories, getNow(), true)
 	if err != nil {
 		log.Errorf("Failed to calculate statistics, because %v", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

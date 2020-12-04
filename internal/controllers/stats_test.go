@@ -26,9 +26,9 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 		return now
 	}
 	tests := []struct {
-		name       string
-		httpStatus int
-		nodeId     string
+		name          string
+		httpStatus    int
+		nodeId        string
 		payoutAddress string
 		// NodeRepo.GetAll
 		nodeRepoGetAllReturns *[]models.Node
@@ -50,14 +50,14 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 		nodeNumberOfRequests float64
 	}{
 		{
-			name:       "get valid stats",
-			nodeId:     "1",
+			name:          "get valid stats",
+			nodeId:        "1",
 			payoutAddress: "0xtest-address",
-			httpStatus: http.StatusOK,
+			httpStatus:    http.StatusOK,
 			// NodeRepo.GetAll
 			nodeRepoGetAllReturns: &[]models.Node{
 				{
-					ID: "1",
+					ID:            "1",
 					PayoutAddress: "0xtest-address",
 				},
 			},
@@ -161,9 +161,9 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 		return now
 	}
 	tests := []struct {
-		name       string
-		httpStatus int
-		nodeId     string
+		name          string
+		httpStatus    int
+		nodeId        string
 		payoutAddress string
 		// NodeRepo.GetAll
 		nodeRepoGetAllReturns *[]models.Node
@@ -186,17 +186,16 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 		//
 		secret        string
 		signatureData string
-		payload       interface{}
 	}{
 		{
-			name:       "get valid stats, 200 OK",
-			nodeId:     "1",
+			name:          "get valid stats, 200 OK",
+			nodeId:        "1",
 			payoutAddress: "0xtest-address",
-			httpStatus: http.StatusOK,
+			httpStatus:    http.StatusOK,
 			// NodeRepo.GetAll
 			nodeRepoGetAllReturns: &[]models.Node{
 				{
-					ID: "1",
+					ID:            "1",
 					PayoutAddress: "0xtest-address",
 				},
 			},
@@ -220,19 +219,18 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			nodeNumberOfRequests: float64(0),
 			nodeNumberOfPings:    float64(8640),
 			//
-			payload:       LoadbalancerStatsRequest{StartPayout: true},
 			secret:        "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-			signatureData: "loadbalancer-request",
+			signatureData: GetStatsSignedData(),
 		},
 		{
-			name:       "missing signature, 400 bad request",
-			nodeId:     "1",
+			name:          "missing signature, 400 bad request",
+			nodeId:        "1",
 			payoutAddress: "0xtest-address",
-			httpStatus: http.StatusBadRequest,
+			httpStatus:    http.StatusBadRequest,
 			// NodeRepo.GetAll
 			nodeRepoGetAllReturns: &[]models.Node{
 				{
-					ID: "1",
+					ID:            "1",
 					PayoutAddress: "0xtest-address",
 				},
 			},
@@ -256,19 +254,18 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			nodeNumberOfRequests: float64(0),
 			nodeNumberOfPings:    float64(8640),
 			//
-			payload:       LoadbalancerStatsRequest{StartPayout: true},
 			secret:        "",
-			signatureData: "loadbalancer-request",
+			signatureData: GetStatsSignedData(),
 		},
 		{
-			name:       "invalid signature, 400 bad request",
-			nodeId:     "1",
+			name:          "invalid signature, 400 bad request",
+			nodeId:        "1",
 			payoutAddress: "0xtest-address",
-			httpStatus: http.StatusBadRequest,
+			httpStatus:    http.StatusBadRequest,
 			// NodeRepo.GetAll
 			nodeRepoGetAllReturns: &[]models.Node{
 				{
-					ID: "1",
+					ID:            "1",
 					PayoutAddress: "0xtest-address",
 				},
 			},
@@ -292,53 +289,15 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			nodeNumberOfRequests: float64(0),
 			nodeNumberOfPings:    float64(8640),
 			//
-			payload:       LoadbalancerStatsRequest{StartPayout: true},
 			secret:        "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 			signatureData: "loadbalancer-invalid-request",
-		},
-		{
-			name:       "invalid payload, 400 bad request",
-			nodeId:     "1",
-			payoutAddress: "0xtest-address",
-			httpStatus: http.StatusBadRequest,
-			// NodeRepo.GetAll
-			nodeRepoGetAllReturns: &[]models.Node{
-				{
-					ID: "1",
-					PayoutAddress: "0xtest-address",
-				},
-			},
-			nodeRepoGetAllError: nil,
-			// RecordRepo.FindSuccessfulRecordsInsideInterval
-			recordRepoFindSuccessfulRecordsInsideIntervalReturns: nil,
-			recordRepoFindSuccessfulRecordsInsideIntervalError:   errors.New("not found"),
-			// DowntimeRepo.FindDowntimesInsideInterval
-			downtimeRepoFindDowntimesInsideIntervalReturns: nil,
-			downtimeRepoFindDowntimesInsideIntervalError:   errors.New("not found"),
-			// PingRepo.CalculateDowntime
-			pingRepoCalculateDowntimeReturnDuration: 5 * time.Second,
-			pingRepoCalculateDowntimeError:          nil,
-			// PayoutRepo.FindLatestPayout
-			payoutRepoFindLatestPayoutReturns: &models.Payout{
-				Timestamp:      now.Add(-24 * time.Hour),
-				PaymentDetails: nil,
-			},
-			payoutRepoFindLatestPayoutError: nil,
-			// Stats
-			nodeNumberOfRequests: float64(0),
-			nodeNumberOfPings:    float64(8640),
-			//
-			payload:       map[string]string{"payload": "invalid"},
-			secret:        "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-			signatureData: "loadbalancer-request",
 		},
 		{
 			name:                            "unable to get latest interval, 500 server error",
 			httpStatus:                      http.StatusInternalServerError,
 			payoutRepoFindLatestPayoutError: errors.New("db-error"),
-			payload:                         LoadbalancerStatsRequest{StartPayout: true},
 			secret:                          "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-			signatureData:                   "loadbalancer-request",
+			signatureData:                   GetStatsSignedData(),
 		},
 	}
 	for _, test := range tests {
@@ -393,8 +352,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 
 			configuration.Config.PrivateKey = test.secret
 
-			payload, _ := json.Marshal(test.payload)
-			req, _ := http.NewRequest("POST", "/api/v1/stats", bytes.NewReader(payload))
+			req, _ := http.NewRequest("POST", "/api/v1/stats", nil)
 
 			if test.secret != "" {
 				sig, _ := signature.Sign([]byte(test.signatureData), test.secret)

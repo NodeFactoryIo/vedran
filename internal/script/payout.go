@@ -1,7 +1,6 @@
 package script
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -36,17 +35,12 @@ func ExecutePayout(secret string, totalReward float64, loadbalancerUrl *url.URL)
 }
 
 func fetchStatsFromEndpoint(endpoint *url.URL, secret string) (*controllers.LoadbalancerStatsResponse, error) {
-	startPayout := controllers.LoadbalancerStatsRequest{StartPayout: true}
-	payload, err := json.Marshal(startPayout)
-	if err != nil {
-		return nil, err
-	}
-	sig, err := signature.Sign([]byte("loadbalancer-request"), secret)
+	sig, err := signature.Sign([]byte(controllers.GetStatsSignedData()), secret)
 	if err != nil {
 		return nil, err
 	}
 
-	request, _ := http.NewRequest("POST", endpoint.String(), bytes.NewBuffer(payload))
+	request, _ := http.NewRequest("POST", endpoint.String(), nil)
 	request.Header.Set("X-Signature", string(sig))
 
 	c := &http.Client{}
