@@ -56,7 +56,7 @@ func TestApiController_RPCHandler(t *testing.T) {
 	apiController := NewApiController(false, repositories.Repos{
 		NodeRepo:   &nodeRepoMock,
 		RecordRepo: &recordRepoMock,
-	}, actionsMockObject)
+	}, actionsMockObject, "")
 
 	handler := http.HandlerFunc(apiController.RPCHandler)
 
@@ -165,7 +165,7 @@ func TestApiController_BatchRPCHandler(t *testing.T) {
 	apiController := NewApiController(false, repositories.Repos{
 		NodeRepo:   &nodeRepoMock,
 		RecordRepo: &recordRepoMock,
-	}, actionsMockObject)
+	}, actionsMockObject, "")
 
 	handler := http.HandlerFunc(apiController.RPCHandler)
 
@@ -244,7 +244,7 @@ func TestApiController_RPCHandler_InvalidBody(t *testing.T) {
 	actionsMockObject := new(actionMocks.Actions)
 	actionsMockObject.On("PenalizeNode", mock.Anything, mock.Anything).Return()
 
-	apiController := NewApiController(false, repositories.Repos{}, actionsMockObject)
+	apiController := NewApiController(false, repositories.Repos{}, actionsMockObject, "")
 
 	handler := http.HandlerFunc(apiController.RPCHandler)
 

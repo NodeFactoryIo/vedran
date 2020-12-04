@@ -47,7 +47,7 @@ func (c *ApiController) StatisticsHandlerAllStatsForLoadbalancer(w http.Response
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 	}
 
-	verified, err := signature.Verify([]byte(GetStatsSignedData()), []byte(sig), configuration.Config.PrivateKey)
+	verified, err := signature.Verify([]byte(GetStatsSignedData()), []byte(sig), c.privateKey)
 	if err != nil {
 		log.Errorf("Failed to verify signature, because %v", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

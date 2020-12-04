@@ -14,7 +14,6 @@ type Configuration struct {
 	Port                int32
 	PortPool            server.Pooler
 	TunnelServerAddress string
-	PrivateKey          string
 }
 
 var Config Configuration

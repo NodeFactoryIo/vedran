@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
-	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
@@ -134,7 +133,7 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 				RecordRepo:   &recordRepoMock,
 				DowntimeRepo: &downtimeRepoMock,
 				PayoutRepo:   &payoutRepoMock,
-			}, nil)
+			}, nil, "")
 			handler := http.HandlerFunc(apiController.StatisticsHandlerAllStats)
 			req, _ := http.NewRequest("GET", "/api/v1/stats", bytes.NewReader(nil))
 			rr := httptest.NewRecorder()
@@ -347,10 +346,8 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 				RecordRepo:   &recordRepoMock,
 				DowntimeRepo: &downtimeRepoMock,
 				PayoutRepo:   &payoutRepoMock,
-			}, nil)
+			}, nil, test.secret)
 			handler := http.HandlerFunc(apiController.StatisticsHandlerAllStatsForLoadbalancer)
-
-			configuration.Config.PrivateKey = test.secret
 
 			req, _ := http.NewRequest("POST", "/api/v1/stats", nil)
 
@@ -373,8 +370,6 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 				assert.LessOrEqual(t, test.nodeNumberOfPings, statsResponse.Stats[test.payoutAddress].TotalPings)
 				assert.Equal(t, test.nodeNumberOfRequests, statsResponse.Stats[test.payoutAddress].TotalRequests)
 			}
-
-			configuration.Config.PrivateKey = ""
 		})
 	}
 }
@@ -479,7 +474,7 @@ func TestApiController_StatisticsHandlerStatsForNode(t *testing.T) {
 				RecordRepo:   &recordRepoMock,
 				DowntimeRepo: &downtimeRepoMock,
 				PayoutRepo:   &payoutRepoMock,
-			}, nil)
+			}, nil, "")
 			type ContextKey string
 			req, _ := http.NewRequest("GET", "/api/v1/stats/node/1", bytes.NewReader(nil))
 			req = req.WithContext(context.WithValue(req.Context(), ContextKey(test.contextKey), "1"))

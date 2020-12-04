@@ -25,6 +25,7 @@ func TestApiRouter(t *testing.T) {
 			RecordRepo:  &recordRepoMock,
 		},
 		nil,
+		"",
 	)
 
 	tests := []struct {
