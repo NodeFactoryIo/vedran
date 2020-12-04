@@ -149,7 +149,7 @@ func Test_CalculateStatisticsFromLastPayout(t *testing.T) {
 	now := time.Now()
 
 	testNode := models.Node{
-		ID: "1",
+		ID:            "1",
 		PayoutAddress: "0xpayout-address-1",
 	}
 
@@ -182,7 +182,7 @@ func Test_CalculateStatisticsFromLastPayout(t *testing.T) {
 		calculateStatisticsFromLastPayoutError   error
 	}{
 		{
-			name:   "valid statistics with multiple records and no downtime",
+			name: "valid statistics with multiple records and no downtime",
 			// interval of 24 hours
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,
@@ -221,7 +221,7 @@ func Test_CalculateStatisticsFromLastPayout(t *testing.T) {
 			calculateStatisticsFromLastPayoutError: nil,
 		},
 		{
-			name:   "error on fetching latest payout",
+			name: "error on fetching latest payout",
 			// interval of 24 hours
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,
@@ -468,7 +468,7 @@ func Test_CalculateStatisticsForInterval(t *testing.T) {
 	now := time.Now()
 
 	testNode := models.Node{
-		ID: "1",
+		ID:            "1",
 		PayoutAddress: "0xpayout-address-1",
 	}
 
@@ -497,7 +497,7 @@ func Test_CalculateStatisticsForInterval(t *testing.T) {
 		calculateStatisticsForIntervalError   error
 	}{
 		{
-			name:   "valid statistics with multiple records and no downtime",
+			name: "valid statistics with multiple records and no downtime",
 			// interval of 24 hours
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,
@@ -535,7 +535,7 @@ func Test_CalculateStatisticsForInterval(t *testing.T) {
 			calculateStatisticsForIntervalError: nil,
 		},
 		{
-			name:   "get all nodes fails",
+			name: "get all nodes fails",
 			// interval of 24 hours
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,
@@ -548,7 +548,7 @@ func Test_CalculateStatisticsForInterval(t *testing.T) {
 			calculateStatisticsForIntervalError:   errors.New("not found"),
 		},
 		{
-			name:   "calculating statistics for node fails",
+			name: "calculating statistics for node fails",
 			// interval of 24 hours
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,

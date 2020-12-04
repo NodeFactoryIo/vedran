@@ -11,7 +11,7 @@ import (
 
 var (
 	fileWithWhitelistedNodes string
-	whitelistedNodes []string
+	whitelistedNodes         []string
 )
 
 var newLine = []byte{'\n'}
@@ -96,7 +96,7 @@ func removeNodeFromWhitelistFile(nodeId string) error {
 	for i, nodeIdBytes := range lines {
 		if string(nodeIdBytes) != nodeId {
 			newFileContent = append(newFileContent, nodeIdBytes...)
-			if i + 1 < len(lines) { // append new line expect last entry
+			if i+1 < len(lines) { // append new line expect last entry
 				newFileContent = append(newFileContent, newLine...)
 			}
 		}
@@ -119,9 +119,9 @@ func removeNodeFromWhitelistArray(nodeId string) error {
 	}
 	// remove node if index found
 	if removeIndex != -1 {
-		whitelistedNodes[removeIndex] = whitelistedNodes[len(whitelistedNodes) - 1]
-		whitelistedNodes[len(whitelistedNodes) - 1] = ""
-		whitelistedNodes = whitelistedNodes[:len(whitelistedNodes) - 1]
+		whitelistedNodes[removeIndex] = whitelistedNodes[len(whitelistedNodes)-1]
+		whitelistedNodes[len(whitelistedNodes)-1] = ""
+		whitelistedNodes = whitelistedNodes[:len(whitelistedNodes)-1]
 	} else {
 		return fmt.Errorf("node %s not found in whitelisted nodes", nodeId)
 	}

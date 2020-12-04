@@ -50,7 +50,7 @@ func Test_GetStatsForPayout(t *testing.T) {
 			// NodeRepo.GetAll
 			nodeRepoGetAllReturns: &[]models.Node{
 				{
-					ID: "1",
+					ID:            "1",
 					PayoutAddress: "0xpayout-address-1",
 				},
 			},
@@ -99,7 +99,7 @@ func Test_GetStatsForPayout(t *testing.T) {
 			// NodeRepo.GetAll
 			nodeRepoGetAllReturns: &[]models.Node{
 				{
-					ID: "1",
+					ID:            "1",
 					PayoutAddress: "0xpayout-address-1",
 				},
 			},
@@ -158,7 +158,7 @@ func Test_GetStatsForPayout(t *testing.T) {
 			// NodeRepo.GetAll
 			nodeRepoGetAllReturns: &[]models.Node{
 				{
-					ID: "1",
+					ID:            "1",
 					PayoutAddress: "0xpayout-address-1",
 				},
 			},

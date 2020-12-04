@@ -37,7 +37,7 @@ func Test_CalculateTotalPingsForNode(t *testing.T) {
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,
 			// DowntimeRepo.FindByNodeID
-			downtimeRepoFindDowntimesInsideIntervalReturns: nil,
+			downtimeRepoFindDowntimesInsideIntervalReturns:    nil,
 			downtimeRepoFindDowntimesInsideIntervalError:      errors.New("not found"),
 			downtimeRepoFindDowntimesInsideIntervalNumOfCalls: 1,
 			// PingRepo.CalculateDowntime
@@ -70,10 +70,10 @@ func Test_CalculateTotalPingsForNode(t *testing.T) {
 					End:    now.Add(-100 * time.Minute),
 				},
 				{ // downtime 20s
-					ID: 3,
+					ID:     3,
 					NodeId: "1",
-					Start: now.Add(-120 * time.Second),
-					End: now.Add(-100 * time.Second),
+					Start:  now.Add(-120 * time.Second),
+					End:    now.Add(-100 * time.Second),
 				},
 			},
 			downtimeRepoFindDowntimesInsideIntervalError:      nil,
@@ -99,7 +99,7 @@ func Test_CalculateTotalPingsForNode(t *testing.T) {
 					ID:     1,
 					NodeId: "1",
 					Start:  now.Add(-1500 * time.Minute), // -24h60min
-					End:    now.Add(-1410 * time.Minute),   // -23h30min
+					End:    now.Add(-1410 * time.Minute), // -23h30min
 				},
 			},
 			downtimeRepoFindDowntimesInsideIntervalError:      nil,
@@ -120,7 +120,7 @@ func Test_CalculateTotalPingsForNode(t *testing.T) {
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,
 			// DowntimeRepo.FindByNodeID
-			downtimeRepoFindDowntimesInsideIntervalReturns: []models.Downtime{},
+			downtimeRepoFindDowntimesInsideIntervalReturns:    []models.Downtime{},
 			downtimeRepoFindDowntimesInsideIntervalError:      nil,
 			downtimeRepoFindDowntimesInsideIntervalNumOfCalls: 1,
 			// PingRepo.CalculateDowntime
@@ -143,8 +143,8 @@ func Test_CalculateTotalPingsForNode(t *testing.T) {
 				{ // downtime 1h20min (20min effective), started before calculated interval
 					ID:     1,
 					NodeId: "1",
-					Start:  now.Add(-1500 * time.Minute),   // -24h60min
-					End:    now.Add(-1420 * time.Minute),   // -23h40min
+					Start:  now.Add(-1500 * time.Minute), // -24h60min
+					End:    now.Add(-1420 * time.Minute), // -23h40min
 				},
 				{ // downtime 20min
 					ID:     2,
@@ -171,7 +171,7 @@ func Test_CalculateTotalPingsForNode(t *testing.T) {
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,
 			// DowntimeRepo.FindByNodeID
-			downtimeRepoFindDowntimesInsideIntervalReturns: nil,
+			downtimeRepoFindDowntimesInsideIntervalReturns:    nil,
 			downtimeRepoFindDowntimesInsideIntervalError:      errors.New("db error"),
 			downtimeRepoFindDowntimesInsideIntervalNumOfCalls: 1,
 			// CalculateTotalPingsForNode
@@ -185,7 +185,7 @@ func Test_CalculateTotalPingsForNode(t *testing.T) {
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,
 			// DowntimeRepo.FindByNodeID
-			downtimeRepoFindDowntimesInsideIntervalReturns: []models.Downtime{},
+			downtimeRepoFindDowntimesInsideIntervalReturns:    []models.Downtime{},
 			downtimeRepoFindDowntimesInsideIntervalError:      nil,
 			downtimeRepoFindDowntimesInsideIntervalNumOfCalls: 1,
 			// PingRepo.CalculateDowntime
@@ -203,7 +203,7 @@ func Test_CalculateTotalPingsForNode(t *testing.T) {
 			intervalStart: now.Add(-24 * time.Hour),
 			intervalEnd:   now,
 			// DowntimeRepo.FindByNodeID
-			downtimeRepoFindDowntimesInsideIntervalReturns: []models.Downtime{},
+			downtimeRepoFindDowntimesInsideIntervalReturns:    []models.Downtime{},
 			downtimeRepoFindDowntimesInsideIntervalError:      nil,
 			downtimeRepoFindDowntimesInsideIntervalNumOfCalls: 1,
 			// PingRepo.CalculateDowntime

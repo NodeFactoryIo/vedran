@@ -36,4 +36,3 @@ func (p *payoutRepo) FindLatestPayout() (*models.Payout, error) {
 	err := p.db.Select().OrderBy("Timestamp").First(&payout)
 	return &payout, err
 }
-
