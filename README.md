@@ -108,7 +108,7 @@ Start command will start application on 2 ports that need to be exposed to publi
 
 When starting _vedran loadbalancer_ it is possible to configure automatic payout by providing these flags:
 
-`--payout-reward` - loadbalancers wallet secret
+`--private-key` - loadbalancers wallet private key, used for sending founds on payout
 
 `--payout-interval` - automatic payout interval specified as number of days
 
@@ -121,7 +121,7 @@ If all flags have been provided than each {_payout-interval_} days automatic pay
 It is possible to run payout script at any time by invoking `vedran payout` command trough console.
 This command has two required flags:
 
-`--payout-reward` - loadbalancer wallet secret
+`--private-key` - loadbalancers wallet private key, used for sending founds on payout
 
 `--payout-reward` - defined reward amount that will be distributed on the payout (amount in Planck)
 

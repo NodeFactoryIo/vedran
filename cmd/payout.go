@@ -47,14 +47,12 @@ func init() {
 		"",
 		"[REQUIRED] loadbalancer wallet private key",
 	)
-	_ = payoutCmd.MarkFlagRequired("secret")
 	payoutCmd.Flags().StringVar(
 		&totalReward,
 		"payout-reward",
 		"",
 		"[REQUIRED] total reward pool in Planck",
 	)
-	_ = payoutCmd.MarkFlagRequired("total-reward")
 	payoutCmd.Flags().StringVar(
 		&rawLoadbalancerUrl,
 		"load-balancer-url",
