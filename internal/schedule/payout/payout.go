@@ -27,8 +27,14 @@ func StartScheduledPayout(intervalInDays int32, secret string, reward float64, l
 func scheduledPayout(secret string, reward float64, loadBalancerUrl *url.URL) {
 	log.Info("Starting automatic payout...")
 	transactionDetails, err := script.ExecutePayout(secret, reward, loadBalancerUrl)
-	if err != nil {
-		log.Error(err)
+	if transactionDetails != nil {
+		// display even if only part of transactions executed
+		ui.DisplayTransactionsStatus(transactionDetails)
 	}
-	ui.DisplayTransactionsStatus(transactionDetails)
+	if err != nil {
+		log.Errorf("Unable to execute payout, because of: %v", err)
+		return
+	} else {
+		log.Info("Payout execution finished")
+	}
 }
