@@ -1,5 +1,3 @@
 package controllers
 
-func GetStatsSignedData() string {
-	return "loadbalancer-request"
-}
+const StatsSignedData = "loadbalancer-request"
