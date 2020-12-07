@@ -86,7 +86,7 @@ func TestApiController_WSHandler(t *testing.T) {
 			apiController := NewApiController(false, repositories.Repos{
 				NodeRepo:   &nodeRepoMock,
 				RecordRepo: &recordRepoMock,
-			}, actionsMockObject)
+			}, actionsMockObject, "")
 
 			// start test loadbalancer ws server
 			router := mm.NewRouter()

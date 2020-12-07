@@ -2,26 +2,27 @@ package controllers
 
 import (
 	"encoding/json"
+	"net/http"
+	"time"
+
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/payout"
 	"github.com/NodeFactoryIo/vedran/internal/stats"
+
+	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
 	muxhelpper "github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"time"
 )
-
-type StatsResponse struct {
-	Stats map[string]models.NodeStatsDetails `json:"stats"`
-	Fee   float32                            `json:"fee"`
-}
 
 var getNow = time.Now
 
+type StatsResponse struct {
+	Stats map[string]models.NodeStatsDetails `json:"stats"`
+}
+
 func (c *ApiController) StatisticsHandlerAllStats(w http.ResponseWriter, r *http.Request) {
-	// should check for signature in body and only then record payout
-	payoutStatistics, err := payout.GetStatsForPayout(c.repositories, getNow(), false)
+	statistics, err := payout.GetStatsForPayout(c.repositories, getNow(), false)
 	if err != nil {
 		log.Errorf("Failed to calculate statistics, because %v", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -30,7 +31,44 @@ func (c *ApiController) StatisticsHandlerAllStats(w http.ResponseWriter, r *http
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(StatsResponse{
-		Stats: payoutStatistics,
+		Stats: statistics,
+	})
+}
+
+type LoadbalancerStatsResponse struct {
+	Stats map[string]models.NodeStatsDetails `json:"stats"`
+	Fee   float32                            `json:"fee"`
+}
+
+func (c *ApiController) StatisticsHandlerAllStatsForLoadbalancer(w http.ResponseWriter, r *http.Request) {
+	sig := r.Header.Get("X-Signature")
+	if sig == "" {
+		log.Errorf("Missing signature header")
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	}
+
+	verified, err := signature.Verify([]byte(StatsSignedData), []byte(sig), c.privateKey)
+	if err != nil {
+		log.Errorf("Failed to verify signature, because %v", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	if !verified {
+		log.Errorf("Invalid request signature")
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	statistics, err := payout.GetStatsForPayout(c.repositories, getNow(), true)
+	if err != nil {
+		log.Errorf("Failed to calculate statistics, because %v", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(LoadbalancerStatsResponse{
+		Stats: statistics,
 		Fee:   configuration.Config.Fee,
 	})
 }

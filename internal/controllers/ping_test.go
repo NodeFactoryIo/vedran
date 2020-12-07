@@ -106,7 +106,7 @@ func TestApiController_PingHandler(t *testing.T) {
 				MetricsRepo:  &metricsRepoMock,
 				RecordRepo:   &recordRepoMock,
 				DowntimeRepo: &downtimeRepoMock,
-			}, nil)
+			}, nil, "")
 			handler := http.HandlerFunc(apiController.PingHandler)
 
 			// create test request and populate context

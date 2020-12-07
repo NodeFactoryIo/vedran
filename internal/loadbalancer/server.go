@@ -2,8 +2,10 @@ package loadbalancer
 
 import (
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/actions"
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	"github.com/NodeFactoryIo/vedran/internal/controllers"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"github.com/NodeFactoryIo/vedran/internal/router"
@@ -15,7 +17,7 @@ import (
 	"time"
 )
 
-func StartLoadBalancerServer(props configuration.Configuration) {
+func StartLoadBalancerServer(props configuration.Configuration, privateKey string) {
 	configuration.Config = props
 
 	// set auth secret
@@ -75,7 +77,10 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 
 	// start server
 	log.Infof("Starting vedran load balancer on port :%d...", props.Port)
-	r := router.CreateNewApiRouter(*repos, props.WhitelistEnabled)
+	apiController := controllers.NewApiController(
+		props.WhitelistEnabled, *repos, actions.NewActions(), privateKey,
+	)
+	r := router.CreateNewApiRouter(apiController)
 	if props.CertFile != "" {
 		err = http.ListenAndServeTLS(fmt.Sprintf(":%d", props.Port), props.CertFile, props.KeyFile, r)
 	} else {

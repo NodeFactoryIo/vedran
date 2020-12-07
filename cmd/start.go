@@ -292,5 +292,5 @@ func startCommand(_ *cobra.Command, _ []string) {
 		TunnelServerAddress: tunnelServerAddress,
 		PortPool:            pPool,
 		WhitelistEnabled:    whitelistEnabled,
-	})
+	}, privateKey)
 }
