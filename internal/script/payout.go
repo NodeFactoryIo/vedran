@@ -14,9 +14,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func ExecutePayout(secret string, totalReward float64, loadbalancerUrl *url.URL) ([]*payout.TransactionDetails, error) {
+func ExecutePayout(privateKey string, totalReward float64, loadbalancerUrl *url.URL) ([]*payout.TransactionDetails, error) {
 	log.Infof("New payout started with total reward: %s", strconv.FormatFloat(totalReward, 'f', 0, 64))
-	response, err := fetchStatsFromEndpoint(statsEndpoint(loadbalancerUrl), secret)
+	response, err := fetchStatsFromEndpoint(statsEndpoint(loadbalancerUrl), privateKey)
 	if err != nil {
 		return nil, fmt.Errorf("unable to fetch stats from loadbalancer, %v", err)
 	}
@@ -29,7 +29,7 @@ func ExecutePayout(secret string, totalReward float64, loadbalancerUrl *url.URL)
 
 	return payout.ExecuteAllPayoutTransactions(
 		distributionByNode,
-		secret,
+		privateKey,
 		wsEndpoint(loadbalancerUrl).String(),
 	)
 }
