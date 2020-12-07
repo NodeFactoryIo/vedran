@@ -10,6 +10,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"github.com/NodeFactoryIo/vedran/internal/router"
 	"github.com/NodeFactoryIo/vedran/internal/schedule/checkactive"
+	schedulepayout "github.com/NodeFactoryIo/vedran/internal/schedule/payout"
 	"github.com/NodeFactoryIo/vedran/internal/schedule/penalize"
 	"github.com/asdine/storm/v3"
 	log "github.com/sirupsen/logrus"
@@ -17,7 +18,11 @@ import (
 	"time"
 )
 
-func StartLoadBalancerServer(props configuration.Configuration, privateKey string) {
+func StartLoadBalancerServer(
+	props configuration.Configuration,
+	payoutConfiguration *schedulepayout.PayoutConfiguration,
+	privateKey string,
+) {
 	configuration.Config = props
 
 	// set auth secret
@@ -74,6 +79,14 @@ func StartLoadBalancerServer(props configuration.Configuration, privateKey strin
 
 	// starts task that checks active nodes
 	checkactive.StartScheduledTask(repos)
+
+	// start scheduled payout if auto payout enabled
+	if payoutConfiguration != nil {
+		schedulepayout.StartScheduledPayout(
+			*payoutConfiguration,
+			privateKey,
+			*repos)
+	}
 
 	// start server
 	log.Infof("Starting vedran load balancer on port :%d...", props.Port)
