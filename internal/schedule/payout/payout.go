@@ -39,27 +39,27 @@ func StartScheduledPayout(configuration PayoutConfiguration, privateKey string, 
 	}()
 }
 
-func checkForPayout(intervalInDays int, secret string, reward float64, loadBalancerUrl *url.URL, repos repositories.Repos) {
+func checkForPayout(intervalInDays int, privateKey string, reward float64, loadBalancerUrl *url.URL, repos repositories.Repos) {
 	daysSinceLastPayout, lastPayoutTimestamp, err := numOfDaysSinceLastPayout(repos)
 	if err != nil {
-		log.Error("Unable to calculate number of days since last payout")
+		log.Error("Unable to calculate number of days since last payout", err)
 		return
 	}
 
 	if daysSinceLastPayout >= intervalInDays {
-		go startPayout(secret, reward, loadBalancerUrl)
+		go startPayout(privateKey, reward, loadBalancerUrl)
 	} else {
 		log.Infof(
 			"Last payout was %s, next payout will be in %d days",
 			lastPayoutTimestamp.Format("2006-January-02"),
-			daysSinceLastPayout,
+			intervalInDays - daysSinceLastPayout,
 		)
 	}
 }
 
-func startPayout(secret string, reward float64, loadBalancerUrl *url.URL)  {
+func startPayout(privateKey string, reward float64, loadBalancerUrl *url.URL)  {
 	log.Info("Starting automatic payout...")
-	transactionDetails, err := script.ExecutePayout(secret, reward, loadBalancerUrl)
+	transactionDetails, err := script.ExecutePayout(privateKey, reward, loadBalancerUrl)
 	if transactionDetails != nil {
 		// display even if only part of transactions executed
 		ui.DisplayTransactionsStatus(transactionDetails)
@@ -75,7 +75,6 @@ func startPayout(secret string, reward float64, loadBalancerUrl *url.URL)  {
 func numOfDaysSinceLastPayout(repos repositories.Repos) (int, *time.Time, error) {
 	latestPayout, err := repos.PayoutRepo.FindLatestPayout()
 	if err != nil {
-		log.Error("")
 		return 0, nil, err
 	}
 	daysSinceLastPayout := time.Now().Sub(latestPayout.Timestamp) / (24 * time.Hour)
