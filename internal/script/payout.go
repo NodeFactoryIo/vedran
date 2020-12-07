@@ -35,7 +35,7 @@ func ExecutePayout(privateKey string, totalReward float64, loadbalancerUrl *url.
 }
 
 func fetchStatsFromEndpoint(endpoint *url.URL, secret string) (*controllers.LoadbalancerStatsResponse, error) {
-	sig, err := signature.Sign([]byte(controllers.GetStatsSignedData()), secret)
+	sig, err := signature.Sign([]byte(controllers.StatsSignedData), secret)
 	if err != nil {
 		return nil, err
 	}

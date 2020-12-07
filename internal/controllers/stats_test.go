@@ -219,7 +219,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			nodeNumberOfPings:    float64(8640),
 			//
 			secret:        "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-			signatureData: GetStatsSignedData(),
+			signatureData: StatsSignedData,
 		},
 		{
 			name:          "missing signature, 400 bad request",
@@ -254,7 +254,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			nodeNumberOfPings:    float64(8640),
 			//
 			secret:        "",
-			signatureData: GetStatsSignedData(),
+			signatureData: StatsSignedData,
 		},
 		{
 			name:          "invalid signature, 400 bad request",
@@ -296,7 +296,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			httpStatus:                      http.StatusInternalServerError,
 			payoutRepoFindLatestPayoutError: errors.New("db-error"),
 			secret:                          "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-			signatureData:                   GetStatsSignedData(),
+			signatureData:                   StatsSignedData,
 		},
 	}
 	for _, test := range tests {
