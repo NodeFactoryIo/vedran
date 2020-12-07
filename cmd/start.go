@@ -274,23 +274,32 @@ func startCommand(_ *cobra.Command, _ []string) {
 	}
 	log.Debugf("Whitelisting set to: %t", whitelistEnabled)
 
+	var payoutConfiguration *schedulepayout.PayoutConfiguration
 	if !autoPayoutDisabled {
 		lbUrl, _ := url.Parse("http://" + publicIP + ":" + string(serverPort))
-		schedulepayout.StartScheduledPayout(payoutNumberOfDays, payoutPrivateKey, payoutTotalRewardAsFloat64, lbUrl)
+		payoutConfiguration = &schedulepayout.PayoutConfiguration{
+			PayoutNumberOfDays: int(payoutNumberOfDays),
+			PayoutTotalReward:  payoutTotalRewardAsFloat64,
+			LbURL:              lbUrl,
+		}
 	}
 
 	tunnel.StartHttpTunnelServer(tunnelServerPort, pPool)
-	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
-		AuthSecret:          authSecret,
-		Name:                name,
-		CertFile:            certFile,
-		KeyFile:             keyFile,
-		Capacity:            capacity,
-		Fee:                 fee,
-		Selection:           selection,
-		Port:                serverPort,
-		TunnelServerAddress: tunnelServerAddress,
-		PortPool:            pPool,
-		WhitelistEnabled:    whitelistEnabled,
-	}, privateKey)
+	loadbalancer.StartLoadBalancerServer(
+		configuration.Configuration{
+			AuthSecret:          authSecret,
+			Name:                name,
+			CertFile:            certFile,
+			KeyFile:             keyFile,
+			Capacity:            capacity,
+			Fee:                 fee,
+			Selection:           selection,
+			Port:                serverPort,
+			TunnelServerAddress: tunnelServerAddress,
+			PortPool:            pPool,
+			WhitelistEnabled:    whitelistEnabled,
+		},
+		payoutConfiguration,
+		privateKey,
+	)
 }
