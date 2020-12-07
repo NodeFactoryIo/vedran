@@ -15,7 +15,8 @@ type PayoutConfiguration struct {
 	LbURL *url.URL
 }
 
-// StartScheduledPayout checks every 24 hours
+// StartScheduledPayout checks every 24 hours how many days have passed since last payout.
+// If number of passed days is equal or bigger than defined interval in configuration, start automatic payout
 func StartScheduledPayout(configuration PayoutConfiguration, privateKey string, repos repositories.Repos) {
 	ticker := time.NewTicker(time.Hour * 24)
 	done := make(chan bool)
