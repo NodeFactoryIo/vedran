@@ -77,6 +77,6 @@ func numOfDaysSinceLastPayout(repos repositories.Repos) (int, *time.Time, error)
 	if err != nil {
 		return 0, nil, err
 	}
-	daysSinceLastPayout := time.Now().Sub(latestPayout.Timestamp) / (24 * time.Hour)
+	daysSinceLastPayout := time.Since(latestPayout.Timestamp) / (24 * time.Hour)
 	return int(daysSinceLastPayout), &latestPayout.Timestamp, nil
 }
