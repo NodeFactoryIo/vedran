@@ -105,6 +105,12 @@ Start command will start application on 2 ports that need to be exposed to publi
 |`--log-level`|log level (debug, info, warn, error)|error|
 |`--log-file`|path to file in which logs will be saved|`stdout`|
 
+### Obtaining DOTs
+If you want to do anything on Polkadot, Kusama, or Westend, then you'll need to get an account and some DOT, KSM, or WND tokens, respectively.
+When initializing payout, you will provide loadbalancer with created account and from this account rewards will be sent to connected nodes on payout.
+
+For Westend's WND tokens, see the faucet [instructions on the Wiki](https://wiki.polkadot.network/docs/en/learn-DOT#getting-westies).
+
 ## Payouts
 
 ### Automatic payout
