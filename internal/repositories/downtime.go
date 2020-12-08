@@ -34,12 +34,12 @@ func (r *DowntimeRepo) FindDowntimesInsideInterval(nodeID string, from time.Time
 		q.Eq("NodeId", nodeID),
 		q.Or(
 			q.And( // start inside interval
-				q.Gte("start", from),
-				q.Lte("start", to),
+				q.Gte("Start", from),
+				q.Lte("Start", to),
 			),
 			q.And( // end inside interval
-				q.Gte("end", from),
-				q.Lte("end", to),
+				q.Gte("End", from),
+				q.Lte("End", to),
 			),
 		),
 	)).Find(&downtimes)

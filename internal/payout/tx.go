@@ -15,14 +15,11 @@ func ExecuteTransaction(
 	amount big.Int,
 	keyringPair signature.KeyringPair,
 	mux *sync.Mutex,
+	metadataLatest *types.Metadata,
+	nonce uint32,
 ) (*TransactionDetails, error) {
 	// lock segment so goroutines don't access api at the same time
 	mux.Lock()
-
-	metadataLatest, err := api.RPC.State.GetMetadataLatest()
-	if err != nil {
-		return nil, err
-	}
 
 	decoded := base58.Decode(to)
 	// remove the 1st byte (network identifier) & last 2 bytes (blake2b hash)
@@ -50,25 +47,6 @@ func ExecuteTransaction(
 	if err != nil {
 		return nil, err
 	}
-
-	storageKey, err := types.CreateStorageKey(
-		metadataLatest,
-		"System",
-		"Account",
-		keyringPair.PublicKey,
-		nil,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	var accountInfo types.AccountInfo
-	ok, err := api.RPC.State.GetStorageLatest(storageKey, &accountInfo)
-	if err != nil || !ok {
-		return nil, err
-	}
-
-	nonce := uint32(accountInfo.Nonce)
 
 	signatureOptions := types.SignatureOptions{
 		Era:                types.ExtrinsicEra{IsMortalEra: false},

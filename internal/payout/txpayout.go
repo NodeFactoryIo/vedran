@@ -44,17 +44,41 @@ func executeAllTransactions(
 	// define number of goroutines
 	wg.Add(len(payoutDistribution))
 
+	metadataLatest, err := api.RPC.State.GetMetadataLatest()
+	if err != nil {
+		return nil, err
+	}
+
+	storageKey, err := types.CreateStorageKey(
+		metadataLatest,
+		"System",
+		"Account",
+		keyringPair.PublicKey,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var accountInfo types.AccountInfo
+	ok, err := api.RPC.State.GetStorageLatest(storageKey, &accountInfo)
+	if err != nil || !ok {
+		return nil, err
+	}
+	nonce := uint32(accountInfo.Nonce)
+
 	for nodePayoutAddress, amount := range payoutDistribution {
 		// execute transaction in separate goroutine and collect results in channels
-		go func(to string, amount big.Int, wg *sync.WaitGroup, mux *sync.Mutex) {
+		go func(to string, amount big.Int, wg *sync.WaitGroup, mux *sync.Mutex, nonce uint32) {
 			defer wg.Done()
-			transactionDetails, err := ExecuteTransaction(api, to, amount, keyringPair, mux)
+			transactionDetails, err := ExecuteTransaction(api, to, amount, keyringPair, mux, metadataLatest, nonce)
 			if err != nil {
 				fatalErrorsChannel <- err
 			} else {
 				resultsChannel <- transactionDetails
 			}
-		}(nodePayoutAddress, amount, &wg, &mux)
+		}(nodePayoutAddress, amount, &wg, &mux, nonce)
+		nonce += 1
 	}
 
 	go func() {

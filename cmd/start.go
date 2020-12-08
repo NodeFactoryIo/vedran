@@ -300,6 +300,6 @@ func startCommand(_ *cobra.Command, _ []string) {
 			WhitelistEnabled:    whitelistEnabled,
 		},
 		payoutConfiguration,
-		privateKey,
+		payoutPrivateKey,
 	)
 }

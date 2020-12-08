@@ -59,7 +59,6 @@ func StartLoadBalancerServer(
 		log.Fatalf("Failed creating initial payout because of: %v", err)
 	} else if len(*p) == 0 {
 		err := repos.PayoutRepo.Save(&models.Payout{
-			ID:             "1",
 			Timestamp:      time.Now(),
 			PaymentDetails: nil,
 		})
