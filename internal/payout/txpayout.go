@@ -49,23 +49,7 @@ func executeAllTransactions(
 		return nil, err
 	}
 
-	storageKey, err := types.CreateStorageKey(
-		metadataLatest,
-		"System",
-		"Account",
-		keyringPair.PublicKey,
-		nil,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	var accountInfo types.AccountInfo
-	ok, err := api.RPC.State.GetStorageLatest(storageKey, &accountInfo)
-	if err != nil || !ok {
-		return nil, err
-	}
-	nonce := uint32(accountInfo.Nonce)
+	nonce, err := getNonce(metadataLatest, keyringPair, api)
 
 	for nodePayoutAddress, amount := range payoutDistribution {
 		// execute transaction in separate goroutine and collect results in channels
@@ -89,6 +73,28 @@ func executeAllTransactions(
 	}()
 
 	return waitForTransactionDetails(waitGroupDoneChannel, fatalErrorsChannel, resultsChannel)
+}
+
+func getNonce(metadataLatest *types.Metadata, keyringPair signature.KeyringPair, api *gsrpc.SubstrateAPI) (uint32, error) {
+	storageKey, err := types.CreateStorageKey(
+		metadataLatest,
+		"System",
+		"Account",
+		keyringPair.PublicKey,
+		nil,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	var accountInfo types.AccountInfo
+	ok, err := api.RPC.State.GetStorageLatest(storageKey, &accountInfo)
+	if err != nil || !ok {
+		return 0, err
+	}
+
+	nonce := uint32(accountInfo.Nonce)
+	return nonce, err
 }
 
 func waitForTransactionDetails(

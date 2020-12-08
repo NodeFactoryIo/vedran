@@ -47,11 +47,11 @@ func (c *ApiController) StatisticsHandlerAllStatsForLoadbalancer(w http.Response
 		log.Errorf("Missing signature header")
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 	}
-	bSig, err := hexutil.Decode(sig)
+	sigInBytes, err := hexutil.Decode(sig)
 	if err != nil {
 		log.Error(err)
 	}
-	verified, err := signature.Verify([]byte(StatsSignedData), bSig, c.privateKey)
+	verified, err := signature.Verify([]byte(StatsSignedData), sigInBytes, c.privateKey)
 	if err != nil {
 		log.Errorf("Failed to verify signature, because %v", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
