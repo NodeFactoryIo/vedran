@@ -140,9 +140,9 @@ Register node to loadbalancer. Body should contain details about node:
 
 ```json
 {
-  "id": string,
-  "config_hash": string,
-  "payout_address": string
+  "id": "string",
+  "config_hash": "string",
+  "payout_address": "string"
 }
 ```
 
@@ -150,8 +150,8 @@ Returns **token** used for invoking rest of API and **tunnel_server_address** on
 
 ```json
 {
-  "token": string,
-  "tunnel_server_address": string
+  "token": "string",
+  "tunnel_server_address": "string"
 }
 ```
 
@@ -169,10 +169,10 @@ Send metrics for node. Auth token should be in header as `X-Auth-Header`. Body s
 
 ```json
 {
-  "peer_count": int32,
-  "best_block_height": int64,
-  "finalized_block_height": int64,
-  "ready_transaction_count": int32
+  "peer_count": "int32",
+  "best_block_height": "int64",
+  "finalized_block_height": "int64",
+  "ready_transaction_count": "int32"
 }
 ```
 
@@ -185,12 +185,12 @@ Returns statistics for all nodes (mapped on node payout address).
 ```json
 {
   "node_1_payout_address": {
-    "total_pings": float64,
-    "total_requests": float64
+    "total_pings": "float64",
+    "total_requests": "float64"
   },
   "node_2_payout_address": {
-    "total_pings": float64,
-    "total_requests": float64
+    "total_pings": "float64",
+    "total_requests": "float64"
   },
 }
 ```
