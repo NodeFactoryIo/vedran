@@ -4,12 +4,16 @@
 
 ### Architecture
 
-_Vedran loadbalancer_ is used in conjunction with [Vedran daemon](https://github.com/NodeFactoryIo/vedran-daemon). Suppose the node owner wants to register to loadbalancer, than it is required to install and run _Vedran daemon_. Daemon executes the registration process and starts providing all relevant information (ping, metrics) to the _Vedran loadbalancer_. Please check [Vedran daemon repo](https://github.com/NodeFactoryIo/vedran-daemon) for more details on the daemon itself.
-
+_Vedran loadbalancer_ is used in conjunction with [Vedran daemon](https://github.com/NodeFactoryIo/vedran-daemon). 
+Suppose the node owner wants to register to loadbalancer, than it is required to install and run _Vedran daemon_. 
+Daemon executes the registration process and starts providing all relevant information (ping, metrics) to the _Vedran loadbalancer_. 
+Please check [Vedran daemon repo](https://github.com/NodeFactoryIo/vedran-daemon) for more details on the daemon itself.
 
 ![Image of vedran architecture](./assets/vedran-arch.png)
 
 ## Demo
+
+_This is dockerized demo of entire setup with loadbalancer, node and daemon_
 
 ### Requirements
 
@@ -18,15 +22,22 @@ _Vedran loadbalancer_ is used in conjunction with [Vedran daemon](https://github
 
 **Run demo with `docker-compose up`**
 
-_After all components have been started and node has sent first valid metrics report (after 30 seconds), you can invoke RPC methods on `localhost:4000`_
+_After all components have been started and node has sent first valid metrics report (after 30 seconds), 
+you can invoke RPC methods on `localhost:4000` using HTTP requests or on `localhost:4000/ws` using WebSocket request_
 
 This demo starts three separate dockerized components:
 - _Polkadot node_ ([repository](https://github.com/paritytech/polkadot))
 - _Vedran daemon_ ([repository](https://github.com/NodeFactoryIo/vedran-daemon))
 - _Vedran loadbalancer_
 
-## Get `vedran` package
-1. Install [Golang](https://golang.org/doc/install) **1.13 or greater**
+## Get **vedran** binary releases
+
+Download prebuild binary from [releases](https://github.com/NodeFactoryIo/vedran/releases). 
+Be careful to chose appropriate binary depending on your OS. For more details on how to run _vedran loadbalancer_ see [Starting loadbalancer](#starting-loadbalancer) part.  
+
+## Get **vedran** package
+Alternatively, it is possible to get _vedran_ golang package: 
+1. Install [Golang](https://golang.org/doc/install) **1.15 or greater**
 2. Run the command below
 ```
 go get github.com/NodeFactoryIo/vedran
@@ -37,6 +48,7 @@ go get github.com/NodeFactoryIo/vedran
 ```
 Note that if you need to do this, you probably want to add your Go bin directory to your $PATH to make things easier!
 
+
 ## Starting loadbalancer
 
 First download latest prebuilt binaries [from releases](https://github.com/NodeFactoryIo/vedran/releases) and unzip it.
@@ -45,7 +57,8 @@ Load balancer is started by invoking **start** command.
 
 For example `./vedran start --auth-secret=supersecret --private-key=lb-wallet-private-key`.
 
-You can always run vedran with `--help` flag for list of all commands `vedran --help` or for list of all options for specific command `vedran start --help`.
+For more information you can always run vedran with `--help` flag. 
+For list of all commands run `vedran --help` or for list of all options for specific command run `vedran start --help`.
 
 **Load balancer will expose Polkadot RPC API on port 80 by default (can be changed using flag `--server-port`)**
 
@@ -58,7 +71,7 @@ Vedran loadbalancer supports both **HTTP** and **Websockets** protocols for Polk
 
 Start command will start application on 2 ports that need to be exposed to public:
  1. RPC entrypoint to nodes and API for nodes to register to load balancer (default: 80)
- 2. http tunnel server for creating tunnels between the node and load balancer so node operators don't to have expose nodes to public network (default: 5223)
+ 2. HTTP tunnel server for creating tunnels between the node and load balancer so node operators don't to have expose nodes to public network (default: 5223)
 
 ### Required flags
 
@@ -68,11 +81,21 @@ Start command will start application on 2 ports that need to be exposed to publi
 
 ### Most important flags
 
-`--server-port` - port on which RPC API is exposed  - **DEFAULT** [80]
+| Flag 	| Description 	| Defaults 	|
+|----|-----------|:--------:|
+|`--server-port`|port on which RPC API is exposed|80|
+|`--public-ip`|public IP address of loadbalancer|uses multiple services to find out public IP|
+|`--cert-file`|SSL certification file|uses HTTP|
+|`--key-file`|SSL price key file|uses HTTP|
+|`--tunnel-port`|port on which tunnel server is listening for connect requests|5223|
+|`--tunnel-port-range`|range of ports that will be used for creating tunnels|20000:30000|
+
+
+`--server-port` - port on which RPC API is exposed  - **DEFAULT** 80
 
 `--public-ip` - public IP address of loadbalancer - **DEFAULT** uses multiple services to find out public IP
 
-`--cert-file` - SSL certification file - **DEFAULT** uses http
+`--cert-file` - SSL certification file - **DEFAULT** uses HTTP
 
 `--key-file` - SSL price key file - **DEFAULT** uses http
 
