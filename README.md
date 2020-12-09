@@ -117,7 +117,7 @@ For Westend's WND tokens, see the faucet [instructions on the Wiki](https://wiki
 
 When starting _vedran loadbalancer_ it is possible to configure automatic payout by providing these flags:
 
-`--private-key` - loadbalancers wallet private key, used for sending rewards on payout
+`--private-key` - loadbalancers wallet private key (string representation of hex value prefixed with 0x), used for sending rewards on payout
 
 `--payout-interval` - automatic payout interval specified as number of days
 
@@ -130,7 +130,7 @@ If all flags have been provided, then each {_payout-interval_} days automatic pa
 It is possible to run payout script at any time by invoking `vedran payout` command trough console.
 This command has two required flags:
 
-`--private-key` - loadbalancers wallet private key, used for sending founds on payout
+`--private-key` - loadbalancers wallet private key (string representation of hex value prefixed with 0x), used for sending founds on payout
 
 `--payout-reward` - defined total reward amount that will be distributed on the payout (amount in Planck)
 
