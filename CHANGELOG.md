@@ -16,6 +16,7 @@
 - Sign stats request [\#143](https://github.com/NodeFactoryIo/vedran/pull/143) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Fix
+- Fix payout [\#148](https://github.com/NodeFactoryIo/vedran/pull/148) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Changed
 - Write byte response directly with io.Write [\#113](https://github.com/NodeFactoryIo/vedran/pull/113) ([mpetrun5](https://github.com/mpetrun5))
