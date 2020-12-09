@@ -4,6 +4,7 @@ import (
 	gsrpc "github.com/NodeFactoryIo/go-substrate-rpc-client"
 	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
 	"github.com/NodeFactoryIo/go-substrate-rpc-client/types"
+	"github.com/pkg/errors"
 	"math/big"
 	"sync"
 )
@@ -46,10 +47,13 @@ func executeAllTransactions(
 
 	metadataLatest, err := api.RPC.State.GetMetadataLatest()
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "unable to get latest metadat")
 	}
 
 	nonce, err := getNonce(metadataLatest, keyringPair, api)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to get nonce")
+	}
 
 	for nodePayoutAddress, amount := range payoutDistribution {
 		// execute transaction in separate goroutine and collect results in channels
