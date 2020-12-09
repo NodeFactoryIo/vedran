@@ -44,12 +44,13 @@ type LoadbalancerStatsResponse struct {
 func (c *ApiController) StatisticsHandlerAllStatsForLoadbalancer(w http.ResponseWriter, r *http.Request) {
 	sig := r.Header.Get("X-Signature")
 	if sig == "" {
-		log.Errorf("Missing signature header")
+		log.Error("Missing signature header")
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 	}
 	sigInBytes, err := hexutil.Decode(sig)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("Unable to decode signature, because of: %v", err)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 	}
 	verified, err := signature.Verify([]byte(StatsSignedData), sigInBytes, c.privateKey)
 	if err != nil {
