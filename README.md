@@ -138,6 +138,19 @@ Additionally, it is possible to change url on which payout script will connect w
 
 `--load-balancer-url` - loadbalancer url
 
+### Get private key
+You can use [subkey](https://substrate.dev/docs/en/knowledgebase/integrate/subkey) tool to get private key for your wallet.
+
+After installing subkey tool call `subkey inspect "insert your mnemonic here"`. 
+You can find private key as _Secreet seed_. See example output of subkey command:
+
+```
+  Secret seed:      0x1a84771145cdcee05e49142aaff2e5d669ce4b29344a09b973b751ae661acabf
+  Public key (hex): 0xa4548fa9b3b15dc4d1c59789952f0ccf6138dd63faf802637895c941f0522d35
+  Account ID:       0xa4548fa9b3b15dc4d1c59789952f0ccf6138dd63faf802637895c941f0522d35
+  SS58 Address:     5FnAq6wrMzri5V6jLfKgBkbR2rSAMkVAHVYWa3eU7TAV5rv9
+```
+
 ## Vedran loadbalancer API
 
 `POST   api/v1/nodes`
