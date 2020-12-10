@@ -1,6 +1,10 @@
 # Changelog
 
-## [v0.3.1]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
+## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
+
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.3.1...HEAD)
+
+## [v0.3.1]((https://github.com/NodeFactoryIo/vedran/tree/v0.3.1))
 
 ### Added
 
