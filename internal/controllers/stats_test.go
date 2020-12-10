@@ -10,6 +10,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	muxhelpper "github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -353,7 +354,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 
 			if test.secret != "" {
 				sig, _ := signature.Sign([]byte(test.signatureData), test.secret)
-				req.Header.Set("X-Signature", string(sig))
+				req.Header.Set("X-Signature", hexutil.Encode(sig))
 			}
 
 			rr := httptest.NewRecorder()

@@ -3,6 +3,7 @@ package script
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -41,7 +42,7 @@ func fetchStatsFromEndpoint(endpoint *url.URL, secret string) (*controllers.Load
 	}
 
 	request, _ := http.NewRequest("POST", endpoint.String(), nil)
-	request.Header.Set("X-Signature", string(sig))
+	request.Header.Set("X-Signature", hexutil.Encode(sig))
 
 	c := &http.Client{}
 	resp, err := c.Do(request)

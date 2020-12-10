@@ -4,6 +4,7 @@ import (
 	gsrpc "github.com/NodeFactoryIo/go-substrate-rpc-client"
 	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
 	"github.com/NodeFactoryIo/go-substrate-rpc-client/types"
+	"github.com/pkg/errors"
 	"math/big"
 	"sync"
 )
@@ -44,17 +45,28 @@ func executeAllTransactions(
 	// define number of goroutines
 	wg.Add(len(payoutDistribution))
 
+	metadataLatest, err := api.RPC.State.GetMetadataLatest()
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to get latest metadat")
+	}
+
+	nonce, err := getNonce(metadataLatest, keyringPair, api)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to get nonce")
+	}
+
 	for nodePayoutAddress, amount := range payoutDistribution {
 		// execute transaction in separate goroutine and collect results in channels
-		go func(to string, amount big.Int, wg *sync.WaitGroup, mux *sync.Mutex) {
+		go func(to string, amount big.Int, wg *sync.WaitGroup, mux *sync.Mutex, nonce uint32) {
 			defer wg.Done()
-			transactionDetails, err := ExecuteTransaction(api, to, amount, keyringPair, mux)
+			transactionDetails, err := ExecuteTransaction(api, to, amount, keyringPair, mux, metadataLatest, nonce)
 			if err != nil {
 				fatalErrorsChannel <- err
 			} else {
 				resultsChannel <- transactionDetails
 			}
-		}(nodePayoutAddress, amount, &wg, &mux)
+		}(nodePayoutAddress, amount, &wg, &mux, nonce)
+		nonce += 1
 	}
 
 	go func() {
@@ -65,6 +77,28 @@ func executeAllTransactions(
 	}()
 
 	return waitForTransactionDetails(waitGroupDoneChannel, fatalErrorsChannel, resultsChannel)
+}
+
+func getNonce(metadataLatest *types.Metadata, keyringPair signature.KeyringPair, api *gsrpc.SubstrateAPI) (uint32, error) {
+	storageKey, err := types.CreateStorageKey(
+		metadataLatest,
+		"System",
+		"Account",
+		keyringPair.PublicKey,
+		nil,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	var accountInfo types.AccountInfo
+	ok, err := api.RPC.State.GetStorageLatest(storageKey, &accountInfo)
+	if err != nil || !ok {
+		return 0, err
+	}
+
+	nonce := uint32(accountInfo.Nonce)
+	return nonce, err
 }
 
 func waitForTransactionDetails(

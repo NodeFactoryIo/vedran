@@ -117,7 +117,7 @@ For Westend's WND tokens, see the faucet [instructions on the Wiki](https://wiki
 
 When starting _vedran loadbalancer_ it is possible to configure automatic payout by providing these flags:
 
-`--private-key` - loadbalancers wallet private key, used for sending rewards on payout
+`--private-key` - loadbalancers wallet private key (string representation of hex value prefixed with 0x), used for sending rewards on payout
 
 `--payout-interval` - automatic payout interval specified as number of days
 
@@ -130,13 +130,26 @@ If all flags have been provided, then each {_payout-interval_} days automatic pa
 It is possible to run payout script at any time by invoking `vedran payout` command trough console.
 This command has two required flags:
 
-`--private-key` - loadbalancers wallet private key, used for sending founds on payout
+`--private-key` - loadbalancers wallet private key (string representation of hex value prefixed with 0x), used for sending founds on payout
 
 `--payout-reward` - defined total reward amount that will be distributed on the payout (amount in Planck)
 
 Additionally, it is possible to change url on which payout script will connect with loadbalancer when executing transactions by setting flag (default value will be _http://localhost:80_)
 
 `--load-balancer-url` - loadbalancer url
+
+### Get private key
+You can use [subkey](https://substrate.dev/docs/en/knowledgebase/integrate/subkey) tool to get private key for your wallet.
+
+After installing subkey tool call `subkey inspect "insert your mnemonic here"`. 
+You can find private key as _Secreet seed_. See example output of subkey command:
+
+```
+  Secret seed:      0x1a84771145cdcee05e49142aaff2e5d669ce4b29344a09b973b751ae661acabf
+  Public key (hex): 0xa4548fa9b3b15dc4d1c59789952f0ccf6138dd63faf802637895c941f0522d35
+  Account ID:       0xa4548fa9b3b15dc4d1c59789952f0ccf6138dd63faf802637895c941f0522d35
+  SS58 Address:     5FnAq6wrMzri5V6jLfKgBkbR2rSAMkVAHVYWa3eU7TAV5rv9
+```
 
 ## Vedran loadbalancer API
 

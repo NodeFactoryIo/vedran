@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Payout struct {
-	ID             string    `storm:"id"`
+	ID             int    `storm:"id,increment"`
 	Timestamp      time.Time `json:"timestamp"`
 	PaymentDetails map[string]NodeStatsDetails
 }

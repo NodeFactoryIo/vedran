@@ -28,7 +28,7 @@ func Test_numOfDaysSinceLastPayout(t *testing.T) {
 		{
 			name: "last payout before 20 days",
 			latestPayout: &models.Payout{
-				ID:             "",
+				ID:             1,
 				Timestamp:      timestampSince20days,
 				PaymentDetails: nil,
 			},
@@ -40,7 +40,7 @@ func Test_numOfDaysSinceLastPayout(t *testing.T) {
 		{
 			name: "last payout before 2 days",
 			latestPayout: &models.Payout{
-				ID:             "",
+				ID:             1,
 				Timestamp:      timestampSince2days,
 				PaymentDetails: nil,
 			},
@@ -52,7 +52,7 @@ func Test_numOfDaysSinceLastPayout(t *testing.T) {
 		{
 			name: "last payout before 2 hours",
 			latestPayout: &models.Payout{
-				ID:             "",
+				ID:             1,
 				Timestamp:      timestampSince2hours,
 				PaymentDetails: nil,
 			},
