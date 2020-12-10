@@ -2,6 +2,17 @@
 
 ## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
 
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.3.1...HEAD)
+
+## [v0.3.1]((https://github.com/NodeFactoryIo/vedran/tree/v0.3.1))
+
+### Added
+
+### Fix
+- Enable CORS and set upgrader CheckOrigin to true  [\#149](https://github.com/NodeFactoryIo/vedran/pull/149) ([mpetrun5](https://github.com/mpetrun5))
+
+### Changed
+
 [Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.3.0...HEAD)
 ## [v0.3.0]((https://github.com/NodeFactoryIo/vedran/tree/v0.3.0))
 
