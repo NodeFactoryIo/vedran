@@ -2,29 +2,31 @@ version: '3'
 services:
 
   polkadot:
-    image: parity/polkadot:v0.8.24
+    image: parity/polkadot:v0.8.26
     volumes:
       - "polkadot-data:/data"
-    command: --rpc-external --prometheus-external --log error --rpc-cors=all
+    command: |
+      --dev --rpc-external --rpc-methods Unsafe --ws-external --prometheus-external --log error --rpc-cors=all
 
   vedran:
-    command: start --auth-secret=test-secret --log-level debug --public-ip vedran --server-port 4000
-    image: nodefactory/vedran:v0.2.0
+    command: start --auth-secret=test-secret --log-level debug --public-ip vedran --server-port 4000  --private-key ${VEDRAN_LB_PK:-0xe5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a} --payout-interval 1 --payout-reward ${VEDRAN_LB_REWARD_POOL:-10}
+    image: nodefactory/vedran:v0.3.0
     ports:
       - "4000:4000"
     container_name: "vedran"
 
   vedran-daemon:
-    image: nodefactory/vedran-daemon:v0.2.0
+    image: nodefactory/vedran-daemon:v0.3.0
     depends_on:
       - vedran
       - polkadot
-    command: --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-metrics http://polkadot:9615 --payout-address 0xtestaddress --log-level info
+    command: --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-ws http://polkadot:9944 --node-metrics http://polkadot:9615 --payout-address 5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty --log-level info
 
   client:
+    container_name: "vedran_user_curl"
     image: curlimages/curl:latest
-    command: |-
-      sh -c "while sleep 15; do curl -H Content-Type: application/json -d '{\"id\":1, \"jsonrpc\":\"2.0\", \"method\": \"chain_getBlock\"}' http://vedran:4000; done"
+    command: |
+      sh -c "while sleep 15; do curl --silent -H Content-Type: application/json -d '{\"id\":1, \"jsonrpc\":\"2.0\", \"method\": \"chain_getBlock\"}' http://vedran:4000; done"
 
 
 
