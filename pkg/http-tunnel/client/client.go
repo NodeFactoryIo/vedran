@@ -54,7 +54,7 @@ type ClientConfig struct {
 }
 
 type clientData struct {
-	serverAddr      string
+	serverAddr string
 	// backoff specifies backoff policy on server connection retry. If nil
 	// when dial fails it will not be retried.
 	backoff   Backoff

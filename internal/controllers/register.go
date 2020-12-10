@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/internal/whitelist"
 	"net/http"
 	"time"
+
+	"github.com/NodeFactoryIo/vedran/internal/whitelist"
 
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
@@ -70,6 +71,7 @@ func (c ApiController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 				PayoutAddress: registerRequest.PayoutAddress,
 				Token:         token,
 				LastUsed:      time.Now().Unix(),
+				Active:        true,
 			}
 			err = c.repositories.NodeRepo.Save(node)
 			if err != nil {

@@ -4,25 +4,29 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/asdine/storm/v3"
+	"github.com/asdine/storm/v3/q"
 	log "github.com/sirupsen/logrus"
 )
 
 var activeNodes []models.Node
+var mutex = &sync.Mutex{}
 
 type NodeRepository interface {
 	FindByID(ID string) (*models.Node, error)
 	Save(node *models.Node) error
 	GetAll() (*[]models.Node, error)
 	GetActiveNodes(selection string) *[]models.Node
+	GetPenalizedNodes() (*[]models.Node, error)
 	GetAllActiveNodes() *[]models.Node
 	IsNodeActive(ID string) bool
 	RemoveNodeFromActive(ID string) error
 	AddNodeToActive(ID string) error
-	RewardNode(node models.Node)
+	UpdateNodeUsed(node models.Node)
 	IncreaseNodeCooldown(ID string) (*models.Node, error)
 	ResetNodeCooldown(ID string) (*models.Node, error)
 	IsNodeOnCooldown(ID string) (bool, error)
@@ -97,7 +101,22 @@ func (r *nodeRepo) GetAllActiveNodes() *[]models.Node {
 	return &activeNodes
 }
 
+func (r *nodeRepo) GetPenalizedNodes() (*[]models.Node, error) {
+	var nodes []models.Node
+
+	query := r.db.Select(q.Gt("Cooldown", 0), q.StrictEq("Active", true))
+	err := query.Find(&nodes)
+
+	if err != nil && err.Error() == "not found" {
+		return &nodes, nil
+	}
+
+	return &nodes, err
+}
+
 func (r *nodeRepo) updateMemoryLastUsedTime(targetNode models.Node) {
+	// protect updating in memory activeNodes from concurrency problems
+	mutex.Lock()
 	for i, node := range activeNodes {
 		if targetNode.ID == node.ID {
 			tempNode := &activeNodes[i]
@@ -105,6 +124,7 @@ func (r *nodeRepo) updateMemoryLastUsedTime(targetNode models.Node) {
 			break
 		}
 	}
+	mutex.Unlock()
 }
 
 func (r *nodeRepo) RemoveNodeFromActive(ID string) error {
@@ -136,7 +156,7 @@ func (r *nodeRepo) AddNodeToActive(ID string) error {
 	return nil
 }
 
-func (r *nodeRepo) RewardNode(node models.Node) {
+func (r *nodeRepo) UpdateNodeUsed(node models.Node) {
 	r.updateMemoryLastUsedTime(node)
 
 	node.LastUsed = time.Now().Unix()
@@ -183,6 +203,10 @@ func (r *nodeRepo) IsNodeOnCooldown(ID string) (bool, error) {
 		return false, err
 	}
 
+	if !node.Active {
+		return true, err
+	}
+
 	return node.Cooldown != 0, err
 }
 
@@ -194,4 +218,3 @@ func (r *nodeRepo) IsNodeActive(ID string) bool {
 	}
 	return false
 }
-

@@ -67,6 +67,30 @@ jobs:
           prerelease: true
           release_name: Release ${{ needs.tag.outputs.tag }}
 
+      - name: Archive Linux 64
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: 'vedran-linux-amd64.zip'
+          directory: 'build/linux-amd64/'
+
+      - name: Archive Linux Arm
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: 'vedran-linux-arm.zip'
+          directory: 'build/linux-arm/'
+
+      - name: Archive Darwin 64
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: 'vedran-darwin-amd64.zip'
+          directory: 'build/darwin-amd64/'
+
+      - name: Archive Windows
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: 'vedran-windows.zip'
+          directory: 'build/windows/'
+
       - name: Upload Linux amd64
         id: vedran-linux-amd64
         uses: actions/upload-release-asset@v1
@@ -74,7 +98,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./vedran-linux-amd64
+          asset_path: ./build/linux-amd64/vedran-linux-amd64.zip
           asset_name: vedran-linux-amd64
           asset_content_type: application/x-binary
 
@@ -85,7 +109,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./vedran-linux-arm
+          asset_path: ./build/linux-arm/vedran-linux-arm.zip
           asset_name: vedran-linux-arm
           asset_content_type: application/x-binary
 
@@ -96,8 +120,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./vedran-windows-amd64.exe
-          asset_name: vedran-windows.exe
+          asset_path: ./build/windows/vedran-windows.zip
+          asset_name: vedran-windows
           asset_content_type: application/x-binary
 
       - name: Upload MacOS
@@ -107,7 +131,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./vedran-darwin-amd64
+          asset_path: ./build/darwin-amd64/vedran-darwin-amd64.zip
           asset_name: vedran-macos
           asset_content_type: application/x-binary
 

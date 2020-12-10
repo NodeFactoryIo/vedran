@@ -67,6 +67,5 @@ func (r *pingRepo) CalculateDowntime(nodeId string, pingTime time.Time) (time.Ti
 
 		return pingTime, time.Duration(0), err
 	}
-
-	return lastPing.Timestamp, lastPing.Timestamp.Sub(pingTime), nil
+	return lastPing.Timestamp, pingTime.Sub(lastPing.Timestamp), nil
 }

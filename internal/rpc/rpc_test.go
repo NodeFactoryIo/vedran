@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net/http"
@@ -77,7 +78,7 @@ func TestSendRequestToNode(t *testing.T) {
 		name       string
 		portValid  bool
 		args       args
-		want       interface{}
+		want       []byte
 		wantErr    bool
 		handleFunc handleFnMock
 	}{
@@ -140,7 +141,7 @@ func TestSendRequestToNode(t *testing.T) {
 			args:      args{"valid", false, models.Node{}, []byte(`{}`)},
 			wantErr:   false,
 			portValid: true,
-			want:      RPCResponse{ID: 1},
+			want:      []byte(`{"id": 1}`),
 			handleFunc: func(w http.ResponseWriter, r *http.Request) {
 				_, _ = io.WriteString(w, `{"id": 1}`)
 			}},
@@ -152,11 +153,11 @@ func TestSendRequestToNode(t *testing.T) {
 			if tt.args.url == "valid" && tt.portValid {
 				serverURL, _ := url.Parse(server.URL)
 				port, _ := strconv.Atoi(serverURL.Port())
-				poolerMock.On("GetPort", mock.Anything).Once().Return(port, nil)
+				poolerMock.On("GetHTTPPort", mock.Anything).Once().Return(port, nil)
 			} else if tt.args.url == "invalid" && tt.portValid {
-				poolerMock.On("GetPort", mock.Anything).Once().Return(1331313, nil)
+				poolerMock.On("GetHTTPPort", mock.Anything).Once().Return(1331313, nil)
 			} else {
-				poolerMock.On("GetPort", mock.Anything).Once().Return(0, fmt.Errorf("ERROR"))
+				poolerMock.On("GetHTTPPort", mock.Anything).Once().Return(0, fmt.Errorf("ERROR"))
 			}
 
 			mux.HandleFunc("/", tt.handleFunc)
@@ -168,7 +169,7 @@ func TestSendRequestToNode(t *testing.T) {
 				return
 			}
 
-			if !reflect.DeepEqual(got, tt.want) {
+			if bytes.Compare(got, tt.want) == 1 {
 				t.Errorf("SendRequestToNode() = %v, want %v", got, tt.want)
 			}
 

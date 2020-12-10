@@ -12,16 +12,16 @@ import (
 
 func TestCheckIfNodeActive(t *testing.T) {
 	tests := []struct {
-		name string
-		node models.Node
-		nodePing *models.Ping
-		nodePingError interface{}
-		nodeMetrics *models.Metrics
-		nodeMetricsError interface{}
-		latestMetrics *models.LatestBlockMetrics
+		name               string
+		node               models.Node
+		nodePing           *models.Ping
+		nodePingError      interface{}
+		nodeMetrics        *models.Metrics
+		nodeMetricsError   interface{}
+		latestMetrics      *models.LatestBlockMetrics
 		latestMetricsError interface{}
-		expectedResult bool
-		expectedError interface{}
+		expectedResult     bool
+		expectedError      interface{}
 	}{
 		{
 			name: "active node",
@@ -44,8 +44,8 @@ func TestCheckIfNodeActive(t *testing.T) {
 				FinalizedBlockHeight: 998,
 			},
 			latestMetricsError: nil,
-			expectedResult: true,
-			expectedError: nil,
+			expectedResult:     true,
+			expectedError:      nil,
 		},
 		{
 			name: "not active node::ping old",
@@ -68,8 +68,8 @@ func TestCheckIfNodeActive(t *testing.T) {
 				FinalizedBlockHeight: 0,
 			},
 			latestMetricsError: nil,
-			expectedResult: false,
-			expectedError: nil,
+			expectedResult:     false,
+			expectedError:      nil,
 		},
 		{
 			name: "not active node::bad metrics",
@@ -92,8 +92,8 @@ func TestCheckIfNodeActive(t *testing.T) {
 				FinalizedBlockHeight: 1192,
 			},
 			latestMetricsError: nil,
-			expectedResult: false,
-			expectedError: nil,
+			expectedResult:     false,
+			expectedError:      nil,
 		},
 		{
 			name: "not active node::bad metric finalized block",
@@ -116,8 +116,8 @@ func TestCheckIfNodeActive(t *testing.T) {
 				FinalizedBlockHeight: 1005,
 			},
 			latestMetricsError: nil,
-			expectedResult: false,
-			expectedError: nil,
+			expectedResult:     false,
+			expectedError:      nil,
 		},
 		{
 			name: "not active node::bad metric best block",
@@ -140,8 +140,8 @@ func TestCheckIfNodeActive(t *testing.T) {
 				FinalizedBlockHeight: 1000,
 			},
 			latestMetricsError: nil,
-			expectedResult: false,
-			expectedError: nil,
+			expectedResult:     false,
+			expectedError:      nil,
 		},
 		{
 			name: "ping repo fails",
@@ -164,8 +164,8 @@ func TestCheckIfNodeActive(t *testing.T) {
 				FinalizedBlockHeight: 998,
 			},
 			latestMetricsError: nil,
-			expectedResult: false,
-			expectedError: errors.New("ping-error"),
+			expectedResult:     false,
+			expectedError:      errors.New("ping-error"),
 		},
 		{
 			name: "metrics repo fails on node metrics",
@@ -188,8 +188,8 @@ func TestCheckIfNodeActive(t *testing.T) {
 				FinalizedBlockHeight: 998,
 			},
 			latestMetricsError: nil,
-			expectedResult: false,
-			expectedError: errors.New("metrics-error"),
+			expectedResult:     false,
+			expectedError:      errors.New("metrics-error"),
 		},
 		{
 			name: "metrics repo fails on latest metrics",
@@ -212,8 +212,8 @@ func TestCheckIfNodeActive(t *testing.T) {
 				FinalizedBlockHeight: 998,
 			},
 			latestMetricsError: errors.New("metrics-error"),
-			expectedResult: false,
-			expectedError: errors.New("metrics-error"),
+			expectedResult:     false,
+			expectedError:      errors.New("metrics-error"),
 		},
 	}
 	for _, test := range tests {

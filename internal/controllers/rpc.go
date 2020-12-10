@@ -2,12 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"net/http"
+
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/record"
 	"github.com/NodeFactoryIo/vedran/internal/rpc"
 	log "github.com/sirupsen/logrus"
-	"io/ioutil"
-	"net/http"
 )
 
 func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
@@ -47,7 +48,7 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, node := range *nodes {
-		rpcResponse, err := rpc.SendRequestToNode(
+		byteResponse, err := rpc.SendRequestToNode(
 			isBatch,
 			node.ID,
 			reqBody,
@@ -58,8 +59,8 @@ func (c ApiController) RPCHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		go record.SuccessfulRequest(node, c.repositories, c.actions)
-		_ = json.NewEncoder(w).Encode(rpcResponse)
+		go record.SuccessfulRequest(node, c.repositories)
+		_, _ = w.Write(byteResponse)
 		return
 	}
 

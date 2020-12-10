@@ -61,4 +61,3 @@ func TestCreateNewToken(t *testing.T) {
 		})
 	}
 }
-

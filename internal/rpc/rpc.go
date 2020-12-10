@@ -102,8 +102,8 @@ func CheckBatchRPCResponse(body []byte) ([]RPCResponse, error) {
 }
 
 // SendRequestToNode routes request to node and checks response
-func SendRequestToNode(isBatch bool, nodeID string, reqBody []byte) (interface{}, error) {
-	port, err := configuration.Config.PortPool.GetPort(nodeID)
+func SendRequestToNode(isBatch bool, nodeID string, reqBody []byte) ([]byte, error) {
+	port, err := configuration.Config.PortPool.GetHTTPPort(nodeID)
 	if err != nil {
 		return nil, err
 	}
@@ -128,16 +128,15 @@ func SendRequestToNode(isBatch bool, nodeID string, reqBody []byte) (interface{}
 		return nil, err
 	}
 
-	var rpcResponse interface{}
 	if isBatch {
-		rpcResponse, err = CheckBatchRPCResponse(body)
+		_, err = CheckBatchRPCResponse(body)
 	} else {
-		rpcResponse, err = CheckSingleRPCResponse(body)
+		_, err = CheckSingleRPCResponse(body)
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	return rpcResponse, nil
+	return body, nil
 }
