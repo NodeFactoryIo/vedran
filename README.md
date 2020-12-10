@@ -36,6 +36,17 @@ This demo starts three separate dockerized components:
 - _Vedran daemon_ ([repository](https://github.com/NodeFactoryIo/vedran-daemon))
 - _Vedran loadbalancer_
 
+### Trigger Manual Payout
+
+Our compose setup runs dev chain and our load balancer uses Allice account to do payout
+so you don't have to obtain dev DOTs. Polkadot node operator is Bob (he received payout from Allice).
+Load balancer in this setup runs payout daily, if you don't wan't to wait,
+you can run following command which will create additional container (in compose network) and trigger payout from Allice account:
+
+```
+docker run --network vedran_default nodefactory/vedran:v0.3.0 payout --private-key 0xe5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a --payout-reward 100 --load-balancer-url "http://vedran:4000/ws"
+```
+
 ## Get **vedran** binary releases
 
 Download prebuild binary from [releases](https://github.com/NodeFactoryIo/vedran/releases). 
