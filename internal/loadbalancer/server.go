@@ -23,7 +23,6 @@ import (
 
 func StartLoadBalancerServer(
 	props configuration.Configuration,
-	payoutConfiguration *schedulepayout.PayoutConfiguration,
 	privateKey string,
 ) {
 	configuration.Config = props
@@ -83,9 +82,9 @@ func StartLoadBalancerServer(
 	checkactive.StartScheduledTask(repos)
 
 	// start scheduled payout if auto payout enabled
-	if payoutConfiguration != nil {
+	if props.PayoutConfiguration != nil {
 		schedulepayout.StartScheduledPayout(
-			*payoutConfiguration,
+			props.PayoutConfiguration,
 			privateKey,
 			*repos)
 	}
