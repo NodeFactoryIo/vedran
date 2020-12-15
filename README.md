@@ -4,9 +4,9 @@
 
 ### Architecture
 
-_Vedran loadbalancer_ is used in conjunction with [Vedran daemon](https://github.com/NodeFactoryIo/vedran-daemon). 
-Suppose the node owner wants to register to loadbalancer, than it is required to install and run _Vedran daemon_. 
-Daemon executes the registration process and starts providing all relevant information (ping, metrics) to the _Vedran loadbalancer_. 
+_Vedran loadbalancer_ is used in conjunction with [Vedran daemon](https://github.com/NodeFactoryIo/vedran-daemon).
+Suppose the node owner wants to register to loadbalancer, than it is required to install and run _Vedran daemon_.
+Daemon executes the registration process and starts providing all relevant information (ping, metrics) to the _Vedran loadbalancer_.
 Please check [Vedran daemon repo](https://github.com/NodeFactoryIo/vedran-daemon) for more details on the daemon itself.
 
 ![Image of vedran architecture](./assets/vedran-arch.png)
@@ -22,16 +22,16 @@ _This is dockerized demo of entire setup with loadbalancer, node and daemon_
 
 **Run demo with `docker-compose up`**
 
-_After all components have been started and node has sent first valid metrics report (after 30 seconds), 
+_After all components have been started and node has sent first valid metrics report (after 30 seconds),
 you can invoke RPC methods on `localhost:4000` using HTTP requests or on `localhost:4000/ws` using WebSocket request_
+Metrics can be seen on `localhost:3000` hosted grafana under `vedran-dashboard`
 
 You can check available rpc methods with:
 
 ```bash
 curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "rpc_methods"}' http://localhost:4000
 ```
-
-This demo starts three separate dockerized components:
+This demo starts five separate dockerized components:
 - _Polkadot node_ ([repository](https://github.com/paritytech/polkadot))
 - _Vedran daemon_ ([repository](https://github.com/NodeFactoryIo/vedran-daemon))
 - _Vedran loadbalancer_ (port: 4000)
@@ -51,11 +51,11 @@ docker run --network vedran_default nodefactory/vedran:v0.3.0 payout --private-k
 
 ## Get **vedran** binary releases
 
-Download prebuild binary from [releases](https://github.com/NodeFactoryIo/vedran/releases). 
-Be careful to chose appropriate binary depending on your OS. For more details on how to run _vedran loadbalancer_ see [Starting loadbalancer](#starting-loadbalancer) part.  
+Download prebuild binary from [releases](https://github.com/NodeFactoryIo/vedran/releases).
+Be careful to chose appropriate binary depending on your OS. For more details on how to run _vedran loadbalancer_ see [Starting loadbalancer](#starting-loadbalancer) part.
 
 ## Get **vedran** package
-Alternatively, it is possible to get _vedran_ golang package: 
+Alternatively, it is possible to get _vedran_ golang package:
 1. Install [Golang](https://golang.org/doc/install) **1.15 or greater**
 2. Run the command below
 ```
@@ -76,7 +76,7 @@ Load balancer is started by invoking **start** command.
 
 For example `./vedran start --auth-secret=supersecret --private-key=lb-wallet-private-key`.
 
-For more information you can always run vedran with `--help` flag. 
+For more information you can always run vedran with `--help` flag.
 For list of all commands run `vedran --help` or for list of all options for specific command run `vedran start --help`.
 
 **Load balancer will expose Polkadot RPC API on port 80 by default (can be changed using flag `--server-port`)**
@@ -160,7 +160,7 @@ Additionally, it is possible to change url on which payout script will connect w
 ### Get private key
 You can use [subkey](https://substrate.dev/docs/en/knowledgebase/integrate/subkey) tool to get private key for your wallet.
 
-After installing subkey tool call `subkey inspect "insert your mnemonic here"`. 
+After installing subkey tool call `subkey inspect "insert your mnemonic here"`.
 You can find private key as _Secreet seed_. See example output of subkey command:
 
 ```
