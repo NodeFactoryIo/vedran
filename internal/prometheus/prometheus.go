@@ -11,6 +11,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/pkg/version"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -64,6 +65,7 @@ func recordPayoutDistribution(repos repositories.Repos) {
 	for {
 		stats, err := payout.GetStatsForPayout(repos, time.Now(), false)
 		if err != nil {
+			log.Errorf("Failed recording stats for payout because of: %v", err)
 			time.Sleep(15 * time.Minute)
 			continue
 		}
@@ -82,7 +84,7 @@ func recordPayoutDistribution(repos repositories.Repos) {
 			)
 		}
 
-		time.Sleep(15 * time.Minute)
+		time.Sleep(1 * time.Minute)
 	}
 }
 
