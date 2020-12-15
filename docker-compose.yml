@@ -8,6 +8,13 @@ services:
     command: |
       --dev --rpc-external --rpc-methods Unsafe --ws-external --prometheus-external --log error --rpc-cors=all
 
+  client:
+    container_name: "vedran_user_curl"
+    image: curlimages/curl:latest
+    command: |
+      sh -c "while sleep 15; do curl --silent -H Content-Type: application/json -d '{\"id\":1, \"jsonrpc\":\"2.0\", \"method\": \"chain_getBlock\"}' http://vedran:4000; done"
+
+
   vedran:
     command: start --auth-secret=test-secret --log-level debug --public-ip vedran --server-port 4000  --private-key ${VEDRAN_LB_PK:-0xe5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a} --payout-interval 1 --payout-reward ${VEDRAN_LB_REWARD_POOL:-10}
     image: nodefactory/vedran:v0.3.1
