@@ -1,24 +1,19 @@
 package schedulepayout
 
 import (
+	"errors"
+	"time"
+
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"github.com/NodeFactoryIo/vedran/internal/script"
 	"github.com/NodeFactoryIo/vedran/internal/ui"
 	log "github.com/sirupsen/logrus"
-	"net/url"
-	"time"
 )
-
-type PayoutConfiguration struct {
-	PayoutNumberOfDays int
-	PayoutTotalReward float64
-	LbFeeAddress string
-	LbURL *url.URL
-}
 
 // StartScheduledPayout checks every 24 hours how many days have passed since last payout.
 // If number of passed days is equal or bigger than defined interval in configuration, start automatic payout
-func StartScheduledPayout(configuration PayoutConfiguration, privateKey string, repos repositories.Repos) {
+func StartScheduledPayout(configuration *configuration.PayoutConfiguration, privateKey string, repos repositories.Repos) {
 	ticker := time.NewTicker(time.Hour * 24)
 	done := make(chan bool)
 
@@ -32,6 +27,21 @@ func StartScheduledPayout(configuration PayoutConfiguration, privateKey string, 
 			}
 		}
 	}()
+}
+
+// GetNextPayoutDate returns date of next scheduled payout or error if payout disabled
+func GetNextPayoutDate(configuration *configuration.PayoutConfiguration, repos repositories.Repos) (time.Time, error) {
+	if configuration == nil {
+		return time.Now(), errors.New("Schedule payout not configured")
+	}
+
+	_, lastPayoutTimestamp, err := numOfDaysSinceLastPayout(repos)
+	if err != nil {
+		log.Error("Unable to calculate number of days since last payout", err)
+		return time.Now(), err
+	}
+
+	return lastPayoutTimestamp.AddDate(0, 0, configuration.PayoutNumberOfDays), nil
 }
 
 func checkForPayout(
@@ -51,12 +61,12 @@ func checkForPayout(
 		log.Infof(
 			"Last payout was %s, next payout will be in %d days",
 			lastPayoutTimestamp.Format("2006-January-02"),
-			configuration.PayoutNumberOfDays - daysSinceLastPayout,
+			configuration.PayoutNumberOfDays-daysSinceLastPayout,
 		)
 	}
 }
 
-func startPayout(privateKey string, configuration PayoutConfiguration)  {
+func startPayout(privateKey string, configuration configuration.PayoutConfiguration) {
 	log.Info("Starting automatic payout...")
 	transactionDetails, err := script.ExecutePayout(
 		privateKey,

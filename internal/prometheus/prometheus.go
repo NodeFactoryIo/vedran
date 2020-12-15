@@ -8,6 +8,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/payout"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
+	schedulepayout "github.com/NodeFactoryIo/vedran/internal/schedule/payout"
 	"github.com/NodeFactoryIo/vedran/pkg/version"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -38,6 +39,13 @@ var (
 		},
 		[]string{"address"},
 	)
+	payoutDate = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "vedran_payout_date",
+			Help: "Payout date of next scheduled payout",
+		},
+		[]string{"date"},
+	)
 )
 
 // RecordMetrics starts goroutines for recording metrics
@@ -59,6 +67,7 @@ func RecordMetrics(repos repositories.Repos) {
 	go recordPenalizedNodeCount(repos.NodeRepo)
 	go recordSuccessfulRequestCount(repos.RecordRepo)
 	go recordFailedRequestCount(repos.RecordRepo)
+	go recordPayoutDate(repos)
 }
 
 func recordPayoutDistribution(repos repositories.Repos) {
@@ -85,6 +94,18 @@ func recordPayoutDistribution(repos repositories.Repos) {
 		}
 
 		time.Sleep(1 * time.Minute)
+	}
+}
+
+func recordPayoutDate(repos repositories.Repos) {
+	for {
+		date, err := schedulepayout.GetNextPayoutDate(configuration.Config.PayoutConfiguration, repos)
+		if err != nil {
+			payoutDate.With(prometheus.Labels{"date": date.String()}).Set(1)
+		} else {
+			payoutDate.With(prometheus.Labels{"date": "Scheduled payout not configured"}).Set(1)
+		}
+		time.Sleep(12 * time.Hour)
 	}
 }
 

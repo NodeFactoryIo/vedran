@@ -15,7 +15,6 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 5,
   "links": [],
   "panels": [
     {
@@ -100,7 +99,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "7.3.5",
       "targets": [
         {
           "expr": "vedran_number_of_successful_requests",
@@ -163,7 +162,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "7.3.5",
       "targets": [
         {
           "expr": "rate(http_request_duration_seconds_count[5m])",
@@ -217,7 +216,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -322,7 +321,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -434,7 +433,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -530,7 +529,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -596,7 +595,7 @@
             "align": "center",
             "filterable": false
           },
-          "displayName": "Name",
+          "displayName": "${__series.name}",
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -616,8 +615,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 24,
+        "h": 7,
+        "w": 12,
         "x": 0,
         "y": 22
       },
@@ -634,7 +633,7 @@
         },
         "showUnfilled": true
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "7.3.5",
       "targets": [
         {
           "expr": "sum by (address) (vedran_payout_distribution)",
@@ -653,13 +652,76 @@
       "type": "bargauge"
     },
     {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 22
+      },
+      "id": 35,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "/^date$/",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.3.5",
+      "targets": [
+        {
+          "expr": "vedran_payout_date",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Next payout date",
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {}
+        }
+      ],
+      "type": "stat"
+    },
+    {
       "collapsed": false,
       "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 29
       },
       "id": 4,
       "panels": [],
@@ -692,7 +754,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 31
+        "y": 30
       },
       "id": 29,
       "options": {
@@ -709,7 +771,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "7.3.5",
       "targets": [
         {
           "expr": "vedran_version",
@@ -759,7 +821,7 @@
         "h": 8,
         "w": 6,
         "x": 6,
-        "y": 31
+        "y": 30
       },
       "id": 31,
       "options": {
@@ -776,7 +838,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "7.3.5",
       "targets": [
         {
           "expr": "vedran_version",
@@ -814,7 +876,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 31
+        "y": 30
       },
       "hiddenSeries": false,
       "id": 16,
@@ -834,7 +896,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -909,7 +971,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 39
+        "y": 38
       },
       "hiddenSeries": false,
       "id": 20,
@@ -929,7 +991,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1004,7 +1066,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 39
+        "y": 38
       },
       "hiddenSeries": false,
       "id": 18,
@@ -1024,7 +1086,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1113,7 +1175,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 47
+        "y": 46
       },
       "hiddenSeries": false,
       "id": 22,
@@ -1133,7 +1195,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1206,5 +1268,5 @@
   "timezone": "",
   "title": "Vedran Dashboard",
   "uid": "7tNmHxAGz",
-  "version": 17
+  "version": 1
 }
