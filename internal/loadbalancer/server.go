@@ -10,6 +10,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/controllers"
 	"github.com/NodeFactoryIo/vedran/internal/models"
+	"github.com/NodeFactoryIo/vedran/internal/prometheus"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"github.com/NodeFactoryIo/vedran/internal/router"
 	"github.com/NodeFactoryIo/vedran/internal/schedule/checkactive"
@@ -95,6 +96,7 @@ func StartLoadBalancerServer(
 		props.WhitelistEnabled, *repos, actions.NewActions(), privateKey,
 	)
 	r := router.CreateNewApiRouter(apiController)
+	prometheus.RecordMetrics(*repos)
 	if props.CertFile != "" {
 		err = http.ListenAndServeTLS(
 			fmt.Sprintf(":%d", props.Port),
