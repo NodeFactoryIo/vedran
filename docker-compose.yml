@@ -17,7 +17,9 @@ services:
 
   vedran:
     command: start --auth-secret=test-secret --log-level debug --public-ip vedran --server-port 4000  --private-key ${VEDRAN_LB_PK:-0xe5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a} --payout-interval 1 --payout-reward ${VEDRAN_LB_REWARD_POOL:-10}
-    image: nodefactory/vedran:v0.4.0
+    #image: nodefactory/vedran:v0.4.0
+    build:
+      context: .
     ports:
       - "4000:4000"
     container_name: "vedran"
@@ -48,8 +50,7 @@ services:
       - grafana_data:/var/lib/grafana
       - ./infra/grafana/provisioning:/etc/grafana/provisioning
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
     ports:
       - 3000:3000
     user: "104"
