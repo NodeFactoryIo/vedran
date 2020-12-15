@@ -9,12 +9,6 @@ alerting:
     - targets:
       # - alertmanager:9093
 
-# Alertmanager configuration
-alerting:
-  alertmanagers:
-  - static_configs:
-    - targets:
-
 scrape_configs:
   - job_name: 'prometheus'
     scrape_interval: 5s
