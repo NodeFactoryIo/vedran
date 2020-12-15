@@ -35,13 +35,13 @@ func GetNextPayoutDate(configuration *configuration.PayoutConfiguration, repos r
 		return time.Now(), errors.New("Schedule payout not configured")
 	}
 
-	_, lastPayoutTimestamp, err := numOfDaysSinceLastPayout(repos)
+	latestPayout, err := repos.PayoutRepo.FindLatestPayout()
 	if err != nil {
-		log.Error("Unable to calculate number of days since last payout", err)
+		log.Errorf("Unable to calculate last payout because of: %v", err)
 		return time.Now(), err
 	}
 
-	return lastPayoutTimestamp.AddDate(0, 0, configuration.PayoutNumberOfDays), nil
+	return latestPayout.Timestamp.AddDate(0, 0, configuration.PayoutNumberOfDays), nil
 }
 
 func checkForPayout(
