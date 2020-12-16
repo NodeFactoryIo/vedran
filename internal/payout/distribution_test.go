@@ -103,7 +103,7 @@ func Test_CalculatePayoutDistributionByNode(t *testing.T) {
 			distributionByNode := CalculatePayoutDistributionByNode(
 				test.payoutDetails, test.totalReward, LoadBalancerDistributionConfiguration{
 					FeePercentage:       test.loadBalancerFee,
-					FeeAddress:          test.feeAddress,
+					PayoutAddress:          test.feeAddress,
 					DifferentFeeAddress: test.feeAddress != "",
 				},
 			)

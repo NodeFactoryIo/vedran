@@ -13,7 +13,7 @@ const (
 
 type LoadBalancerDistributionConfiguration struct {
 	FeePercentage float64
-	FeeAddress string
+	PayoutAddress string
 	DifferentFeeAddress bool
 }
 
@@ -34,7 +34,7 @@ func CalculatePayoutDistributionByNode(
 	rewardPool -= loadbalancerReward
 	if lbConfiguration.DifferentFeeAddress {
 		lbRewardAsInt, _ := big.NewFloat(loadbalancerReward).Int(nil)
-		payoutAmountDistributionByNodes[lbConfiguration.FeeAddress] = *lbRewardAsInt
+		payoutAmountDistributionByNodes[lbConfiguration.PayoutAddress] = *lbRewardAsInt
 	}
 
 	livelinessRewardPool := rewardPool * livelinessRewardPercentage
