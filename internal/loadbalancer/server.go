@@ -2,25 +2,27 @@ package loadbalancer
 
 import (
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/NodeFactoryIo/vedran/internal/actions"
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/controllers"
 	"github.com/NodeFactoryIo/vedran/internal/models"
+	"github.com/NodeFactoryIo/vedran/internal/prometheus"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"github.com/NodeFactoryIo/vedran/internal/router"
 	"github.com/NodeFactoryIo/vedran/internal/schedule/checkactive"
 	schedulepayout "github.com/NodeFactoryIo/vedran/internal/schedule/payout"
 	"github.com/NodeFactoryIo/vedran/internal/schedule/penalize"
 	"github.com/asdine/storm/v3"
+	"github.com/gorilla/handlers"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"time"
 )
 
 func StartLoadBalancerServer(
 	props configuration.Configuration,
-	payoutConfiguration *schedulepayout.PayoutConfiguration,
 	privateKey string,
 ) {
 	configuration.Config = props
@@ -80,9 +82,9 @@ func StartLoadBalancerServer(
 	checkactive.StartScheduledTask(repos)
 
 	// start scheduled payout if auto payout enabled
-	if payoutConfiguration != nil {
+	if props.PayoutConfiguration != nil {
 		schedulepayout.StartScheduledPayout(
-			*payoutConfiguration,
+			props.PayoutConfiguration,
 			privateKey,
 			*repos)
 	}
@@ -93,10 +95,16 @@ func StartLoadBalancerServer(
 		props.WhitelistEnabled, *repos, actions.NewActions(), privateKey,
 	)
 	r := router.CreateNewApiRouter(apiController)
+	prometheus.RecordMetrics(*repos)
 	if props.CertFile != "" {
-		err = http.ListenAndServeTLS(fmt.Sprintf(":%d", props.Port), props.CertFile, props.KeyFile, r)
+		err = http.ListenAndServeTLS(
+			fmt.Sprintf(":%d", props.Port),
+			props.CertFile,
+			props.KeyFile,
+			handlers.CORS()(r),
+		)
 	} else {
-		err = http.ListenAndServe(fmt.Sprintf(":%d", props.Port), r)
+		err = http.ListenAndServe(fmt.Sprintf(":%d", props.Port), handlers.CORS()(r))
 	}
 	if err != nil {
 		log.Error(err)

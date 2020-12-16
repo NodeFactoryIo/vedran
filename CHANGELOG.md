@@ -1,8 +1,28 @@
 # Changelog
 
 ## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.3.1...HEAD)
 
-[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.2.0...HEAD)
+### Added
+
+### Fix
+- Metrics endpoint and grafana dashboard example [#\138](https://github.com/NodeFactoryIo/vedran/pull/138) ([mpetrun5](https://github.com/mpetrun5))
+
+### Changed
+
+## [v0.3.1]((https://github.com/NodeFactoryIo/vedran/tree/v0.3.1))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.3.0...v0.3.1)
+
+### Added
+
+### Fix
+- Enable CORS and set upgrader CheckOrigin to true  [\#149](https://github.com/NodeFactoryIo/vedran/pull/149) ([mpetrun5](https://github.com/mpetrun5))
+
+### Changed
+
+## [v0.3.0]((https://github.com/NodeFactoryIo/vedran/tree/v0.3.0))
+
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.2.0...v0.3.0)
 
 ### Added
 - Check if port range valid [\#104](https://github.com/NodeFactoryIo/vedran/pull/104) ([mpetrun5](https://github.com/mpetrun5))
