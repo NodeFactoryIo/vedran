@@ -36,6 +36,7 @@ var (
 	serverPort     int32
 	publicIP       string
 	// payout related flags
+	payoutFeeAddress           string
 	payoutPrivateKey           string
 	payoutNumberOfDays         int32
 	payoutTotalReward          string
@@ -223,21 +224,27 @@ func init() {
 		&payoutPrivateKey,
 		"private-key",
 		"",
-		"[REQUIRED] Loadbalancers wallet private key, used for sending funds on payout",
+		"[REQUIRED] Load balancers wallet private key, used for sending funds on payout",
 	)
+
+	startCmd.Flags().StringVar(
+		&payoutTotalReward,
+		"payout-reward",
+		"",
+		"[OPTIONAL] Total reward pool in Planck. If omitted, total balance of load balancer wallet will be considered as payout reward",
+	)
+
+	startCmd.Flags().StringVar(
+		&payoutFeeAddress,
+		"lb-fee-address",
+		"",
+		"[OPTIONAL] Address on which load balancer fee will be sent. If omitted, load balancer fee will be left on load balancer wallet after payout")
 
 	startCmd.Flags().Int32Var(
 		&payoutNumberOfDays,
 		"payout-interval",
 		0,
 		"[OPTIONAL] Payout interval in days, meaning each X days automatic payout will be executed")
-
-	startCmd.Flags().StringVar(
-		&payoutTotalReward,
-		"payout-reward",
-		"",
-		"[OPTIONAL] Total reward pool in Planck",
-	)
 
 	_ = startCmd.MarkFlagRequired("private-key")
 
@@ -280,6 +287,7 @@ func startCommand(_ *cobra.Command, _ []string) {
 		payoutConfiguration = &schedulepayout.PayoutConfiguration{
 			PayoutNumberOfDays: int(payoutNumberOfDays),
 			PayoutTotalReward:  payoutTotalRewardAsFloat64,
+			LbFeeAddress:       payoutFeeAddress,
 			LbURL:              lbUrl,
 		}
 	}

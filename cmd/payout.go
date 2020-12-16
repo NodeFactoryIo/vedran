@@ -15,6 +15,7 @@ var (
 	privateKey         string
 	totalReward        string
 	rawLoadbalancerUrl string
+	feeAddress         string
 
 	loadbalancerURL      *url.URL
 	totalRewardAsFloat64 float64
@@ -57,7 +58,14 @@ func init() {
 		&rawLoadbalancerUrl,
 		"load-balancer-url",
 		"http://localhost:80",
-		"[OPTIONAL] url on which loadbalancer is listening")
+		"[OPTIONAL] url on which loadbalancer is listening",
+	)
+	startCmd.Flags().StringVar(
+		&feeAddress,
+		"lb-fee-address",
+		"",
+		"[OPTIONAL] Address on which load balancer fee will be sent. If omitted, load balancer fee will be left on load balancer wallet after payout",
+	)
 
 	_ = startCmd.MarkFlagRequired("private-key")
 	_ = startCmd.MarkFlagRequired("payout-reward")
@@ -68,7 +76,7 @@ func init() {
 func payoutCommand(_ *cobra.Command, _ []string) {
 	DisplayBanner()
 	fmt.Println("Payout script running...")
-	transactions, err := script.ExecutePayout(privateKey, totalRewardAsFloat64, loadbalancerURL)
+	transactions, err := script.ExecutePayout(privateKey, totalRewardAsFloat64, feeAddress, loadbalancerURL)
 	if transactions != nil {
 		// display even if only part of transactions executed
 		ui.DisplayTransactionsStatus(transactions)

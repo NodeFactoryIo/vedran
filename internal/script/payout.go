@@ -3,6 +3,7 @@ package script
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/api"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"net/http"
 	"net/url"
@@ -15,8 +16,40 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func ExecutePayout(privateKey string, totalReward float64, loadbalancerUrl *url.URL) ([]*payout.TransactionDetails, error) {
-	log.Infof("New payout started with total reward: %s", strconv.FormatFloat(totalReward, 'f', 0, 64))
+func ExecutePayout(
+	privateKey string,
+	totalReward float64,
+	lbFeeAddress string,
+	loadbalancerUrl *url.URL,
+) ([]*payout.TransactionDetails, error) {
+	log.Info("New payout started.")
+
+	substrateAPI, err := api.InitializeSubstrateAPI(wsEndpoint(loadbalancerUrl).String())
+	if err != nil {
+		return nil, fmt.Errorf("unable to initialize substrate API, because of %v", err)
+	}
+
+	metadataLatest, err := substrateAPI.RPC.State.GetMetadataLatest()
+	if err != nil {
+		return nil, fmt.Errorf("unable to fetch latest metadata, because of %v", err)
+	}
+
+	keyringPair, err := signature.KeyringPairFromSecret(privateKey, "")
+	if err != nil {
+		return nil, fmt.Errorf("invalid private key, %v", err)
+	}
+
+	if totalReward == 0 {
+		// distribute entire balance on address if total reward not set
+		balance, err := payout.GetBalance(metadataLatest, keyringPair, substrateAPI)
+		if err != nil {
+			return nil, err
+		}
+		totalReward = float64(balance.Int64())
+	}
+
+	log.Infof("Total reward: %s", strconv.FormatFloat(totalReward, 'f', 0, 64))
+
 	response, err := fetchStatsFromEndpoint(statsEndpoint(loadbalancerUrl), privateKey)
 	if err != nil {
 		return nil, fmt.Errorf("unable to fetch stats from loadbalancer, %v", err)
@@ -25,13 +58,17 @@ func ExecutePayout(privateKey string, totalReward float64, loadbalancerUrl *url.
 	distributionByNode := payout.CalculatePayoutDistributionByNode(
 		response.Stats,
 		totalReward,
-		float64(response.Fee),
+		payout.LoadBalancerDistributionConfiguration{
+			FeePercentage:       float64(response.Fee),
+			FeeAddress:          lbFeeAddress,
+			DifferentFeeAddress: lbFeeAddress != "",
+		},
 	)
 
 	return payout.ExecuteAllPayoutTransactions(
 		distributionByNode,
-		privateKey,
-		wsEndpoint(loadbalancerUrl).String(),
+		substrateAPI,
+		keyringPair,
 	)
 }
 
