@@ -25,7 +25,7 @@ var payoutCmd = &cobra.Command{
 	Run:   payoutCommand,
 	Args: func(cmd *cobra.Command, args []string) error {
 		var err error
-		totalRewardAsFloat64, err = ValidatePayoutFlags(totalReward, feeAddress)
+		totalRewardAsFloat64, err = ValidatePayoutFlags(totalReward, feeAddress, true)
 		if err != nil {
 			return err
 		}

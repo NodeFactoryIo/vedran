@@ -116,7 +116,7 @@ var startCmd = &cobra.Command{
 			if payoutNumberOfDays <= 0 {
 				return errors.New("invalid payout interval")
 			}
-			rewardAsFloat64, err := ValidatePayoutFlags(payoutTotalReward, payoutFeeAddress)
+			rewardAsFloat64, err := ValidatePayoutFlags(payoutTotalReward, payoutFeeAddress, false)
 			if err != nil {
 				return err
 			}

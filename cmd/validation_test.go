@@ -30,7 +30,7 @@ func TestValidatePayoutFlags(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			rewAsFloat64, err := ValidatePayoutFlags(test.payoutReward, test.payoutAddress)
+			rewAsFloat64, err := ValidatePayoutFlags(test.payoutReward, test.payoutAddress, false)
 			assert.Equal(t, test.validateReturns, rewAsFloat64)
 			if test.validateError {
 				assert.Error(t, err)
