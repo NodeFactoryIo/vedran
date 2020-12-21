@@ -22,7 +22,14 @@ func TestValidatePayoutFlags(t *testing.T) {
 		},
 		{
 			name: "invalid flags, missing reward address",
-			payoutReward: "",
+			payoutReward: "-1",
+			payoutAddress: "",
+			validateReturns: float64(0),
+			validateError: true,
+		},
+		{
+			name: "invalid flags, negative reward",
+			payoutReward: "-100",
 			payoutAddress: "",
 			validateReturns: float64(0),
 			validateError: true,

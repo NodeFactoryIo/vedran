@@ -124,7 +124,7 @@ When starting _vedran loadbalancer_ it is possible to configure automatic payout
 
 `--payout-reward` - defined total reward amount that will be distributed on the payout (amount in Planck). If omitted, the entire balance of lb wallet will be used as a total reward, and in this case `--lb-payout-fee-address` must be set
 
-`--lb-payout-address` - address on which load balancer fee will be sent. If omitted, load balancer fee will be left on load balancer wallet after payout. This flag is **required** if `--payout-reward` is set to 0
+`--lb-payout-address` - address on which load balancer fee will be sent. If omitted, load balancer fee will be left on load balancer wallet after payout. This flag is **required** if `--payout-reward` is not set (or set to -1)
 
 If all flags have been provided, then each {_payout-interval_} days automatic payout will be started.
 
@@ -136,7 +136,7 @@ It is possible to run payout script at any time by invoking `vedran payout` comm
 
 `--payout-reward` - defined total reward amount that will be distributed on the payout (amount in Planck). If omitted, the entire balance of lb wallet will be used as a total reward, and in this case `--lb-payout-fee-address` must be set
 
-`--lb-payout-fee-address` - address on which load balancer fee will be sent. If omitted, load balancer fee will be left on load balancer wallet after payout. This flag is **required** if `--payout-reward` is set to 0
+`--lb-payout-fee-address` - address on which load balancer fee will be sent. If omitted, load balancer fee will be left on load balancer wallet after payout. This flag is **required** if `--payout-reward` is not set (or set to -1)
 
 Additionally, it is possible to change URL on which payout script will connect with loadbalancer when executing transactions by setting flag (default value will be _http://localhost:80_)
 
