@@ -49,7 +49,7 @@ func init() {
 	payoutCmd.Flags().StringVar(
 		&totalReward,
 		"payout-reward",
-		"",
+		"-1",
 		"[REQUIRED] total reward pool in Planck",
 	)
 	payoutCmd.Flags().StringVar(

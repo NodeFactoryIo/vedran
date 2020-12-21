@@ -230,7 +230,7 @@ func init() {
 	startCmd.Flags().StringVar(
 		&payoutTotalReward,
 		"payout-reward",
-		"",
+		"-1",
 		"[OPTIONAL] Total reward pool in Planck. If omitted, total balance of load balancer wallet will be considered as payout reward",
 	)
 

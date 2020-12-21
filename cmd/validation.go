@@ -15,7 +15,8 @@ func ValidatePayoutFlags(
 	var err error
 	var rewardAsFloat64 float64
 
-	if payoutReward == "" {
+	// if total reward is determined as wallet balance
+	if payoutReward == "-1" {
 		if payoutAddress == "" {
 			return 0, errors.New("Unable to set reward amount to entire wallet balance if fee address not provided")
 		} else {
@@ -35,7 +36,7 @@ func ValidatePayoutFlags(
 		}
 	} else {
 		rewardAsFloat64, err = strconv.ParseFloat(payoutReward, 64)
-		if err != nil {
+		if err != nil || rewardAsFloat64 < -1 {
 			return 0, errors.New("invalid total reward value")
 		}
 	}

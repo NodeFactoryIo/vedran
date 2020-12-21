@@ -39,8 +39,8 @@ func ExecutePayout(
 		return nil, fmt.Errorf("invalid private key, %v", err)
 	}
 
-	if totalReward == 0 {
-		// distribute entire balance on address if total reward not set
+	// distribute entire balance on address if total reward not set
+	if totalReward == -1 {
 		balance, err := payout.GetBalance(metadataLatest, keyringPair, substrateAPI)
 		if err != nil {
 			return nil, err
