@@ -111,14 +111,14 @@ var startCmd = &cobra.Command{
 			return errors.New("only one flag for setting whitelisted nodes should be set")
 		}
 
-		autoPayoutDisabled = payoutNumberOfDays == 0 && payoutTotalReward == ""
+		autoPayoutDisabled = payoutNumberOfDays == 0
 		if !autoPayoutDisabled {
 			if payoutNumberOfDays <= 0 {
 				return errors.New("invalid payout interval")
 			}
-			rewardAsFloat64, err := strconv.ParseFloat(payoutTotalReward, 64)
+			rewardAsFloat64, err := ValidatePayoutFlags(payoutTotalReward, payoutFeeAddress)
 			if err != nil {
-				return errors.New("invalid total reward value")
+				return err
 			}
 			payoutTotalRewardAsFloat64 = rewardAsFloat64
 		}
@@ -236,7 +236,7 @@ func init() {
 
 	startCmd.Flags().StringVar(
 		&payoutFeeAddress,
-		"lb-fee-address",
+		"lb-payout-address",
 		"",
 		"[OPTIONAL] Address on which load balancer fee will be sent. If omitted, load balancer fee will be left on load balancer wallet after payout")
 

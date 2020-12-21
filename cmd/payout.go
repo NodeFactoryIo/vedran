@@ -1,14 +1,12 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/script"
 	"github.com/NodeFactoryIo/vedran/internal/ui"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"net/url"
-	"strconv"
 )
 
 var (
@@ -26,11 +24,11 @@ var payoutCmd = &cobra.Command{
 	Short: "Starts payout script",
 	Run:   payoutCommand,
 	Args: func(cmd *cobra.Command, args []string) error {
-		result, err := strconv.ParseFloat(totalReward, 64)
+		var err error
+		totalRewardAsFloat64, err = ValidatePayoutFlags(totalReward, feeAddress)
 		if err != nil {
-			return errors.New("invalid total reward value")
+			return err
 		}
-		totalRewardAsFloat64 = result
 
 		loadbalancerURL, err = url.Parse(rawLoadbalancerUrl)
 		if err != nil {
@@ -62,13 +60,12 @@ func init() {
 	)
 	startCmd.Flags().StringVar(
 		&feeAddress,
-		"lb-fee-address",
+		"lb-payout-fee-address",
 		"",
 		"[OPTIONAL] Address on which load balancer fee will be sent. If omitted, load balancer fee will be left on load balancer wallet after payout",
 	)
 
 	_ = startCmd.MarkFlagRequired("private-key")
-	_ = startCmd.MarkFlagRequired("payout-reward")
 
 	RootCmd.AddCommand(payoutCmd)
 }
