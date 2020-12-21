@@ -118,11 +118,11 @@ For Westend's WND tokens, see the faucet [instructions on the Wiki](https://wiki
 
 When starting _vedran loadbalancer_ it is possible to configure automatic payout by providing these flags:
 
-`--private-key` - loadbalancers wallet private key (string representation of hex value prefixed with 0x), used for sending rewards on payout
+`--private-key` - loadbalancers wallet private key (string representation of hex value prefixed with 0x), used for sending rewards on the payout
 
 `--payout-interval` - automatic payout interval specified as number of days
 
-`--payout-reward` - defined total reward amount that will be distributed on the payout (amount in Planck). If omitted entire balance of lb wallet will be used as total reward. If this options is selected than `--lb-payout-fee-address` must be set
+`--payout-reward` - defined total reward amount that will be distributed on the payout (amount in Planck). If omitted, the entire balance of lb wallet will be used as a total reward, and in this case `--lb-payout-fee-address` must be set
 
 `--lb-payout-address` - address on which load balancer fee will be sent. If omitted, load balancer fee will be left on load balancer wallet after payout. This flag is **required** if `--payout-reward` is set to 0
 
@@ -130,18 +130,17 @@ If all flags have been provided, then each {_payout-interval_} days automatic pa
 
 ### Manual payout
 
-It is possible to run payout script at any time by invoking `vedran payout` command trough console.
-This command has two required flags:
+It is possible to run payout script at any time by invoking `vedran payout` command through the console.
 
-`--private-key` - loadbalancers wallet private key (string representation of hex value prefixed with 0x), used for sending founds on payout
+`--private-key` - loadbalancers wallet private key (string representation of hex value prefixed with 0x), used for sending rewards on the payout
 
-`--payout-reward` - defined total reward amount that will be distributed on the payout (amount in Planck). If omitted entire balance of lb wallet will be used as total reward. If this options is selected than `--lb-payout-fee-address` must be set
+`--payout-reward` - defined total reward amount that will be distributed on the payout (amount in Planck). If omitted, the entire balance of lb wallet will be used as a total reward, and in this case `--lb-payout-fee-address` must be set
 
 `--lb-payout-fee-address` - address on which load balancer fee will be sent. If omitted, load balancer fee will be left on load balancer wallet after payout. This flag is **required** if `--payout-reward` is set to 0
 
-Additionally, it is possible to change url on which payout script will connect with loadbalancer when executing transactions by setting flag (default value will be _http://localhost:80_)
+Additionally, it is possible to change URL on which payout script will connect with loadbalancer when executing transactions by setting flag (default value will be _http://localhost:80_)
 
-`--load-balancer-url` - loadbalancer url
+`--load-balancer-url` - loadbalancer URL
 
 ### Get private key
 You can use [subkey](https://substrate.dev/docs/en/knowledgebase/integrate/subkey) tool to get private key for your wallet.
