@@ -102,6 +102,7 @@ Start command will start application on 2 ports that need to be exposed to publi
 |`--selection`|type of selection that is used for selecting nodes on new request, valid values are `round-robin` and `random`|`round-robin`|
 |`--payout-interval`|automatic payout interval specified as number of days, for more details see [payout instructions](#payouts)|-|
 |`--payout-reward`|defined reward amount that will be distributed on the payout (amount in Planck), for more details see [payout instructions](#payouts)|-|
+|`--lb-payout-address`|address on which load balancer fee will be sent|-|
 |`--log-level`|log level (debug, info, warn, error)|error|
 |`--log-file`|path to file in which logs will be saved|`stdout`|
 
@@ -121,7 +122,9 @@ When starting _vedran loadbalancer_ it is possible to configure automatic payout
 
 `--payout-interval` - automatic payout interval specified as number of days
 
-`--payout-reward` - defined total reward amount that will be distributed on the payout (amount in Planck)
+`--payout-reward` - defined total reward amount that will be distributed on the payout (amount in Planck). If omitted entire balance of lb wallet will be used as total reward. If this options is selected than `--lb-payout-fee-address` must be set
+
+`--lb-payout-address` - address on which load balancer fee will be sent. If omitted, load balancer fee will be left on load balancer wallet after payout. This flag is **required** if `--payout-reward` is set to 0
 
 If all flags have been provided, then each {_payout-interval_} days automatic payout will be started.
 
@@ -132,7 +135,9 @@ This command has two required flags:
 
 `--private-key` - loadbalancers wallet private key (string representation of hex value prefixed with 0x), used for sending founds on payout
 
-`--payout-reward` - defined total reward amount that will be distributed on the payout (amount in Planck)
+`--payout-reward` - defined total reward amount that will be distributed on the payout (amount in Planck). If omitted entire balance of lb wallet will be used as total reward. If this options is selected than `--lb-payout-fee-address` must be set
+
+`--lb-payout-fee-address` - address on which load balancer fee will be sent. If omitted, load balancer fee will be left on load balancer wallet after payout. This flag is **required** if `--payout-reward` is set to 0
 
 Additionally, it is possible to change url on which payout script will connect with loadbalancer when executing transactions by setting flag (default value will be _http://localhost:80_)
 
