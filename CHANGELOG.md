@@ -34,6 +34,7 @@
 - Support WS connections [#\132](https://github.com/NodeFactoryIo/vedran/pull/132) ([MakMuftic](https://github.com/MakMuftic))
 - Execute payout transactions [\#127](https://github.com/NodeFactoryIo/vedran/pull/127) ([MakMuftic](https://github.com/MakMuftic))
 - Sign stats request [\#143](https://github.com/NodeFactoryIo/vedran/pull/143) ([MakMuftic](https://github.com/MakMuftic))
+- Send all funds on payout [\#153](https://github.com/NodeFactoryIo/vedran/pull/153) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Fix
 - Fix payout [\#148](https://github.com/NodeFactoryIo/vedran/pull/148) ([MakMuftic](https://github.com/MakMuftic))

@@ -35,6 +35,7 @@ var (
 	serverPort     int32
 	publicIP       string
 	// payout related flags
+	payoutFeeAddress           string
 	payoutPrivateKey           string
 	payoutNumberOfDays         int32
 	payoutTotalReward          string
@@ -109,14 +110,14 @@ var startCmd = &cobra.Command{
 			return errors.New("only one flag for setting whitelisted nodes should be set")
 		}
 
-		autoPayoutDisabled = payoutNumberOfDays == 0 && payoutTotalReward == ""
+		autoPayoutDisabled = payoutNumberOfDays == 0
 		if !autoPayoutDisabled {
 			if payoutNumberOfDays <= 0 {
 				return errors.New("invalid payout interval")
 			}
-			rewardAsFloat64, err := strconv.ParseFloat(payoutTotalReward, 64)
+			rewardAsFloat64, err := ValidatePayoutFlags(payoutTotalReward, payoutFeeAddress, false)
 			if err != nil {
-				return errors.New("invalid total reward value")
+				return err
 			}
 			payoutTotalRewardAsFloat64 = rewardAsFloat64
 		}
@@ -222,21 +223,27 @@ func init() {
 		&payoutPrivateKey,
 		"private-key",
 		"",
-		"[REQUIRED] Loadbalancers wallet private key, used for sending funds on payout",
+		"[REQUIRED] Load balancers wallet private key, used for sending funds on payout",
 	)
+
+	startCmd.Flags().StringVar(
+		&payoutTotalReward,
+		"payout-reward",
+		"-1",
+		"[OPTIONAL] Total reward pool in Planck. If omitted, total balance of load balancer wallet will be considered as payout reward",
+	)
+
+	startCmd.Flags().StringVar(
+		&payoutFeeAddress,
+		"lb-payout-address",
+		"",
+		"[OPTIONAL] Address on which load balancer fee will be sent. If omitted, load balancer fee will be left on load balancer wallet after payout")
 
 	startCmd.Flags().Int32Var(
 		&payoutNumberOfDays,
 		"payout-interval",
 		0,
 		"[OPTIONAL] Payout interval in days, meaning each X days automatic payout will be executed")
-
-	startCmd.Flags().StringVar(
-		&payoutTotalReward,
-		"payout-reward",
-		"",
-		"[OPTIONAL] Total reward pool in Planck",
-	)
 
 	_ = startCmd.MarkFlagRequired("private-key")
 
@@ -279,6 +286,7 @@ func startCommand(_ *cobra.Command, _ []string) {
 		payoutConfiguration = &configuration.PayoutConfiguration{
 			PayoutNumberOfDays: int(payoutNumberOfDays),
 			PayoutTotalReward:  payoutTotalRewardAsFloat64,
+			LbFeeAddress:       payoutFeeAddress,
 			LbURL:              lbUrl,
 		}
 	}

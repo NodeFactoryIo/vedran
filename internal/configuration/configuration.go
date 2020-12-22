@@ -9,6 +9,7 @@ import (
 type PayoutConfiguration struct {
 	PayoutNumberOfDays int
 	PayoutTotalReward  float64
+	LbFeeAddress       string
 	LbURL              *url.URL
 }
 

@@ -81,7 +81,11 @@ func recordPayoutDistribution(repos repositories.Repos) {
 		distributionByNode := payout.CalculatePayoutDistributionByNode(
 			stats,
 			100,
-			float64(configuration.Config.Fee),
+			payout.LoadBalancerDistributionConfiguration{
+				FeePercentage:       float64(configuration.Config.Fee),
+				PayoutAddress:       "",
+				DifferentFeeAddress: false,
+			},
 		)
 
 		for address, distribution := range distributionByNode {
