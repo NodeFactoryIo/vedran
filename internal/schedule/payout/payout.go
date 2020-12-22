@@ -12,6 +12,7 @@ import (
 type PayoutConfiguration struct {
 	PayoutNumberOfDays int
 	PayoutTotalReward float64
+	LbFeeAddress string
 	LbURL *url.URL
 }
 
@@ -27,39 +28,42 @@ func StartScheduledPayout(configuration PayoutConfiguration, privateKey string, 
 			case <-done:
 				return
 			case <-ticker.C:
-				checkForPayout(
-					configuration.PayoutNumberOfDays,
-					privateKey,
-					configuration.PayoutTotalReward,
-					configuration.LbURL,
-					repos,
-				)
+				checkForPayout(privateKey, configuration, repos)
 			}
 		}
 	}()
 }
 
-func checkForPayout(intervalInDays int, privateKey string, reward float64, loadBalancerUrl *url.URL, repos repositories.Repos) {
+func checkForPayout(
+	privateKey string,
+	configuration PayoutConfiguration,
+	repos repositories.Repos,
+) {
 	daysSinceLastPayout, lastPayoutTimestamp, err := numOfDaysSinceLastPayout(repos)
 	if err != nil {
 		log.Error("Unable to calculate number of days since last payout", err)
 		return
 	}
 
-	if daysSinceLastPayout >= intervalInDays {
-		go startPayout(privateKey, reward, loadBalancerUrl)
+	if daysSinceLastPayout >= configuration.PayoutNumberOfDays {
+		go startPayout(privateKey, configuration)
 	} else {
 		log.Infof(
 			"Last payout was %s, next payout will be in %d days",
 			lastPayoutTimestamp.Format("2006-January-02"),
-			intervalInDays - daysSinceLastPayout,
+			configuration.PayoutNumberOfDays - daysSinceLastPayout,
 		)
 	}
 }
 
-func startPayout(privateKey string, reward float64, loadBalancerUrl *url.URL)  {
+func startPayout(privateKey string, configuration PayoutConfiguration)  {
 	log.Info("Starting automatic payout...")
-	transactionDetails, err := script.ExecutePayout(privateKey, reward, loadBalancerUrl)
+	transactionDetails, err := script.ExecutePayout(
+		privateKey,
+		configuration.PayoutTotalReward,
+		configuration.LbFeeAddress,
+		configuration.LbURL,
+	)
 	if transactionDetails != nil {
 		// display even if only part of transactions executed
 		ui.DisplayTransactionsStatus(transactionDetails)

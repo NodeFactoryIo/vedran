@@ -11,27 +11,6 @@ import (
 
 func ExecuteAllPayoutTransactions(
 	payoutDistribution map[string]big.Int,
-	secret string,
-	substrateRPCurl string,
-) ([]*TransactionDetails, error) {
-	api, err := gsrpc.NewSubstrateAPI(substrateRPCurl)
-	if err != nil {
-		return nil, err
-	}
-
-	opts := types.SerDeOptions{NoPalletIndices: true}
-	types.SetSerDeOptions(opts)
-
-	keyringPair, err := signature.KeyringPairFromSecret(secret, "")
-	if err != nil {
-		return nil, err
-	}
-
-	return executeAllTransactions(payoutDistribution, api, keyringPair)
-}
-
-func executeAllTransactions(
-	payoutDistribution map[string]big.Int,
 	api *gsrpc.SubstrateAPI,
 	keyringPair signature.KeyringPair,
 ) ([]*TransactionDetails, error) {
@@ -50,7 +29,7 @@ func executeAllTransactions(
 		return nil, errors.Wrap(err, "unable to get latest metadat")
 	}
 
-	nonce, err := getNonce(metadataLatest, keyringPair, api)
+	nonce, err := GetNonce(metadataLatest, keyringPair, api)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get nonce")
 	}
@@ -79,7 +58,7 @@ func executeAllTransactions(
 	return waitForTransactionDetails(waitGroupDoneChannel, fatalErrorsChannel, resultsChannel)
 }
 
-func getNonce(metadataLatest *types.Metadata, keyringPair signature.KeyringPair, api *gsrpc.SubstrateAPI) (uint32, error) {
+func GetNonce(metadataLatest *types.Metadata, keyringPair signature.KeyringPair, api *gsrpc.SubstrateAPI) (uint32, error) {
 	storageKey, err := types.CreateStorageKey(
 		metadataLatest,
 		"System",
@@ -99,6 +78,27 @@ func getNonce(metadataLatest *types.Metadata, keyringPair signature.KeyringPair,
 
 	nonce := uint32(accountInfo.Nonce)
 	return nonce, err
+}
+
+func GetBalance(metadataLatest *types.Metadata, keyringPair signature.KeyringPair, api *gsrpc.SubstrateAPI) (types.U128, error) {
+	address, err := types.HexDecodeString(keyringPair.Address)
+	if err != nil {
+		return types.U128{}, err
+	}
+
+	key, err := types.CreateStorageKey(metadataLatest, "Balances", "FreeBalance", address, nil)
+	if err != nil {
+		return types.U128{}, err
+	}
+
+	// Retrieve the initial balance
+	var balance types.U128
+	ok, err := api.RPC.State.GetStorageLatest(key, &balance)
+	if err != nil || !ok {
+		return types.U128{}, err
+	}
+
+	return balance, nil
 }
 
 func waitForTransactionDetails(

@@ -11,15 +11,31 @@ const (
 	requestsRewardPercentage   = 0.9
 )
 
+type LoadBalancerDistributionConfiguration struct {
+	FeePercentage float64
+	PayoutAddress string
+	DifferentFeeAddress bool
+}
+
 func CalculatePayoutDistributionByNode(
 	payoutDetails map[string]models.NodeStatsDetails,
 	totalReward float64,
-	loadBalancerFeePercentage float64,
+	lbConfiguration LoadBalancerDistributionConfiguration,
 ) map[string]big.Int {
 	var rewardPool = totalReward
+	numOfNodes := len(payoutDetails)
+	if lbConfiguration.DifferentFeeAddress {
+		// lb has separate address for lb fee
+		numOfNodes += 1
+	}
+	payoutAmountDistributionByNodes := make(map[string]big.Int, numOfNodes)
 
-	loadbalancerReward := rewardPool * loadBalancerFeePercentage
+	loadbalancerReward := rewardPool * lbConfiguration.FeePercentage
 	rewardPool -= loadbalancerReward
+	if lbConfiguration.DifferentFeeAddress {
+		lbRewardAsInt, _ := big.NewFloat(loadbalancerReward).Int(nil)
+		payoutAmountDistributionByNodes[lbConfiguration.PayoutAddress] = *lbRewardAsInt
+	}
 
 	livelinessRewardPool := rewardPool * livelinessRewardPercentage
 	requestsRewardPool := rewardPool * requestsRewardPercentage
@@ -33,7 +49,7 @@ func CalculatePayoutDistributionByNode(
 
 	totalDistributedLivelinessRewards := float64(0)
 	totalDistributedRequestsRewards := float64(0)
-	payoutAmountDistributionByNodes := make(map[string]big.Int, len(payoutDetails))
+
 
 	for nodeAddress, nodeStatsDetails := range payoutDetails {
 		// liveliness rewards
