@@ -14,9 +14,10 @@ func Test_CalculatePayoutDistributionByNode(t *testing.T) {
 		totalReward        float64
 		loadBalancerFee    float64
 		resultDistribution map[string]big.Int
+		feeAddress string
 	}{
 		{ // this test is set for 10/90 split between liveliness and requests
-			name: "test distribution",
+			name: "test distribution without different fee address",
 			payoutDetails: map[string]models.NodeStatsDetails{
 				"0x1": {
 					TotalPings:    100,
@@ -53,19 +54,69 @@ func Test_CalculatePayoutDistributionByNode(t *testing.T) {
 				"0x5": *big.NewInt(6019946),  // 6019946.808510638  // 50P  2R
 				"0x6": *big.NewInt(765957),   // 765957.4468085106  // 40P  0R
 			},
+			feeAddress: "",
+		},
+		{ // this test is set for 10/90 split between liveliness and requests
+			name: "test distribution with different fee address",
+			payoutDetails: map[string]models.NodeStatsDetails{
+				"0x1": {
+					TotalPings:    100,
+					TotalRequests: 10,
+				},
+				"0x2": {
+					TotalPings:    100,
+					TotalRequests: 5,
+				},
+				"0x3": {
+					TotalPings:    90,
+					TotalRequests: 10,
+				},
+				"0x4": {
+					TotalPings:    90,
+					TotalRequests: 5,
+				},
+				"0x5": {
+					TotalPings:    50,
+					TotalRequests: 2,
+				},
+				"0x6": {
+					TotalPings:    40,
+					TotalRequests: 0,
+				},
+			},
+			totalReward:     100000000,
+			loadBalancerFee: 0.1,
+			resultDistribution: map[string]big.Int{
+				"0x1": *big.NewInt(27227393), // 27227393.617021276 // 100P 10R
+				"0x2": *big.NewInt(14571143), // 14571143.617021276 // 100P 5R
+				"0x3": *big.NewInt(27035904), // 27035904.255319147 // 90P  10R
+				"0x4": *big.NewInt(14379654), // 14379654.25531915  // 90P  5R
+				"0x5": *big.NewInt(6019946),  // 6019946.808510638  // 50P  2R
+				"0x6": *big.NewInt(765957),   // 765957.4468085106  // 40P  0R
+				"0xfee": *big.NewInt(10000000), // 0.1 of entire reward pool
+			},
+			feeAddress: "0xfee",
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			distributionByNode := CalculatePayoutDistributionByNode(
-				test.payoutDetails, test.totalReward, test.loadBalancerFee,
+				test.payoutDetails, test.totalReward, LoadBalancerDistributionConfiguration{
+					FeePercentage:       test.loadBalancerFee,
+					PayoutAddress:          test.feeAddress,
+					DifferentFeeAddress: test.feeAddress != "",
+				},
 			)
 			assert.Equal(t, test.resultDistribution, distributionByNode)
 			totalDistributed := big.NewInt(0)
 			for _, amount := range distributionByNode {
 				totalDistributed.Add(totalDistributed, &amount)
 			}
+
 			totalShoudBeDistributed := test.totalReward * (float64(1) - test.loadBalancerFee)
+			if test.feeAddress != "" {
+				totalShoudBeDistributed = test.totalReward
+			}
 
 			totalShouldBeDistributedRounded, _ := big.NewFloat(totalShoudBeDistributed).Int(nil)
 			delta := big.NewInt(0).Sub(totalShouldBeDistributedRounded, totalDistributed)

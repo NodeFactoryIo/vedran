@@ -15,6 +15,7 @@ require (
 	github.com/gorilla/websocket v1.4.1
 	github.com/gosuri/uitable v0.0.4
 	github.com/inconshreveable/go-vhost v0.0.0-20160627193104-06d84117953b
+	github.com/manifoldco/promptui v0.8.0
 	github.com/pkg/errors v0.8.1
 	github.com/prometheus/client_golang v1.7.1
 	github.com/sirupsen/logrus v1.6.0
