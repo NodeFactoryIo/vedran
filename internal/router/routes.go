@@ -51,6 +51,6 @@ func createRoutes(apiController *controllers.ApiController, router *mux.Router) 
 	createRoute("/api/v1/stats", "POST", apiController.StatisticsHandlerAllStatsForLoadbalancer, router, false)
 	createRoute("/api/v1/stats", "GET", apiController.StatisticsHandlerAllStats, router, false)
 	createRoute("/api/v1/stats/node/{id}", "GET", apiController.StatisticsHandlerStatsForNode, router, false)
-
+	createRoute("/api/v1/stats/lb", "GET", apiController.StatisticsHandlerStatsForLoadBalancer, router, false)
 	createRoute("/metrics", "GET", promhttp.Handler().ServeHTTP, router, false)
 }

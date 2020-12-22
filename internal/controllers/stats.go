@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
@@ -100,4 +101,18 @@ func (c *ApiController) StatisticsHandlerStatsForNode(w http.ResponseWriter, r *
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(nodeStatisticsFromLastPayout)
+}
+
+type LbStatsResponse struct {
+	LbFee   string `json:"lb_fee"`
+	NodeFee string `json:"nodes_fee"`
+}
+
+func (c *ApiController) StatisticsHandlerStatsForLoadBalancer(w http.ResponseWriter, r *http.Request) {
+	statsResponse := LbStatsResponse{
+		LbFee:   strconv.FormatFloat(float64(configuration.Config.Fee), 'f', -1, 32),
+		NodeFee: strconv.FormatFloat(float64(1 - configuration.Config.Fee), 'f', -1, 32),
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(statsResponse)
 }
