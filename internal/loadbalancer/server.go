@@ -84,7 +84,7 @@ func StartLoadBalancerServer(
 	// start scheduled payout if auto payout enabled
 	if props.PayoutConfiguration != nil {
 		schedulepayout.StartScheduledPayout(
-			props.PayoutConfiguration,
+			*props.PayoutConfiguration,
 			privateKey,
 			*repos)
 	}

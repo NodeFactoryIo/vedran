@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"net/http"
 	"time"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/stats"
 
 	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	muxhelpper "github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )

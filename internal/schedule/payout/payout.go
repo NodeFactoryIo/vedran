@@ -13,7 +13,7 @@ import (
 
 // StartScheduledPayout checks every 24 hours how many days have passed since last payout.
 // If number of passed days is equal or bigger than defined interval in configuration, start automatic payout
-func StartScheduledPayout(configuration *configuration.PayoutConfiguration, privateKey string, repos repositories.Repos) {
+func StartScheduledPayout(configuration configuration.PayoutConfiguration, privateKey string, repos repositories.Repos) {
 	ticker := time.NewTicker(time.Hour * 24)
 	done := make(chan bool)
 
@@ -46,7 +46,7 @@ func GetNextPayoutDate(configuration *configuration.PayoutConfiguration, repos r
 
 func checkForPayout(
 	privateKey string,
-	configuration PayoutConfiguration,
+	configuration configuration.PayoutConfiguration,
 	repos repositories.Repos,
 ) {
 	daysSinceLastPayout, lastPayoutTimestamp, err := numOfDaysSinceLastPayout(repos)
