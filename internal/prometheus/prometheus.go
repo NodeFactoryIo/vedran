@@ -1,6 +1,7 @@
 package prometheus
 
 import (
+	"fmt"
 	"runtime"
 	"strconv"
 	"time"
@@ -61,6 +62,20 @@ func RecordMetrics(repos repositories.Repos) {
 		},
 	)
 	version.Set(1)
+
+	feeAsPercString := fmt.Sprintf(
+		"%s%%",
+		strconv.FormatFloat(float64(configuration.Config.Fee*100), 'f', -1, 32),
+	)
+	fee := promauto.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "vedran_lb_fee",
+			Help: "Percentage of fee that goes to load balancer",
+			ConstLabels: map[string]string{
+				"lb_fee": feeAsPercString,
+			},
+		})
+	fee.Set(float64(configuration.Config.Fee))
 
 	go recordPayoutDistribution(repos)
 	go recordActiveNodeCount(repos.NodeRepo)
