@@ -2,6 +2,7 @@ package prometheus
 
 import (
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/stats"
 	"runtime"
 	"strconv"
 	"time"
@@ -87,14 +88,15 @@ func RecordMetrics(repos repositories.Repos) {
 
 func recordPayoutDistribution(repos repositories.Repos) {
 	for {
-		stats, err := payout.GetStatsForPayout(repos, time.Now(), false)
+		statistics, err := stats.CalculateStatisticsFromLastPayout(repos, time.Now())
 		if err != nil {
 			log.Errorf("Failed recording stats for payout because of: %v", err)
 			time.Sleep(15 * time.Minute)
 			continue
 		}
+
 		distributionByNode := payout.CalculatePayoutDistributionByNode(
-			stats,
+			statistics,
 			100,
 			payout.LoadBalancerDistributionConfiguration{
 				FeePercentage:       float64(configuration.Config.Fee),

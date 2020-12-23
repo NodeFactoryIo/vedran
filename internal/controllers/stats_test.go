@@ -184,6 +184,8 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 		nodeNumberOfPings    float64
 		nodeNumberOfRequests float64
 		//
+		requestContent string
+		//
 		secret        string
 		signatureData string
 	}{
@@ -218,6 +220,8 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			// Stats
 			nodeNumberOfRequests: float64(0),
 			nodeNumberOfPings:    float64(8640),
+			//
+			requestContent: `{"total_reward":"1000000"}`,
 			//
 			secret:        "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 			signatureData: StatsSignedData,
@@ -297,6 +301,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			httpStatus:                      http.StatusInternalServerError,
 			payoutRepoFindLatestPayoutError: errors.New("db-error"),
 			secret:                          "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			requestContent:                  `{"total_reward":"1000000"}`,
 			signatureData:                   StatsSignedData,
 		},
 	}
@@ -350,7 +355,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			}, nil, test.secret)
 			handler := http.HandlerFunc(apiController.StatisticsHandlerAllStatsForLoadbalancer)
 
-			req, _ := http.NewRequest("POST", "/api/v1/stats", nil)
+			req, _ := http.NewRequest("POST", "/api/v1/stats", bytes.NewReader([]byte(test.requestContent)))
 
 			if test.secret != "" {
 				sig, _ := signature.Sign([]byte(test.signatureData), test.secret)
