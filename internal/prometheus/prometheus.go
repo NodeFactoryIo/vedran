@@ -48,6 +48,18 @@ var (
 		},
 		[]string{"date"},
 	)
+	payoutFeeAmount = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "vedran_lb_payout_fee",
+			Help: "Payout fee for each last payout",
+		},
+		[]string{"date"})
+
+	totalFee = promauto.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "vedran_lb_payout_fee_total",
+			Help: "",
+		})
 )
 
 // RecordMetrics starts goroutines for recording metrics
@@ -70,7 +82,7 @@ func RecordMetrics(repos repositories.Repos) {
 	)
 	fee := promauto.NewGauge(
 		prometheus.GaugeOpts{
-			Name: "vedran_lb_fee",
+			Name: "vedran_lb_payout_fee_total_percentage",
 			Help: "Percentage of fee that goes to load balancer",
 			ConstLabels: map[string]string{
 				"lb_fee": feeAsPercString,
@@ -84,6 +96,30 @@ func RecordMetrics(repos repositories.Repos) {
 	go recordSuccessfulRequestCount(repos.RecordRepo)
 	go recordFailedRequestCount(repos.RecordRepo)
 	go recordPayoutDate(repos)
+	go recordLbFeeAmount(repos.PayoutRepo)
+}
+
+
+func recordLbFeeAmount(payoutRepo repositories.PayoutRepository) {
+	for {
+		payouts, err := payoutRepo.GetAll()
+		if err != nil {
+			log.Errorf("Failed recording stats for payout because of: %v", err)
+			time.Sleep(15 * time.Minute)
+			continue
+		}
+		totalFeeCollected := float64(0)
+		for _, p := range *payouts {
+			if p.LbFee != 0 {
+				payoutFeeAmount.With(prometheus.Labels{
+					"date": p.Timestamp.Format("2006-January-02"),
+				}).Set(p.LbFee)
+			}
+			totalFeeCollected += p.LbFee
+		}
+		totalFee.Set(totalFeeCollected)
+		time.Sleep(12 * time.Hour)
+	}
 }
 
 func recordPayoutDistribution(repos repositories.Repos) {
