@@ -17,6 +17,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const (
+	nextPayoutDateLayout = "Mon, Jan 2 2006."
+)
+
 var (
 	activeNodes = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "vedran_number_of_active_nodes",
@@ -182,9 +186,9 @@ func recordPayoutDate(repos repositories.Repos) {
 	for {
 		date, err := schedulepayout.GetNextPayoutDate(configuration.Config.PayoutConfiguration, repos)
 		if err != nil {
-			payoutDate.With(prometheus.Labels{"date": date.String()}).Set(1)
-		} else {
 			payoutDate.With(prometheus.Labels{"date": "Scheduled payout not configured"}).Set(1)
+		} else {
+			payoutDate.With(prometheus.Labels{"date": date.Format(nextPayoutDateLayout)}).Set(1)
 		}
 		time.Sleep(12 * time.Hour)
 	}
