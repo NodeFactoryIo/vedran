@@ -17,8 +17,3 @@ type Actions struct {
 func (_m *Actions) PenalizeNode(node models.Node, _a1 repositories.Repos) {
 	_m.Called(node, _a1)
 }
-
-// RewardNode provides a mock function with given fields: node, _a1
-func (_m *Actions) RewardNode(node models.Node, _a1 repositories.Repos) {
-	_m.Called(node, _a1)
-}

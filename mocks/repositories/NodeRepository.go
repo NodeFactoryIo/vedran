@@ -222,11 +222,6 @@ func (_m *NodeRepository) ResetNodeCooldown(ID string) (*models.Node, error) {
 	return r0, r1
 }
 
-// RewardNode provides a mock function with given fields: node
-func (_m *NodeRepository) RewardNode(node models.Node) {
-	_m.Called(node)
-}
-
 // Save provides a mock function with given fields: node
 func (_m *NodeRepository) Save(node *models.Node) error {
 	ret := _m.Called(node)
@@ -239,4 +234,9 @@ func (_m *NodeRepository) Save(node *models.Node) error {
 	}
 
 	return r0
+}
+
+// UpdateNodeUsed provides a mock function with given fields: node
+func (_m *NodeRepository) UpdateNodeUsed(node models.Node) {
+	_m.Called(node)
 }

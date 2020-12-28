@@ -106,11 +106,11 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 			// NodeRepo.IsNodeActive
 			nodeRepoIsNodeActiveReturn: true,
 			// MetricsRepo.FindByID
-			metricsRepoFindByIDReturn: nil,
+			metricsRepoFindByIDReturn:     nil,
 			metricsRepoFindByIDError:      nil,
 			metricsRepoFindByIDNumOfCalls: 0,
 			// MetricsRepo.GetLatestBlockMetrics
-			metricsRepoGetLatestBlockMetricsReturn: nil,
+			metricsRepoGetLatestBlockMetricsReturn:     nil,
 			metricsRepoGetLatestBlockMetricsError:      nil,
 			metricsRepoGetLatestBlockMetricsNumOfCalls: 0,
 			// MetricsRepo.Save
@@ -245,7 +245,7 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 				MetricsRepo:  &metricsRepoMock,
 				RecordRepo:   &recordRepoMock,
 				DowntimeRepo: &downtimeRepoMock,
-			}, nil)
+			}, nil, "")
 
 			handler := http.HandlerFunc(apiController.SaveMetricsHandler)
 

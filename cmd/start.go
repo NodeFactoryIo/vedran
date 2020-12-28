@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -24,6 +25,8 @@ var (
 	// load balancer related flags
 	authSecret     string
 	name           string
+	certFile       string
+	keyFile        string
 	capacity       int64
 	whitelistArray []string
 	whitelistFile  string
@@ -31,6 +34,13 @@ var (
 	selection      string
 	serverPort     int32
 	publicIP       string
+	// payout related flags
+	payoutFeeAddress           string
+	payoutPrivateKey           string
+	payoutNumberOfDays         int32
+	payoutTotalReward          string
+	payoutTotalRewardAsFloat64 float64
+	autoPayoutDisabled         bool
 	// logging related flags
 	logLevel string
 	logFile  string
@@ -83,6 +93,11 @@ var startCmd = &cobra.Command{
 			return errors.New("invalid port number provided for max port inside port range")
 		}
 
+		// valid certificates
+		if (certFile != "" && keyFile == "") || (keyFile != "" && certFile == "") {
+			return errors.New("both cert and key file flags need to be set for valid certificate")
+		}
+
 		minPort, _ := strconv.Atoi(prt[0])
 		maxPort, _ := strconv.Atoi(prt[1])
 		if capacity == -1 {
@@ -94,6 +109,19 @@ var startCmd = &cobra.Command{
 		if whitelistArray != nil && whitelistFile != "" {
 			return errors.New("only one flag for setting whitelisted nodes should be set")
 		}
+
+		autoPayoutDisabled = payoutNumberOfDays == 0
+		if !autoPayoutDisabled {
+			if payoutNumberOfDays <= 0 {
+				return errors.New("invalid payout interval")
+			}
+			rewardAsFloat64, err := ValidatePayoutFlags(payoutTotalReward, payoutFeeAddress, false)
+			if err != nil {
+				return err
+			}
+			payoutTotalRewardAsFloat64 = rewardAsFloat64
+		}
+
 		return nil
 	},
 }
@@ -143,10 +171,22 @@ func init() {
 		"round-robin",
 		"[OPTIONAL] Type of selection used for choosing nodes (round-robin, random)")
 
+	startCmd.Flags().StringVar(
+		&certFile,
+		"cert-file",
+		"",
+		"[OPTIONAL] SSL certificate file")
+
+	startCmd.Flags().StringVar(
+		&keyFile,
+		"key-file",
+		"",
+		"[OPTIONAL] SSL matching private key")
+
 	startCmd.Flags().Int32Var(
 		&serverPort,
 		"server-port",
-		4000,
+		80,
 		"[OPTIONAL] Port on which load balancer rpc server will be started")
 
 	startCmd.Flags().StringVar(
@@ -178,6 +218,34 @@ func init() {
 		"tunnel-port-range",
 		"20000:30000",
 		"[OPTIONAL] Range of ports which is used to open tunnels")
+
+	startCmd.Flags().StringVar(
+		&payoutPrivateKey,
+		"private-key",
+		"",
+		"[REQUIRED] Load balancers wallet private key, used for sending funds on payout",
+	)
+
+	startCmd.Flags().StringVar(
+		&payoutTotalReward,
+		"payout-reward",
+		"-1",
+		"[OPTIONAL] Total reward pool in Planck. If omitted, total balance of load balancer wallet will be considered as payout reward",
+	)
+
+	startCmd.Flags().StringVar(
+		&payoutFeeAddress,
+		"lb-payout-address",
+		"",
+		"[OPTIONAL] Address on which load balancer fee will be sent. If omitted, load balancer fee will be left on load balancer wallet after payout")
+
+	startCmd.Flags().Int32Var(
+		&payoutNumberOfDays,
+		"payout-interval",
+		0,
+		"[OPTIONAL] Payout interval in days, meaning each X days automatic payout will be executed")
+
+	_ = startCmd.MarkFlagRequired("private-key")
 
 	RootCmd.AddCommand(startCmd)
 }
@@ -212,16 +280,33 @@ func startCommand(_ *cobra.Command, _ []string) {
 	}
 	log.Debugf("Whitelisting set to: %t", whitelistEnabled)
 
+	var payoutConfiguration *configuration.PayoutConfiguration
+	if !autoPayoutDisabled {
+		lbUrl, _ := url.Parse("http://" + publicIP + ":" + string(serverPort))
+		payoutConfiguration = &configuration.PayoutConfiguration{
+			PayoutNumberOfDays: int(payoutNumberOfDays),
+			PayoutTotalReward:  payoutTotalRewardAsFloat64,
+			LbFeeAddress:       payoutFeeAddress,
+			LbURL:              lbUrl,
+		}
+	}
+
 	tunnel.StartHttpTunnelServer(tunnelServerPort, pPool)
-	loadbalancer.StartLoadBalancerServer(configuration.Configuration{
-		AuthSecret:          authSecret,
-		Name:                name,
-		Capacity:            capacity,
-		Fee:                 fee,
-		Selection:           selection,
-		Port:                serverPort,
-		TunnelServerAddress: tunnelServerAddress,
-		PortPool:            pPool,
-		WhitelistEnabled:    whitelistEnabled,
-	})
+	loadbalancer.StartLoadBalancerServer(
+		configuration.Configuration{
+			AuthSecret:          authSecret,
+			Name:                name,
+			CertFile:            certFile,
+			KeyFile:             keyFile,
+			Capacity:            capacity,
+			Fee:                 fee,
+			Selection:           selection,
+			Port:                serverPort,
+			TunnelServerAddress: tunnelServerAddress,
+			PortPool:            pPool,
+			WhitelistEnabled:    whitelistEnabled,
+			PayoutConfiguration: payoutConfiguration,
+		},
+		payoutPrivateKey,
+	)
 }

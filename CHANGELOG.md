@@ -1,16 +1,50 @@
 # Changelog
 
 ## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.3.1...HEAD)
 
-[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.2.0...HEAD)
+### Added
+
+### Fix
+- Metrics endpoint and grafana dashboard example [#\138](https://github.com/NodeFactoryIo/vedran/pull/138) ([mpetrun5](https://github.com/mpetrun5))
+- Fix next payout date prometheus value [#\161](https://github.com/NodeFactoryIo/vedran/pull/161) ([mpetrun5](https://github.com/mpetrun5))
+
+### Changed
+
+## [v0.3.1]((https://github.com/NodeFactoryIo/vedran/tree/v0.3.1))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.3.0...v0.3.1)
+
+### Added
+
+### Fix
+- Enable CORS and set upgrader CheckOrigin to true  [\#149](https://github.com/NodeFactoryIo/vedran/pull/149) ([mpetrun5](https://github.com/mpetrun5))
+
+### Changed
+
+## [v0.3.0]((https://github.com/NodeFactoryIo/vedran/tree/v0.3.0))
+
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.2.0...v0.3.0)
 
 ### Added
 - Check if port range valid [\#104](https://github.com/NodeFactoryIo/vedran/pull/104) ([mpetrun5](https://github.com/mpetrun5))
 - Valid flag on node [\#105](https://github.com/NodeFactoryIo/vedran/pull/105) ([mpetrun5](https://github.com/mpetrun5))
+- Passing SSL certificates [\#112](https://github.com/NodeFactoryIo/vedran/pull/112) ([mpetrun5](https://github.com/mpetrun5))
+- Expose stats endpoints [\#114](https://github.com/NodeFactoryIo/vedran/pull/114) ([MakMuftic](https://github.com/MakMuftic))
+- Calculating reward distribution [\#124](https://github.com/NodeFactoryIo/vedran/pull/124) ([MakMuftic](https://github.com/MakMuftic))
+- Add payout CLI command [\#126](https://github.com/NodeFactoryIo/vedran/pull/126) ([MakMuftic](https://github.com/MakMuftic))
+- Support WS connections [#\132](https://github.com/NodeFactoryIo/vedran/pull/132) ([MakMuftic](https://github.com/MakMuftic))
+- Execute payout transactions [\#127](https://github.com/NodeFactoryIo/vedran/pull/127) ([MakMuftic](https://github.com/MakMuftic))
+- Sign stats request [\#143](https://github.com/NodeFactoryIo/vedran/pull/143) ([MakMuftic](https://github.com/MakMuftic))
+- Send all funds on payout [\#153](https://github.com/NodeFactoryIo/vedran/pull/153) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Fix
+- Fix payout [\#148](https://github.com/NodeFactoryIo/vedran/pull/148) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Changed
+- Write byte response directly with io.Write [\#113](https://github.com/NodeFactoryIo/vedran/pull/113) ([mpetrun5](https://github.com/mpetrun5))
+- GetPort separated into GetHttpPort and GetWSPort [\#129](https://github.com/NodeFactoryIo/vedran/pull/129) ([mpetrun5](https://github.com/mpetrun5))
+- Use payout address to map stats [\#136](https://github.com/NodeFactoryIo/vedran/pull/136) ([MakMuftic](https://github.com/MakMuftic))
+- Refactor payment interval calculation [\#144](https://github.com/NodeFactoryIo/vedran/pull/144) ([MakMuftic](https://github.com/MakMuftic))
 
 ## [v0.2.0]((https://github.com/NodeFactoryIo/vedran/tree/v0.2.0))
 

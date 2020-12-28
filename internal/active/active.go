@@ -9,7 +9,7 @@ import (
 
 const (
 	IntervalFromLastPing = 10 * time.Second
-	AllowedBlocksBehind = 10
+	AllowedBlocksBehind  = 10
 )
 
 // CheckIfNodeActive checks if nodes last recorded ping is in last IntervalFromLastPing and if nodes last recorded
@@ -55,11 +55,11 @@ func CheckIfMetricsValid(nodeID string, repos *repositories.Repos) (bool, error)
 	if err != nil {
 		return false, err
 	}
-	if metrics.BestBlockHeight <= (latestBlockMetrics.BestBlockHeight - AllowedBlocksBehind) ||
-		metrics.FinalizedBlockHeight <= (latestBlockMetrics.FinalizedBlockHeight - AllowedBlocksBehind) {
+	if metrics.BestBlockHeight <= (latestBlockMetrics.BestBlockHeight-AllowedBlocksBehind) ||
+		metrics.FinalizedBlockHeight <= (latestBlockMetrics.FinalizedBlockHeight-AllowedBlocksBehind) {
 		log.Debugf(
-			"Node %s not active as metrics check failed. " +
-				"Node metrics: BestBlockHeight[%d], FinalizedBlockHeight[%d] " +
+			"Node %s not active as metrics check failed. "+
+				"Node metrics: BestBlockHeight[%d], FinalizedBlockHeight[%d] "+
 				"Best pool metrics: BestBlockHeight[%d], FinalizedBlockHeight[%d]",
 			nodeID,
 			metrics.BestBlockHeight, metrics.FinalizedBlockHeight,

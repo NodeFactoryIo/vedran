@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/NodeFactoryIo/vedran/internal/models"
@@ -13,6 +14,7 @@ import (
 )
 
 var activeNodes []models.Node
+var mutex = &sync.Mutex{}
 
 type NodeRepository interface {
 	FindByID(ID string) (*models.Node, error)
@@ -24,7 +26,7 @@ type NodeRepository interface {
 	IsNodeActive(ID string) bool
 	RemoveNodeFromActive(ID string) error
 	AddNodeToActive(ID string) error
-	RewardNode(node models.Node)
+	UpdateNodeUsed(node models.Node)
 	IncreaseNodeCooldown(ID string) (*models.Node, error)
 	ResetNodeCooldown(ID string) (*models.Node, error)
 	IsNodeOnCooldown(ID string) (bool, error)
@@ -113,6 +115,8 @@ func (r *nodeRepo) GetPenalizedNodes() (*[]models.Node, error) {
 }
 
 func (r *nodeRepo) updateMemoryLastUsedTime(targetNode models.Node) {
+	// protect updating in memory activeNodes from concurrency problems
+	mutex.Lock()
 	for i, node := range activeNodes {
 		if targetNode.ID == node.ID {
 			tempNode := &activeNodes[i]
@@ -120,6 +124,7 @@ func (r *nodeRepo) updateMemoryLastUsedTime(targetNode models.Node) {
 			break
 		}
 	}
+	mutex.Unlock()
 }
 
 func (r *nodeRepo) RemoveNodeFromActive(ID string) error {
@@ -151,7 +156,7 @@ func (r *nodeRepo) AddNodeToActive(ID string) error {
 	return nil
 }
 
-func (r *nodeRepo) RewardNode(node models.Node) {
+func (r *nodeRepo) UpdateNodeUsed(node models.Node) {
 	r.updateMemoryLastUsedTime(node)
 
 	node.LastUsed = time.Now().Unix()

@@ -3,18 +3,28 @@ package loadbalancer
 import (
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/NodeFactoryIo/vedran/internal/actions"
 	"github.com/NodeFactoryIo/vedran/internal/auth"
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	"github.com/NodeFactoryIo/vedran/internal/controllers"
+	"github.com/NodeFactoryIo/vedran/internal/models"
+	"github.com/NodeFactoryIo/vedran/internal/prometheus"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	"github.com/NodeFactoryIo/vedran/internal/router"
 	"github.com/NodeFactoryIo/vedran/internal/schedule/checkactive"
+	schedulepayout "github.com/NodeFactoryIo/vedran/internal/schedule/payout"
 	"github.com/NodeFactoryIo/vedran/internal/schedule/penalize"
 	"github.com/asdine/storm/v3"
+	"github.com/gorilla/handlers"
 	log "github.com/sirupsen/logrus"
 )
 
-func StartLoadBalancerServer(props configuration.Configuration) {
+func StartLoadBalancerServer(
+	props configuration.Configuration,
+	privateKey string,
+) {
 	configuration.Config = props
 
 	// set auth secret
@@ -39,9 +49,24 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 	repos.RecordRepo = repositories.NewRecordRepo(database)
 	repos.NodeRepo = repositories.NewNodeRepo(database)
 	repos.DowntimeRepo = repositories.NewDowntimeRepo(database)
+	repos.PayoutRepo = repositories.NewPayoutRepo(database)
 	err = repos.PingRepo.ResetAllPings()
 	if err != nil {
 		log.Fatalf("Failed reseting pings because of: %v", err)
+	}
+
+	// save initial payout if there isn't any saved payouts
+	p, err := repos.PayoutRepo.GetAll()
+	if err != nil {
+		log.Fatalf("Failed creating initial payout because of: %v", err)
+	} else if len(*p) == 0 {
+		err := repos.PayoutRepo.Save(&models.Payout{
+			Timestamp:      time.Now(),
+			PaymentDetails: nil,
+		})
+		if err != nil {
+			log.Fatalf("Failed creating initial payout because of: %v", err)
+		}
 	}
 
 	penalizedNodes, err := repos.NodeRepo.GetPenalizedNodes()
@@ -56,10 +81,31 @@ func StartLoadBalancerServer(props configuration.Configuration) {
 	// starts task that checks active nodes
 	checkactive.StartScheduledTask(repos)
 
+	// start scheduled payout if auto payout enabled
+	if props.PayoutConfiguration != nil {
+		schedulepayout.StartScheduledPayout(
+			*props.PayoutConfiguration,
+			privateKey,
+			*repos)
+	}
+
 	// start server
 	log.Infof("Starting vedran load balancer on port :%d...", props.Port)
-	r := router.CreateNewApiRouter(*repos, props.WhitelistEnabled)
-	err = http.ListenAndServe(fmt.Sprintf(":%d", props.Port), r)
+	apiController := controllers.NewApiController(
+		props.WhitelistEnabled, *repos, actions.NewActions(), privateKey,
+	)
+	r := router.CreateNewApiRouter(apiController)
+	prometheus.RecordMetrics(*repos)
+	if props.CertFile != "" {
+		err = http.ListenAndServeTLS(
+			fmt.Sprintf(":%d", props.Port),
+			props.CertFile,
+			props.KeyFile,
+			handlers.CORS()(r),
+		)
+	} else {
+		err = http.ListenAndServe(fmt.Sprintf(":%d", props.Port), handlers.CORS()(r))
+	}
 	if err != nil {
 		log.Error(err)
 	}
