@@ -58,11 +58,12 @@ jobs:
 
       - name: Sign Windows Binary
         uses: nodefactoryio/windows-codesign-action@master
-          binaryPath: files/app.exe
+        with:
+          binaryPath: "build/windows/vedran.exe"
           verify: "true"
-          keystore: ${{ secrets.KEYSTORE }}
-          password: ${{ secrets.PASSWORD }}
-          appName: 'NodeFactory'
+          keystore: ${{ secrets.WINDOWS_CODESIGN_CERT }}
+          password: ${{ secrets.WINDOWS_CODESIGN_PASS }}
+          appName: 'Vedran'
           domain: 'nodefactory.io'
 
       - name: Create Release
