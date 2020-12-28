@@ -38,7 +38,7 @@ jobs:
       GO111MODULE: "on"
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2-beta
+        uses: actions/setup-go@v2.1.3
         with:
           go-version: 1.14.x
 
@@ -58,11 +58,12 @@ jobs:
 
       - name: Sign Windows Binary
         uses: nodefactoryio/windows-codesign-action@master
-          binaryPath: files/app.exe
+        with:
+          binaryPath: "build/windows/vedran.exe"
           verify: "true"
-          keystore: ${{ secrets.KEYSTORE }}
-          password: ${{ secrets.PASSWORD }}
-          appName: 'NodeFactory'
+          keystore: ${{ secrets.WINDOWS_CODESIGN_CERT }}
+          password: ${{ secrets.WINDOWS_CODESIGN_PASS }}
+          appName: 'Vedran'
           domain: 'nodefactory.io'
 
       - name: Create Release
