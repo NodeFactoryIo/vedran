@@ -57,13 +57,13 @@ jobs:
           path: ./CHANGELOG.md
 
       - name: Sign Windows Binary
-        uses: jonfriesen/windows-signer-action@v0.0.1
-        env:
-          NAME: NodeFactory
-          DOMAIN: https://nodefactory.io/
-          BINARY: build/windows/vedran.exe
-          WINDOWS_CERT: ${{ secrets.WINDOWS_CERT }}
-          WINDOWS_KEY: ${{ secrets.WINDOWS_KEY }}
+        uses: nodefactoryio/windows-codesign-action@master
+          binaryPath: files/app.exe
+          verify: "true"
+          keystore: ${{ secrets.KEYSTORE }}
+          password: ${{ secrets.PASSWORD }}
+          appName: 'NodeFactory'
+          domain: 'nodefactory.io'
 
       - name: Create Release
         id: create_release
