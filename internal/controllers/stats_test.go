@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
@@ -305,6 +306,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			signatureData:                   StatsSignedData,
 		},
 	}
+	configuration.Config.Fee = 0.1
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			// create mock controller
@@ -345,6 +347,8 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 				test.payoutRepoFindLatestPayoutError,
 			)
 			payoutRepoMock.On("Save", mock.Anything).Return(nil)
+			feeRepoMock := mocks.FeeRepository{}
+			feeRepoMock.On("RecordNewFee", "0xtest-address", mock.Anything).Return(nil)
 			apiController := NewApiController(false, repositories.Repos{
 				NodeRepo:     &nodeRepoMock,
 				PingRepo:     &pingRepoMock,
@@ -352,6 +356,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 				RecordRepo:   &recordRepoMock,
 				DowntimeRepo: &downtimeRepoMock,
 				PayoutRepo:   &payoutRepoMock,
+				FeeRepo: &feeRepoMock,
 			}, nil, test.secret)
 			handler := http.HandlerFunc(apiController.StatisticsHandlerAllStatsForLoadbalancer)
 
@@ -378,6 +383,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			}
 		})
 	}
+	configuration.Config.Fee = 0
 }
 
 func TestApiController_StatisticsHandlerStatsForNode(t *testing.T) {

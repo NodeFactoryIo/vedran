@@ -60,6 +60,12 @@ var (
 			Name: "vedran_lb_payout_fee_total",
 			Help: "",
 		})
+
+	nodeFees = promauto.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name: "vedran_nodes_fee",
+		},
+		[]string{"node"})
 )
 
 // RecordMetrics starts goroutines for recording metrics

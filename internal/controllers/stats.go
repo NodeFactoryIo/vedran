@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/NodeFactoryIo/vedran/internal/payout"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -85,6 +86,21 @@ func (c *ApiController) StatisticsHandlerAllStatsForLoadbalancer(w http.Response
 		log.Errorf("Failed to save payout, because %v", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
+	}
+
+	feesToNodes := payout.CalculatePayoutDistributionByNode(
+		statistics,
+		totalRewardAsFloat,
+		payout.LoadBalancerDistributionConfiguration{
+			FeePercentage:       float64(configuration.Config.Fee),
+			DifferentFeeAddress: false,
+		},
+	)
+	for nodeId, amount := range feesToNodes {
+		err := c.repositories.FeeRepo.RecordNewFee(nodeId, amount.Int64())
+		if err != nil {
+			log.Errorf("Failed to save fee for node %s, because %v", nodeId, err)
+		}
 	}
 	
 	w.Header().Set("Content-Type", "application/json")
