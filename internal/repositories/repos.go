@@ -8,4 +8,5 @@ type Repos struct {
 	RecordRepo   RecordRepository
 	DowntimeRepo DowntimeRepository
 	PayoutRepo   PayoutRepository
+	FeeRepo      FeeRepository
 }
