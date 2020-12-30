@@ -8,6 +8,7 @@
 
 ### Fix
 - Metrics endpoint and grafana dashboard example [#\138](https://github.com/NodeFactoryIo/vedran/pull/138) ([mpetrun5](https://github.com/mpetrun5))
+- Fix next payout date prometheus value [#\161](https://github.com/NodeFactoryIo/vedran/pull/161) ([mpetrun5](https://github.com/mpetrun5))
 
 ### Changed
 
