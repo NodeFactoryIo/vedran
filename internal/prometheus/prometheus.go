@@ -126,7 +126,6 @@ func recordNodesFees(repos repositories.FeeRepository) {
 	}
 }
 
-
 func recordLbFeeAmount(payoutRepo repositories.PayoutRepository) {
 	for {
 		payouts, err := payoutRepo.GetAll()

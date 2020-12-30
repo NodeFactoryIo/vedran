@@ -60,7 +60,7 @@ func ExecutePayout(
 		totalReward,
 		payout.LoadBalancerDistributionConfiguration{
 			FeePercentage:       float64(response.Fee),
-			PayoutAddress:          lbFeeAddress,
+			PayoutAddress:       lbFeeAddress,
 			DifferentFeeAddress: lbFeeAddress != "",
 		},
 	)
