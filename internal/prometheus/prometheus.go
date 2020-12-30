@@ -61,9 +61,10 @@ var (
 			Help: "",
 		})
 
-	nodeFees = promauto.NewHistogramVec(
-		prometheus.HistogramOpts{
+	nodeFees = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
 			Name: "vedran_nodes_fee",
+			Help: "Payout fee for each last payout",
 		},
 		[]string{"node"})
 )
@@ -103,6 +104,22 @@ func RecordMetrics(repos repositories.Repos) {
 	go recordFailedRequestCount(repos.RecordRepo)
 	go recordPayoutDate(repos)
 	go recordLbFeeAmount(repos.PayoutRepo)
+	go recordNodesFees(repos.FeeRepo)
+}
+
+func recordNodesFees(repos repositories.FeeRepository) {
+	for {
+		fees, err := repos.GetAllFees()
+		if err != nil {
+			log.Errorf("Failed to fetch stats for fees because of: %v", err)
+			time.Sleep(15 * time.Minute)
+			continue
+		}
+		for _, fee := range *fees {
+			nodeFees.With(prometheus.Labels{"node": fee.NodeId}).Set(float64(fee.TotalFee))
+		}
+		time.Sleep(12 * time.Hour)
+	}
 }
 
 
@@ -123,6 +140,7 @@ func recordLbFeeAmount(payoutRepo repositories.PayoutRepository) {
 			}
 			totalFeeCollected += p.LbFee
 		}
+		totalFeeCollected = 123430020000
 		totalFee.Set(totalFeeCollected)
 		time.Sleep(12 * time.Hour)
 	}

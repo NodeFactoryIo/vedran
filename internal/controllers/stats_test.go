@@ -356,7 +356,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 				RecordRepo:   &recordRepoMock,
 				DowntimeRepo: &downtimeRepoMock,
 				PayoutRepo:   &payoutRepoMock,
-				FeeRepo: &feeRepoMock,
+				FeeRepo:      &feeRepoMock,
 			}, nil, test.secret)
 			handler := http.HandlerFunc(apiController.StatisticsHandlerAllStatsForLoadbalancer)
 

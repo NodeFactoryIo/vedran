@@ -752,7 +752,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 4,
+        "w": 6,
         "x": 0,
         "y": 30
       },
@@ -819,8 +819,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 4,
-        "x": 4,
+        "w": 6,
+        "x": 6,
         "y": 30
       },
       "id": 31,
@@ -884,8 +884,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 4,
-        "x": 8,
+        "w": 6,
+        "x": 12,
         "y": 30
       },
       "id": 32,
@@ -928,7 +928,7 @@
       "fieldConfig": {
         "defaults": {
           "custom": {},
-          "decimals": 0,
+          "decimals": 3,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -943,14 +943,14 @@
               }
             ]
           },
-          "unit": "string"
+          "unit": "si: DOT"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 4,
-        "x": 12,
+        "w": 6,
+        "x": 18,
         "y": 30
       },
       "id": 40,
@@ -963,7 +963,7 @@
           "calcs": [
             "last"
           ],
-          "fields": "/^vedran_lb_payout_fee_total\\{instance=\"vedran:4000\", job=\"prometheus\"\\}$/",
+          "fields": "/^\\{instance=\"vedran:4000\", job=\"prometheus\"\\}$/",
           "values": false
         },
         "textMode": "auto"
@@ -971,7 +971,7 @@
       "pluginVersion": "7.3.6",
       "targets": [
         {
-          "expr": "vedran_lb_payout_fee_total",
+          "expr": "vedran_lb_payout_fee_total / 10000000000",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -981,80 +981,111 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Total fees collected",
+      "title": "Collected fee by load balancer",
       "transformations": [],
       "type": "stat"
     },
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
       "datasource": null,
-      "description": "Display of all past payouts",
       "fieldConfig": {
         "defaults": {
-          "custom": {
-            "align": "center",
-            "filterable": true
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
+          "custom": {},
+          "unit": "si: DOT"
         },
         "overrides": []
       },
+      "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 30
+        "w": 24,
+        "x": 0,
+        "y": 38
       },
-      "id": 39,
+      "hiddenSeries": false,
+      "id": 42,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
       "options": {
-        "showHeader": true
+        "alertThreshold": true
       },
+      "percentage": false,
       "pluginVersion": "7.3.6",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
-          "expr": "vedran_lb_payout_fee",
-          "format": "table",
-          "instant": true,
+          "expr": "vedran_nodes_fee / 10000000000",
+          "instant": false,
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "{{node}}",
           "refId": "A"
         }
       ],
+      "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
-      "title": "Payout history",
-      "transformations": [
+      "title": "Collected fee by nodes",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
         {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "__name__": true,
-              "date": false,
-              "instance": true,
-              "job": true
-            },
-            "indexByName": {},
-            "renameByName": {
-              "Value": "Fee",
-              "date": "Date"
-            }
-          }
+          "$$hashKey": "object:82",
+          "format": "si: DOT",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:83",
+          "decimals": null,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
         }
       ],
-      "type": "table"
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "aliasColors": {},
@@ -1074,7 +1105,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 38
+        "y": 46
       },
       "hiddenSeries": false,
       "id": 20,
@@ -1169,7 +1200,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 38
+        "y": 46
       },
       "hiddenSeries": false,
       "id": 16,
@@ -1264,7 +1295,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 46
+        "y": 54
       },
       "hiddenSeries": false,
       "id": 18,
@@ -1373,7 +1404,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 46
+        "y": 54
       },
       "hiddenSeries": false,
       "id": 22,
@@ -1466,5 +1497,5 @@
   "timezone": "",
   "title": "Vedran Dashboard",
   "uid": "7tNmHxAGz",
-  "version": 1
+  "version": 4
 }
