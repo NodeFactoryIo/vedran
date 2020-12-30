@@ -14,7 +14,7 @@ func Test_CalculatePayoutDistributionByNode(t *testing.T) {
 		totalReward        float64
 		loadBalancerFee    float64
 		resultDistribution map[string]big.Int
-		feeAddress string
+		feeAddress         string
 	}{
 		{ // this test is set for 10/90 split between liveliness and requests
 			name: "test distribution without different fee address",
@@ -87,12 +87,12 @@ func Test_CalculatePayoutDistributionByNode(t *testing.T) {
 			totalReward:     100000000,
 			loadBalancerFee: 0.1,
 			resultDistribution: map[string]big.Int{
-				"0x1": *big.NewInt(27227393), // 27227393.617021276 // 100P 10R
-				"0x2": *big.NewInt(14571143), // 14571143.617021276 // 100P 5R
-				"0x3": *big.NewInt(27035904), // 27035904.255319147 // 90P  10R
-				"0x4": *big.NewInt(14379654), // 14379654.25531915  // 90P  5R
-				"0x5": *big.NewInt(6019946),  // 6019946.808510638  // 50P  2R
-				"0x6": *big.NewInt(765957),   // 765957.4468085106  // 40P  0R
+				"0x1":   *big.NewInt(27227393), // 27227393.617021276 // 100P 10R
+				"0x2":   *big.NewInt(14571143), // 14571143.617021276 // 100P 5R
+				"0x3":   *big.NewInt(27035904), // 27035904.255319147 // 90P  10R
+				"0x4":   *big.NewInt(14379654), // 14379654.25531915  // 90P  5R
+				"0x5":   *big.NewInt(6019946),  // 6019946.808510638  // 50P  2R
+				"0x6":   *big.NewInt(765957),   // 765957.4468085106  // 40P  0R
 				"0xfee": *big.NewInt(10000000), // 0.1 of entire reward pool
 			},
 			feeAddress: "0xfee",
@@ -103,7 +103,7 @@ func Test_CalculatePayoutDistributionByNode(t *testing.T) {
 			distributionByNode := CalculatePayoutDistributionByNode(
 				test.payoutDetails, test.totalReward, LoadBalancerDistributionConfiguration{
 					FeePercentage:       test.loadBalancerFee,
-					PayoutAddress:          test.feeAddress,
+					PayoutAddress:       test.feeAddress,
 					DifferentFeeAddress: test.feeAddress != "",
 				},
 			)

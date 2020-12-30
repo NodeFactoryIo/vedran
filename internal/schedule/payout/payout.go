@@ -61,12 +61,12 @@ func checkForPayout(
 		log.Infof(
 			"Last payout was %s, next payout will be in %d days",
 			lastPayoutTimestamp.Format("2006-January-02"),
-			configuration.PayoutNumberOfDays - daysSinceLastPayout,
+			configuration.PayoutNumberOfDays-daysSinceLastPayout,
 		)
 	}
 }
 
-func startPayout(privateKey string, configuration configuration.PayoutConfiguration)  {
+func startPayout(privateKey string, configuration configuration.PayoutConfiguration) {
 	log.Info("Starting automatic payout...")
 	transactionDetails, err := script.ExecutePayout(
 		privateKey,

@@ -43,4 +43,3 @@ func (f *feeRepo) GetAllFees() (*[]models.Fee, error) {
 	err := f.db.All(&fees)
 	return &fees, err
 }
-

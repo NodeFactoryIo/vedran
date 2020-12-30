@@ -12,8 +12,8 @@ const (
 )
 
 type LoadBalancerDistributionConfiguration struct {
-	FeePercentage float64
-	PayoutAddress string
+	FeePercentage       float64
+	PayoutAddress       string
 	DifferentFeeAddress bool
 }
 
@@ -49,7 +49,6 @@ func CalculatePayoutDistributionByNode(
 
 	totalDistributedLivelinessRewards := float64(0)
 	totalDistributedRequestsRewards := float64(0)
-
 
 	for nodeAddress, nodeStatsDetails := range payoutDetails {
 		// liveliness rewards

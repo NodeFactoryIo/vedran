@@ -102,7 +102,7 @@ func (c *ApiController) StatisticsHandlerAllStatsForLoadbalancer(w http.Response
 			log.Errorf("Failed to save fee for node %s, because %v", nodeId, err)
 		}
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(LoadbalancerStatsResponse{
 		Stats: statistics,
@@ -180,7 +180,7 @@ type LbStatsResponse struct {
 func (c *ApiController) StatisticsHandlerStatsForLoadBalancer(w http.ResponseWriter, r *http.Request) {
 	statsResponse := LbStatsResponse{
 		LbFee:   strconv.FormatFloat(float64(configuration.Config.Fee), 'f', -1, 32),
-		NodeFee: strconv.FormatFloat(float64(1 - configuration.Config.Fee), 'f', -1, 32),
+		NodeFee: strconv.FormatFloat(float64(1-configuration.Config.Fee), 'f', -1, 32),
 	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(statsResponse)
