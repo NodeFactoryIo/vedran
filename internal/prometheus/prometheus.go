@@ -108,10 +108,10 @@ func RecordMetrics(repos repositories.Repos) {
 	go recordFailedRequestCount(repos.RecordRepo)
 	go recordPayoutDate(repos)
 	go recordLbFeeAmount(repos.PayoutRepo)
-	go recordNodesFees(repos.FeeRepo)
+	go recordNodeFees(repos.FeeRepo)
 }
 
-func recordNodesFees(repos repositories.FeeRepository) {
+func recordNodeFees(repos repositories.FeeRepository) {
 	for {
 		fees, err := repos.GetAllFees()
 		if err != nil {
