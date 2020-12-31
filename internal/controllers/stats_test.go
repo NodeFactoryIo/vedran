@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
 	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	"github.com/NodeFactoryIo/vedran/internal/constants"
+	"github.com/NodeFactoryIo/vedran/internal/middleware"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
@@ -135,7 +137,7 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 				RecordRepo:   &recordRepoMock,
 				DowntimeRepo: &downtimeRepoMock,
 				PayoutRepo:   &payoutRepoMock,
-			}, nil, "")
+			}, nil)
 			handler := http.HandlerFunc(apiController.StatisticsHandlerAllStats)
 			req, _ := http.NewRequest("GET", "/api/v1/stats", bytes.NewReader(nil))
 			rr := httptest.NewRecorder()
@@ -225,7 +227,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			requestContent: `{"total_reward":"1000000"}`,
 			//
 			secret:        "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-			signatureData: StatsSignedData,
+			signatureData: constants.StatsSignedData,
 		},
 		{
 			name:          "missing signature, 400 bad request",
@@ -260,7 +262,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			nodeNumberOfPings:    float64(8640),
 			//
 			secret:        "",
-			signatureData: StatsSignedData,
+			signatureData: constants.StatsSignedData,
 		},
 		{
 			name:          "invalid signature, 400 bad request",
@@ -303,7 +305,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			payoutRepoFindLatestPayoutError: errors.New("db-error"),
 			secret:                          "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 			requestContent:                  `{"total_reward":"1000000"}`,
-			signatureData:                   StatsSignedData,
+			signatureData:                   constants.StatsSignedData,
 		},
 	}
 	configuration.Config.Fee = 0.1
@@ -357,8 +359,12 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 				DowntimeRepo: &downtimeRepoMock,
 				PayoutRepo:   &payoutRepoMock,
 				FeeRepo:      &feeRepoMock,
-			}, nil, test.secret)
-			handler := http.HandlerFunc(apiController.StatisticsHandlerAllStatsForLoadbalancer)
+			}, nil)
+
+			handler := middleware.VerifySignatureMiddleware(
+				http.HandlerFunc(apiController.StatisticsHandlerAllStatsForLoadbalancer),
+				test.secret,
+			)
 
 			req, _ := http.NewRequest("POST", "/api/v1/stats", bytes.NewReader([]byte(test.requestContent)))
 
@@ -486,7 +492,7 @@ func TestApiController_StatisticsHandlerStatsForNode(t *testing.T) {
 				RecordRepo:   &recordRepoMock,
 				DowntimeRepo: &downtimeRepoMock,
 				PayoutRepo:   &payoutRepoMock,
-			}, nil, "")
+			}, nil)
 			type ContextKey string
 			req, _ := http.NewRequest("GET", "/api/v1/stats/node/1", bytes.NewReader(nil))
 			req = req.WithContext(context.WithValue(req.Context(), ContextKey(test.contextKey), "1"))

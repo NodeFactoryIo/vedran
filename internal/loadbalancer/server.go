@@ -93,9 +93,9 @@ func StartLoadBalancerServer(
 	// start server
 	log.Infof("Starting vedran load balancer on port :%d...", props.Port)
 	apiController := controllers.NewApiController(
-		props.WhitelistEnabled, *repos, actions.NewActions(), privateKey,
+		props.WhitelistEnabled, *repos, actions.NewActions(),
 	)
-	r := router.CreateNewApiRouter(apiController)
+	r := router.CreateNewApiRouter(apiController, privateKey)
 	prometheus.RecordMetrics(*repos)
 	if props.CertFile != "" {
 		err = http.ListenAndServeTLS(
