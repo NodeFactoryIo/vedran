@@ -50,6 +50,7 @@ func StartLoadBalancerServer(
 	repos.NodeRepo = repositories.NewNodeRepo(database)
 	repos.DowntimeRepo = repositories.NewDowntimeRepo(database)
 	repos.PayoutRepo = repositories.NewPayoutRepo(database)
+	repos.FeeRepo = repositories.NewFeeRepo(database)
 	err = repos.PingRepo.ResetAllPings()
 	if err != nil {
 		log.Fatalf("Failed reseting pings because of: %v", err)
@@ -92,9 +93,9 @@ func StartLoadBalancerServer(
 	// start server
 	log.Infof("Starting vedran load balancer on port :%d...", props.Port)
 	apiController := controllers.NewApiController(
-		props.WhitelistEnabled, *repos, actions.NewActions(), privateKey,
+		props.WhitelistEnabled, *repos, actions.NewActions(),
 	)
-	r := router.CreateNewApiRouter(apiController)
+	r := router.CreateNewApiRouter(apiController, privateKey)
 	prometheus.RecordMetrics(*repos)
 	if props.CertFile != "" {
 		err = http.ListenAndServeTLS(

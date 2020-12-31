@@ -4,6 +4,7 @@
 [Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.3.1...HEAD)
 
 ### Added
+- Provide LB fee information [#\158](https://github.com/NodeFactoryIo/vedran/pull/158) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Fix
 - Metrics endpoint and grafana dashboard example [#\138](https://github.com/NodeFactoryIo/vedran/pull/138) ([mpetrun5](https://github.com/mpetrun5))

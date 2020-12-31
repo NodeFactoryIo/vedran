@@ -245,7 +245,7 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 				MetricsRepo:  &metricsRepoMock,
 				RecordRepo:   &recordRepoMock,
 				DowntimeRepo: &downtimeRepoMock,
-			}, nil, "")
+			}, nil)
 
 			handler := http.HandlerFunc(apiController.SaveMetricsHandler)
 
