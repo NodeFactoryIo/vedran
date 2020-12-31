@@ -143,7 +143,6 @@ func recordLbFeeAmount(payoutRepo repositories.PayoutRepository) {
 			}
 			totalFeeCollected += p.LbFee
 		}
-		totalFeeCollected = 123430020000
 		totalFee.Set(totalFeeCollected)
 		time.Sleep(12 * time.Hour)
 	}
