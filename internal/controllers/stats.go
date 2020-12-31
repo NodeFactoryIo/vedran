@@ -13,8 +13,6 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/stats"
 
-	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	muxhelpper "github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
@@ -50,19 +48,8 @@ type LoadbalancerStatsRequest struct {
 	TotalReward string `json:"total_reward"`
 }
 
-// handler for `POST /api/v1/stats`
+// handler for `POST /api/v1/stats` - signature verification in middleware
 func (c *ApiController) StatisticsHandlerAllStatsForLoadbalancer(w http.ResponseWriter, r *http.Request) {
-	verified, httpStatusCode, err := verifySignatureInHeader(r, c.privateKey)
-	if err != nil {
-		http.Error(w, http.StatusText(httpStatusCode), httpStatusCode)
-		return
-	}
-	if !verified {
-		log.Errorf("Invalid request signature")
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
-	}
-
 	totalRewardAsFloat, err := getTotalRewardFromRequest(r)
 	if err != nil {
 		log.Error(err)
@@ -108,25 +95,6 @@ func (c *ApiController) StatisticsHandlerAllStatsForLoadbalancer(w http.Response
 		Stats: statistics,
 		Fee:   configuration.Config.Fee,
 	})
-}
-
-func verifySignatureInHeader(r *http.Request, privateKey string) (bool, int, error) {
-	sig := r.Header.Get("X-Signature")
-	if sig == "" {
-		log.Error("Missing signature header")
-		return false, http.StatusBadRequest, nil
-	}
-	sigInBytes, err := hexutil.Decode(sig)
-	if err != nil {
-		log.Errorf("Unable to decode signature, because of: %v", err)
-		return false, http.StatusBadRequest, err
-	}
-	verified, err := signature.Verify([]byte(StatsSignedData), sigInBytes, privateKey)
-	if err != nil {
-		log.Errorf("Failed to verify signature, because %v", err)
-		return false, http.StatusInternalServerError, err
-	}
-	return verified, 0, err
 }
 
 func getTotalRewardFromRequest(r *http.Request) (float64, error) {

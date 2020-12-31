@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/api"
+	"github.com/NodeFactoryIo/vedran/internal/constants"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"net/http"
 	"net/url"
@@ -73,7 +74,7 @@ func ExecutePayout(
 }
 
 func fetchStatsFromEndpoint(endpoint *url.URL, secret string) (*controllers.LoadbalancerStatsResponse, error) {
-	sig, err := signature.Sign([]byte(controllers.StatsSignedData), secret)
+	sig, err := signature.Sign([]byte(constants.StatsSignedData), secret)
 	if err != nil {
 		return nil, err
 	}
