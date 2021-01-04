@@ -3,6 +3,7 @@ package prometheus
 import (
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/stats"
+	"os"
 	"runtime"
 	"strconv"
 	"time"
@@ -19,7 +20,21 @@ import (
 
 const (
 	nextPayoutDateLayout = "Mon, Jan 2 2006."
+
+	FeeStatsIntervalEnv                  = "PROM_FEE_STATS_INTERVAL"
+	DefaultFeeStatsCollectionInterval    = 12 * time.Hour
+	NodeStatsIntervalEnv                 = "PROM_NODE_STATS_INTERVAL"
+	DefaultNodeStatsCollectionInterval   = 15 * time.Second
+	RequestStatsIntervalEnv              = "PROM_REQUEST_STATS_INTERVAL"
+	DefaultRecordStatsCollectionInterval = 15 * time.Second
+	PayoutStatsIntervalEnv               = "PROM_PAYOUT_STATS_INTERVAL"
+	DefaultPayoutStatsCollectionInterval = 1 * time.Minute
 )
+
+var feeStatsCollectionInterval time.Duration
+var nodeStatsCollectionInterval time.Duration
+var requestStatsCollectionInterval time.Duration
+var payoutStatsCollectionInterval time.Duration
 
 var (
 	activeNodes = promauto.NewGauge(prometheus.GaugeOpts{
@@ -101,6 +116,8 @@ func RecordMetrics(repos repositories.Repos) {
 		})
 	fee.Set(float64(configuration.Config.Fee))
 
+	setUpCollectionIntervals()
+
 	go recordPayoutDistribution(repos)
 	go recordActiveNodeCount(repos.NodeRepo)
 	go recordPenalizedNodeCount(repos.NodeRepo)
@@ -122,7 +139,7 @@ func recordNodeFees(repos repositories.FeeRepository) {
 		for _, fee := range *fees {
 			nodeFees.With(prometheus.Labels{"node": fee.NodeId}).Set(float64(fee.TotalFee))
 		}
-		time.Sleep(12 * time.Hour)
+		time.Sleep(feeStatsCollectionInterval)
 	}
 }
 
@@ -144,7 +161,7 @@ func recordLbFeeAmount(payoutRepo repositories.PayoutRepository) {
 			totalFeeCollected += p.LbFee
 		}
 		totalFee.Set(totalFeeCollected)
-		time.Sleep(12 * time.Hour)
+		time.Sleep(feeStatsCollectionInterval)
 	}
 }
 
@@ -176,7 +193,7 @@ func recordPayoutDistribution(repos repositories.Repos) {
 			)
 		}
 
-		time.Sleep(1 * time.Minute)
+		time.Sleep(payoutStatsCollectionInterval)
 	}
 }
 
@@ -188,14 +205,14 @@ func recordPayoutDate(repos repositories.Repos) {
 		} else {
 			payoutDate.With(prometheus.Labels{"date": date.Format(nextPayoutDateLayout)}).Set(1)
 		}
-		time.Sleep(12 * time.Hour)
+		time.Sleep(feeStatsCollectionInterval)
 	}
 }
 
 func recordActiveNodeCount(nodeRepo repositories.NodeRepository) {
 	for {
 		activeNodes.Set(float64(len(*nodeRepo.GetAllActiveNodes())))
-		time.Sleep(15 * time.Second)
+		time.Sleep(nodeStatsCollectionInterval)
 	}
 }
 
@@ -203,7 +220,7 @@ func recordPenalizedNodeCount(nodeRepo repositories.NodeRepository) {
 	for {
 		nodes, _ := nodeRepo.GetPenalizedNodes()
 		penalizedNodes.Set(float64(len(*nodes)))
-		time.Sleep(15 * time.Second)
+		time.Sleep(nodeStatsCollectionInterval)
 	}
 }
 
@@ -211,7 +228,7 @@ func recordSuccessfulRequestCount(recordRepo repositories.RecordRepository) {
 	for {
 		count, _ := recordRepo.CountSuccessfulRequests()
 		successfulRequests.Set(float64(count))
-		time.Sleep(15 * time.Second)
+		time.Sleep(requestStatsCollectionInterval)
 	}
 }
 
@@ -219,6 +236,37 @@ func recordFailedRequestCount(recordRepo repositories.RecordRepository) {
 	for {
 		count, _ := recordRepo.CountFailedRequests()
 		failedRequests.Set(float64(count))
-		time.Sleep(15 * time.Second)
+		time.Sleep(requestStatsCollectionInterval)
+	}
+}
+
+func setUpCollectionIntervals() {
+	fsi := os.Getenv(FeeStatsIntervalEnv)
+	if fsi != "" {
+		feeStatsCollectionInterval, _ = time.ParseDuration(fsi)
+	}
+	if feeStatsCollectionInterval == 0 {
+		feeStatsCollectionInterval = DefaultFeeStatsCollectionInterval
+	}
+	nsi := os.Getenv(NodeStatsIntervalEnv)
+	if nsi != "" {
+		nodeStatsCollectionInterval, _ = time.ParseDuration(nsi)
+	}
+	if nodeStatsCollectionInterval == 0 {
+		nodeStatsCollectionInterval = DefaultNodeStatsCollectionInterval
+	}
+	rsi := os.Getenv(RequestStatsIntervalEnv)
+	if rsi != "" {
+		requestStatsCollectionInterval, _ = time.ParseDuration(rsi)
+	}
+	if requestStatsCollectionInterval == 0 {
+		requestStatsCollectionInterval = DefaultRecordStatsCollectionInterval
+	}
+	psi := os.Getenv(PayoutStatsIntervalEnv)
+	if psi != "" {
+		payoutStatsCollectionInterval, _ = time.ParseDuration(psi)
+	}
+	if payoutStatsCollectionInterval == 0 {
+		payoutStatsCollectionInterval = DefaultPayoutStatsCollectionInterval
 	}
 }
