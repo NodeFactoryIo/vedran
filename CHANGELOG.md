@@ -1,11 +1,12 @@
 # Changelog
 
-## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
-[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.4.0...HEAD)
+## [v0.4.1]((https://github.com/NodeFactoryIo/vedran/tree/v0.4.1))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.4.0...v0.4.1)
 
 ### Added
 
 ### Fix
+- Fix manual payout #165 [#\165](https://github.com/NodeFactoryIo/vedran/pull/165) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Changed
 

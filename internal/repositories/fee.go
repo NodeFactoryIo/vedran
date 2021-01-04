@@ -25,7 +25,7 @@ func (f *feeRepo) RecordNewFee(nodeID string, newFee int64) error {
 	err := f.db.One("NodeId", nodeID, feeInDb)
 	if err != nil {
 		if err.Error() == "not found" {
-			err = f.db.Save(models.Fee{
+			err = f.db.Save(&models.Fee{
 				NodeId:   nodeID,
 				TotalFee: newFee,
 			})

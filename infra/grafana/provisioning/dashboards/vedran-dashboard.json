@@ -143,7 +143,7 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 12,
+        "w": 6,
         "x": 12,
         "y": 1
       },
@@ -157,7 +157,7 @@
           "calcs": [
             "mean"
           ],
-          "fields": "",
+          "fields": "/^\\{code=\"200\", handler=\"/\", instance=\"vedran:4000\", job=\"prometheus\", method=\"POST\"\\}$/",
           "values": false
         },
         "textMode": "auto"
@@ -173,7 +173,64 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Requests Per Second",
+      "title": "Requests Per Second (HTTP)",
+      "type": "stat"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "id": 43,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "/^\\{code=\"200\", handler=\"/ws\", instance=\"vedran:4000\", job=\"prometheus\", method=\"GET\"\\}$/",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.3.6",
+      "targets": [
+        {
+          "expr": "rate(http_request_duration_seconds_count[5m])",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Requests Per Second (WS)",
       "type": "stat"
     },
     {
@@ -1497,5 +1554,5 @@
   "timezone": "",
   "title": "Vedran Dashboard",
   "uid": "7tNmHxAGz",
-  "version": 4
+  "version": 1
 }
