@@ -1,6 +1,7 @@
 package script
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/api"
@@ -51,7 +52,9 @@ func ExecutePayout(
 
 	log.Infof("Total reward: %s", strconv.FormatFloat(totalReward, 'f', 0, 64))
 
-	response, err := fetchStatsFromEndpoint(statsEndpoint(loadbalancerUrl), privateKey)
+	response, err := fetchStatsFromEndpoint(
+		statsEndpoint(loadbalancerUrl), privateKey, fmt.Sprintf("%f", totalReward),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("unable to fetch stats from loadbalancer, %v", err)
 	}
@@ -73,13 +76,16 @@ func ExecutePayout(
 	)
 }
 
-func fetchStatsFromEndpoint(endpoint *url.URL, secret string) (*controllers.LoadbalancerStatsResponse, error) {
+func fetchStatsFromEndpoint(endpoint *url.URL, secret string, totalReward string) (*controllers.LoadbalancerStatsResponse, error) {
 	sig, err := signature.Sign([]byte(constants.StatsSignedData), secret)
 	if err != nil {
 		return nil, err
 	}
 
-	request, _ := http.NewRequest("POST", endpoint.String(), nil)
+	payloadBuf := new(bytes.Buffer)
+	_ = json.NewEncoder(payloadBuf).Encode(controllers.LoadbalancerStatsRequest{TotalReward: totalReward})
+
+	request, _ := http.NewRequest("POST", endpoint.String(), payloadBuf)
 	request.Header.Set("X-Signature", hexutil.Encode(sig))
 
 	c := &http.Client{}
