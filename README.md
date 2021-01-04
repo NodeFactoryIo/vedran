@@ -47,7 +47,7 @@ Load balancer in this setup runs payout daily, if you don't want to wait,
 you can run following command which will create an additional container (in compose network) and trigger payout from Allice account:
 
 ```
-docker run --network vedran_default nodefactory/vedran:v0.4.2 payout --private-key 0xe5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a --payout-reward 100 --load-balancer-url "http://vedran:4000/ws"
+docker run --network vedran_default nodefactory/vedran:latest payout --private-key 0xe5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a --payout-reward 100 --load-balancer-url "http://vedran:4000/ws"
 ```
 
 ## Get **vedran** binary releases
