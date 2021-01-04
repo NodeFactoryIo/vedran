@@ -39,6 +39,9 @@ services:
       - '--storage.tsdb.retention=20d'
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
+    logging:
+      driver:
+          none
     ports:
       - 9090:9090
 
@@ -51,6 +54,9 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
     ports:
       - 3000:3000
+    logging:
+      driver:
+          none
     user: "104"
 
 volumes:
