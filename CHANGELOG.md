@@ -1,7 +1,16 @@
 # Changelog
 
 ## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
-[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.3.1...HEAD)
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.4.0...HEAD)
+
+### Added
+
+### Fix
+
+### Changed
+
+## [v0.4.0]((https://github.com/NodeFactoryIo/vedran/tree/v0.4.0))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.3.1...v0.4.0)
 
 ### Added
 - Provide LB fee information [#\158](https://github.com/NodeFactoryIo/vedran/pull/158) ([MakMuftic](https://github.com/MakMuftic))
