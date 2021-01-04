@@ -200,6 +200,8 @@ Monitoring is done via grafana and prometheus which are expected to be installed
 It is possible to change default calculation intervals for specific statistic categories. These intervals define how
 often will these statistics be recalculated.
 
+Valid values are time intervals such as "5s", "1.5h" or "2h45m". Valid time units are "ms", "s", "m", "h"
+
 | ENV | Description | Default value |
 |----|-----------|:--------:|
 |`PROM_FEE_STATS_INTERVAL`|payout fees for nodes and load balancer|12 hours|
