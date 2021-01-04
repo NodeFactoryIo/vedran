@@ -17,9 +17,7 @@ services:
 
   vedran:
     command: start --auth-secret=test-secret --log-level debug --public-ip vedran --server-port 4000  --private-key ${VEDRAN_LB_PK:-0xe5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a} --payout-interval 1 --payout-reward ${VEDRAN_LB_REWARD_POOL:-10}
-    #image: nodefactory/vedran:v0.4.0
-    build:
-      context: .
+    image: nodefactory/vedran:v0.4.0
     ports:
       - "4000:4000"
     container_name: "vedran"
