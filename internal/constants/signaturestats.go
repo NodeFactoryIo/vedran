@@ -1,3 +1,3 @@
-package controllers
+package constants
 
 const StatsSignedData = "loadbalancer-request"

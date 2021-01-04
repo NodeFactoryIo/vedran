@@ -146,7 +146,7 @@ func TestApiController_RegisterHandler(t *testing.T) {
 				MetricsRepo:  &metricsRepoMock,
 				RecordRepo:   &recordRepoMock,
 				DowntimeRepo: &downtimeRepoMock,
-			}, nil, "")
+			}, nil)
 
 			handler := http.HandlerFunc(apiController.RegisterHandler)
 

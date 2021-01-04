@@ -7,6 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
+	"github.com/NodeFactoryIo/vedran/internal/configuration"
+	"github.com/NodeFactoryIo/vedran/internal/constants"
+	"github.com/NodeFactoryIo/vedran/internal/middleware"
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	mocks "github.com/NodeFactoryIo/vedran/mocks/repositories"
@@ -134,7 +137,7 @@ func TestApiController_StatisticsHandlerAllStats(t *testing.T) {
 				RecordRepo:   &recordRepoMock,
 				DowntimeRepo: &downtimeRepoMock,
 				PayoutRepo:   &payoutRepoMock,
-			}, nil, "")
+			}, nil)
 			handler := http.HandlerFunc(apiController.StatisticsHandlerAllStats)
 			req, _ := http.NewRequest("GET", "/api/v1/stats", bytes.NewReader(nil))
 			rr := httptest.NewRecorder()
@@ -184,6 +187,8 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 		nodeNumberOfPings    float64
 		nodeNumberOfRequests float64
 		//
+		requestContent string
+		//
 		secret        string
 		signatureData string
 	}{
@@ -219,8 +224,10 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			nodeNumberOfRequests: float64(0),
 			nodeNumberOfPings:    float64(8640),
 			//
+			requestContent: `{"total_reward":"1000000"}`,
+			//
 			secret:        "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-			signatureData: StatsSignedData,
+			signatureData: constants.StatsSignedData,
 		},
 		{
 			name:          "missing signature, 400 bad request",
@@ -255,7 +262,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			nodeNumberOfPings:    float64(8640),
 			//
 			secret:        "",
-			signatureData: StatsSignedData,
+			signatureData: constants.StatsSignedData,
 		},
 		{
 			name:          "invalid signature, 400 bad request",
@@ -297,9 +304,11 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			httpStatus:                      http.StatusInternalServerError,
 			payoutRepoFindLatestPayoutError: errors.New("db-error"),
 			secret:                          "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-			signatureData:                   StatsSignedData,
+			requestContent:                  `{"total_reward":"1000000"}`,
+			signatureData:                   constants.StatsSignedData,
 		},
 	}
+	configuration.Config.Fee = 0.1
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			// create mock controller
@@ -340,6 +349,8 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 				test.payoutRepoFindLatestPayoutError,
 			)
 			payoutRepoMock.On("Save", mock.Anything).Return(nil)
+			feeRepoMock := mocks.FeeRepository{}
+			feeRepoMock.On("RecordNewFee", "0xtest-address", mock.Anything).Return(nil)
 			apiController := NewApiController(false, repositories.Repos{
 				NodeRepo:     &nodeRepoMock,
 				PingRepo:     &pingRepoMock,
@@ -347,10 +358,15 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 				RecordRepo:   &recordRepoMock,
 				DowntimeRepo: &downtimeRepoMock,
 				PayoutRepo:   &payoutRepoMock,
-			}, nil, test.secret)
-			handler := http.HandlerFunc(apiController.StatisticsHandlerAllStatsForLoadbalancer)
+				FeeRepo:      &feeRepoMock,
+			}, nil)
 
-			req, _ := http.NewRequest("POST", "/api/v1/stats", nil)
+			handler := middleware.VerifySignatureMiddleware(
+				http.HandlerFunc(apiController.StatisticsHandlerAllStatsForLoadbalancer),
+				test.secret,
+			)
+
+			req, _ := http.NewRequest("POST", "/api/v1/stats", bytes.NewReader([]byte(test.requestContent)))
 
 			if test.secret != "" {
 				sig, _ := signature.Sign([]byte(test.signatureData), test.secret)
@@ -373,6 +389,7 @@ func TestApiController_StatisticsHandlerAllStatsForLoadbalancer(t *testing.T) {
 			}
 		})
 	}
+	configuration.Config.Fee = 0
 }
 
 func TestApiController_StatisticsHandlerStatsForNode(t *testing.T) {
@@ -475,7 +492,7 @@ func TestApiController_StatisticsHandlerStatsForNode(t *testing.T) {
 				RecordRepo:   &recordRepoMock,
 				DowntimeRepo: &downtimeRepoMock,
 				PayoutRepo:   &payoutRepoMock,
-			}, nil, "")
+			}, nil)
 			type ContextKey string
 			req, _ := http.NewRequest("GET", "/api/v1/stats/node/1", bytes.NewReader(nil))
 			req = req.WithContext(context.WithValue(req.Context(), ContextKey(test.contextKey), "1"))

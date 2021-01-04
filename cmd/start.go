@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	schedulepayout "github.com/NodeFactoryIo/vedran/internal/schedule/payout"
 	"net/url"
 	"strconv"
 	"strings"
@@ -281,10 +280,10 @@ func startCommand(_ *cobra.Command, _ []string) {
 	}
 	log.Debugf("Whitelisting set to: %t", whitelistEnabled)
 
-	var payoutConfiguration *schedulepayout.PayoutConfiguration
+	var payoutConfiguration *configuration.PayoutConfiguration
 	if !autoPayoutDisabled {
 		lbUrl, _ := url.Parse("http://" + publicIP + ":" + string(serverPort))
-		payoutConfiguration = &schedulepayout.PayoutConfiguration{
+		payoutConfiguration = &configuration.PayoutConfiguration{
 			PayoutNumberOfDays: int(payoutNumberOfDays),
 			PayoutTotalReward:  payoutTotalRewardAsFloat64,
 			LbFeeAddress:       payoutFeeAddress,
@@ -306,8 +305,8 @@ func startCommand(_ *cobra.Command, _ []string) {
 			TunnelServerAddress: tunnelServerAddress,
 			PortPool:            pPool,
 			WhitelistEnabled:    whitelistEnabled,
+			PayoutConfiguration: payoutConfiguration,
 		},
-		payoutConfiguration,
 		payoutPrivateKey,
 	)
 }

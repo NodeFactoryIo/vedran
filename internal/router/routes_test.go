@@ -25,7 +25,6 @@ func TestApiRouter(t *testing.T) {
 			RecordRepo:  &recordRepoMock,
 		},
 		nil,
-		"",
 	)
 
 	tests := []struct {
@@ -39,7 +38,7 @@ func TestApiRouter(t *testing.T) {
 	}
 
 	router := mux.NewRouter()
-	createRoutes(apiController, router)
+	createRoutes(apiController, router, "")
 
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("%s::%s", test.name, test.url), func(t *testing.T) {

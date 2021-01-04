@@ -1,10 +1,28 @@
 # Changelog
 
 ## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.4.0...HEAD)
 
-[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.3.1...HEAD)
+### Added
+
+### Fix
+
+### Changed
+
+## [v0.4.0]((https://github.com/NodeFactoryIo/vedran/tree/v0.4.0))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.3.1...v0.4.0)
+
+### Added
+- Provide LB fee information [#\158](https://github.com/NodeFactoryIo/vedran/pull/158) ([MakMuftic](https://github.com/MakMuftic))
+
+### Fix
+- Metrics endpoint and grafana dashboard example [#\138](https://github.com/NodeFactoryIo/vedran/pull/138) ([mpetrun5](https://github.com/mpetrun5))
+- Fix next payout date prometheus value [#\161](https://github.com/NodeFactoryIo/vedran/pull/161) ([mpetrun5](https://github.com/mpetrun5))
+
+### Changed
 
 ## [v0.3.1]((https://github.com/NodeFactoryIo/vedran/tree/v0.3.1))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.3.0...v0.3.1)
 
 ### Added
 
@@ -13,7 +31,6 @@
 
 ### Changed
 
-[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.3.0...HEAD)
 ## [v0.3.0]((https://github.com/NodeFactoryIo/vedran/tree/v0.3.0))
 
 [Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.2.0...v0.3.0)
@@ -29,6 +46,7 @@
 - Execute payout transactions [\#127](https://github.com/NodeFactoryIo/vedran/pull/127) ([MakMuftic](https://github.com/MakMuftic))
 - Sign stats request [\#143](https://github.com/NodeFactoryIo/vedran/pull/143) ([MakMuftic](https://github.com/MakMuftic))
 - Send all funds on payout [\#153](https://github.com/NodeFactoryIo/vedran/pull/153) ([MakMuftic](https://github.com/MakMuftic))
+- Metrics endpoint and grafana dashboard example [#\138](https://github.com/NodeFactoryIo/vedran/pull/138) ([mpetrun5](https://github.com/mpetrun5))
 
 ### Fix
 - Fix payout [\#148](https://github.com/NodeFactoryIo/vedran/pull/148) ([MakMuftic](https://github.com/MakMuftic))

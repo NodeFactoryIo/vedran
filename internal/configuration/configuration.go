@@ -1,6 +1,17 @@
 package configuration
 
-import "github.com/NodeFactoryIo/vedran/pkg/http-tunnel/server"
+import (
+	"net/url"
+
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/server"
+)
+
+type PayoutConfiguration struct {
+	PayoutNumberOfDays int
+	PayoutTotalReward  float64
+	LbFeeAddress       string
+	LbURL              *url.URL
+}
 
 type Configuration struct {
 	AuthSecret          string
@@ -14,6 +25,7 @@ type Configuration struct {
 	Port                int32
 	PortPool            server.Pooler
 	TunnelServerAddress string
+	PayoutConfiguration *PayoutConfiguration
 }
 
 var Config Configuration
