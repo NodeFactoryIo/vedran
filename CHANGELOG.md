@@ -1,12 +1,22 @@
 # Changelog
 
-## [v0.4.1]((https://github.com/NodeFactoryIo/vedran/tree/v0.4.1))
-[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.4.0...v0.4.1)
+## [v0.4.2]((https://github.com/NodeFactoryIo/vedran/tree/v0.4.2))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.4.1...v0.4.2\)
 
 ### Added
 
 ### Fix
-- Fix manual payout #165 [#\165](https://github.com/NodeFactoryIo/vedran/pull/165) ([MakMuftic](https://github.com/MakMuftic))
+
+### Changed
+- Custom stats collecting intervals [\#168](https://github.com/NodeFactoryIo/vedran/pull/168) ([MakMuftic](https://github.com/MakMuftic))
+
+## [v0.4.1]((https://github.com/NodeFactoryIo/vedran/tree/v0.4.1))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.4.0...v0.4.1\)
+
+### Added
+
+### Fix
+- Fix manual payout [\#165](https://github.com/NodeFactoryIo/vedran/pull/165) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Changed
 
@@ -14,11 +24,11 @@
 [Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.3.1...v0.4.0)
 
 ### Added
-- Provide LB fee information [#\158](https://github.com/NodeFactoryIo/vedran/pull/158) ([MakMuftic](https://github.com/MakMuftic))
+- Provide LB fee information [\#158](https://github.com/NodeFactoryIo/vedran/pull/158) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Fix
-- Metrics endpoint and grafana dashboard example [#\138](https://github.com/NodeFactoryIo/vedran/pull/138) ([mpetrun5](https://github.com/mpetrun5))
-- Fix next payout date prometheus value [#\161](https://github.com/NodeFactoryIo/vedran/pull/161) ([mpetrun5](https://github.com/mpetrun5))
+- Metrics endpoint and grafana dashboard example [\#138](https://github.com/NodeFactoryIo/vedran/pull/138) ([mpetrun5](https://github.com/mpetrun5))
+- Fix next payout date prometheus value [\#161](https://github.com/NodeFactoryIo/vedran/pull/161) ([mpetrun5](https://github.com/mpetrun5))
 
 ### Changed
 
