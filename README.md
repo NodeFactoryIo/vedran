@@ -36,7 +36,8 @@ This demo starts five separate dockerized components:
 - _Vedran daemon_ ([repository](https://github.com/NodeFactoryIo/vedran-daemon))
 - _Vedran loadbalancer_ (port: 4000)
 - _Prometheus server_ (port: 9090) - scrapes metrics from vedran's `/metrics` endpoint
-- _Grafana_ (port: 3000) - Visualizes metrics
+- _Grafana_ (port: 3000) - Visualizes metrics [Example dashboard](http://localhost:3000/d/7tNmHxAGz/vedran-dashboard?orgId=1&refresh=5s)
+
 
 ### Trigger Manual Payout
 
