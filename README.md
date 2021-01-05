@@ -41,13 +41,13 @@ This demo starts five separate dockerized components:
 
 ### Trigger Manual Payout
 
-Our compose setup runs dev chain and our load balancer uses Allice account to do payout
+Our compose setup runs dev chain, and our load balancer uses Allice account to do payout, 
 so you don't have to obtain dev DOTs. Polkadot node operator is Bob (he received payout from Allice).
-Load balancer in this setup runs payout daily, if you don't wan't to wait,
-you can run following command which will create additional container (in compose network) and trigger payout from Allice account:
+Load balancer in this setup runs payout daily, if you don't want to wait,
+you can run following command which will create an additional container (in compose network) and trigger payout from Allice account:
 
 ```
-docker run --network vedran_default nodefactory/vedran:v0.3.0 payout --private-key 0xe5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a --payout-reward 100 --load-balancer-url "http://vedran:4000/ws"
+docker run --network vedran_default nodefactory/vedran:latest payout --private-key 0xe5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a --payout-reward 100 --load-balancer-url "http://vedran:4000/ws"
 ```
 
 ## Get **vedran** binary releases
@@ -194,6 +194,20 @@ Monitoring is done via grafana and prometheus which are expected to be installed
 -  ### Prometheus
     Prometheus should be configured to scrape metrics from vedran's `/metrics` endpoint
     via prometheus .yml configuration. Example of which can be found [here](./infra/prometheus/prometheus.yml)
+   
+### Stats collection intervals
+
+It is possible to change default calculation intervals for specific statistic categories. These intervals define how
+often will these statistics be recalculated.
+
+Valid values are time intervals such as "5s", "1.5h" or "2h45m". Valid time units are "ms", "s", "m", "h"
+
+| ENV | Description | Default value |
+|----|-----------|:--------:|
+|`PROM_FEE_STATS_INTERVAL`|payout fees for nodes and load balancer|12 hours|
+|`PROM_NODE_STATS_INTERVAL`|active and penalized nodes|15 seconds|
+|`PROM_REQUEST_STATS_INTERVAL`|successful and failed requests|15 seconds|
+|`PROM_PAYOUT_STATS_INTERVAL`|payout distribution|1 minute|
 
 
 ## Vedran loadbalancer API
