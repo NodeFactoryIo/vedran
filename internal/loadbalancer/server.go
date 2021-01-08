@@ -3,6 +3,7 @@ package loadbalancer
 import (
 	"fmt"
 	"net/http"
+	"path"
 	"time"
 
 	"github.com/NodeFactoryIo/vedran/internal/actions"
@@ -35,7 +36,7 @@ func StartLoadBalancerServer(
 	}
 
 	// init database
-	database, err := storm.Open(props.DatabasePath)
+	database, err := storm.Open(path.Join(props.RootDir, "vedran-load-balancer.db"))
 	if err != nil {
 		// terminate app: unable to start database connection
 		log.Fatalf("Unable to start vedran load balancer: %v", err)

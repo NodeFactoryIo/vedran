@@ -26,7 +26,7 @@ type Configuration struct {
 	PortPool            server.Pooler
 	TunnelServerAddress string
 	PayoutConfiguration *PayoutConfiguration
-	DatabasePath        string
+	RootDir             string
 }
 
 var Config Configuration
