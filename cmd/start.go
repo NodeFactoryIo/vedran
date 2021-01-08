@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 
@@ -56,11 +57,25 @@ var startCmd = &cobra.Command{
 	Short: "Starts vedran load balancer",
 	Run:   startCommand,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
+		DisplayBanner()
+		// create root dir
+		if _, err := os.Stat(rootDir); os.IsNotExist(err) {
+			err = os.Mkdir(rootDir, 0700)
+			if err != nil {
+				log.Fatal("Unable to create root dir ", err)
+			}
+		}
+		// setup logger
 		level, err := log.ParseLevel(logLevel)
 		if err != nil {
 			log.Fatalf("Invalid log level %s", logLevel)
 		}
-		err = logger.SetupLogger(level, logFile)
+		logFilePath := ""
+		if rootDir != "" && logFile != "" {
+			logFilePath = path.Join(rootDir, logFile)
+			fmt.Printf("Log file set to: %s", logFilePath)
+		}
+		err = logger.SetupLogger(level, logFilePath)
 		if err != nil {
 			return err
 		}
@@ -259,8 +274,6 @@ func init() {
 }
 
 func startCommand(_ *cobra.Command, _ []string) {
-	DisplayBanner()
-
 	// creating address pool
 	pPool := &server.AddrPool{}
 	err := pPool.Init(tunnelPortRange)
@@ -296,14 +309,6 @@ func startCommand(_ *cobra.Command, _ []string) {
 			PayoutTotalReward:  payoutTotalRewardAsFloat64,
 			LbFeeAddress:       payoutFeeAddress,
 			LbURL:              lbUrl,
-		}
-	}
-
-	// create root dir
-	if _, err := os.Stat(rootDir); os.IsNotExist(err) {
-		err = os.Mkdir(rootDir, 0700)
-		if err != nil {
-			log.Fatal("Unable to create root dir ", err)
 		}
 	}
 
