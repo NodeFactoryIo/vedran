@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 
@@ -250,7 +251,7 @@ func init() {
 		&rootDir,
 		"root-dir",
 		"",
-		"[OPTIONAL] Root directory for all generated files (e.g. database file)")
+		"[OPTIONAL] Root directory for all generated files (e.g. database file).")
 
 	_ = startCmd.MarkFlagRequired("private-key")
 
@@ -295,6 +296,14 @@ func startCommand(_ *cobra.Command, _ []string) {
 			PayoutTotalReward:  payoutTotalRewardAsFloat64,
 			LbFeeAddress:       payoutFeeAddress,
 			LbURL:              lbUrl,
+		}
+	}
+
+	// create root dir
+	if _, err := os.Stat(rootDir); os.IsNotExist(err) {
+		err = os.Mkdir(rootDir, 0700)
+		if err != nil {
+			log.Fatal("Unable to create root dir ", err)
 		}
 	}
 
