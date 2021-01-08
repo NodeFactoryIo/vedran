@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
+	"path"
 	"strconv"
 	"strings"
 
@@ -34,6 +36,7 @@ var (
 	selection      string
 	serverPort     int32
 	publicIP       string
+	rootDir        string
 	// payout related flags
 	payoutFeeAddress           string
 	payoutPrivateKey           string
@@ -54,11 +57,25 @@ var startCmd = &cobra.Command{
 	Short: "Starts vedran load balancer",
 	Run:   startCommand,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
+		DisplayBanner()
+		// create root dir
+		if _, err := os.Stat(rootDir); os.IsNotExist(err) {
+			err = os.Mkdir(rootDir, 0700)
+			if err != nil {
+				log.Fatal("Unable to create root dir ", err)
+			}
+		}
+		// setup logger
 		level, err := log.ParseLevel(logLevel)
 		if err != nil {
 			log.Fatalf("Invalid log level %s", logLevel)
 		}
-		err = logger.SetupLogger(level, logFile)
+		logFilePath := ""
+		if rootDir != "" && logFile != "" {
+			logFilePath = path.Join(rootDir, logFile)
+			fmt.Printf("Log file set to: %s", logFilePath)
+		}
+		err = logger.SetupLogger(level, logFilePath)
 		if err != nil {
 			return err
 		}
@@ -245,14 +262,18 @@ func init() {
 		0,
 		"[OPTIONAL] Payout interval in days, meaning each X days automatic payout will be executed")
 
+	startCmd.Flags().StringVar(
+		&rootDir,
+		"root-dir",
+		"",
+		"[OPTIONAL] Root directory for all generated files (e.g. database file, log file)")
+
 	_ = startCmd.MarkFlagRequired("private-key")
 
 	RootCmd.AddCommand(startCmd)
 }
 
 func startCommand(_ *cobra.Command, _ []string) {
-	DisplayBanner()
-
 	// creating address pool
 	pPool := &server.AddrPool{}
 	err := pPool.Init(tunnelPortRange)
@@ -306,6 +327,7 @@ func startCommand(_ *cobra.Command, _ []string) {
 			PortPool:            pPool,
 			WhitelistEnabled:    whitelistEnabled,
 			PayoutConfiguration: payoutConfiguration,
+			RootDir:             rootDir,
 		},
 		payoutPrivateKey,
 	)

@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.4.3]((https://github.com/NodeFactoryIo/vedran/tree/v0.4.3))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.4.2...v0.4.3\)
+
+### Added
+- Add CLI flag for root dir [\#172](https://github.com/NodeFactoryIo/vedran/pull/172) ([MakMuftic](https://github.com/MakMuftic))
+
+### Fix
+
+### Changed
+
 ## [v0.4.2]((https://github.com/NodeFactoryIo/vedran/tree/v0.4.2))
 [Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.4.1...v0.4.2\)
 
