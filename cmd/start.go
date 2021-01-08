@@ -266,7 +266,7 @@ func init() {
 		&rootDir,
 		"root-dir",
 		"",
-		"[OPTIONAL] Root directory for all generated files (e.g. database file).")
+		"[OPTIONAL] Root directory for all generated files (e.g. database file, log file)")
 
 	_ = startCmd.MarkFlagRequired("private-key")
 
