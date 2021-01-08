@@ -35,7 +35,7 @@ func StartLoadBalancerServer(
 	}
 
 	// init database
-	database, err := storm.Open("vedran-load-balancer.db")
+	database, err := storm.Open(props.DatabasePath)
 	if err != nil {
 		// terminate app: unable to start database connection
 		log.Fatalf("Unable to start vedran load balancer: %v", err)

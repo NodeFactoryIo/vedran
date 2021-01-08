@@ -34,6 +34,7 @@ var (
 	selection      string
 	serverPort     int32
 	publicIP       string
+	dbPath         string
 	// payout related flags
 	payoutFeeAddress           string
 	payoutPrivateKey           string
@@ -245,6 +246,12 @@ func init() {
 		0,
 		"[OPTIONAL] Payout interval in days, meaning each X days automatic payout will be executed")
 
+	startCmd.Flags().StringVar(
+		&dbPath,
+		"db-path",
+		"vedran-load-balancer.db",
+		"[OPTIONAL] Path to db file")
+
 	_ = startCmd.MarkFlagRequired("private-key")
 
 	RootCmd.AddCommand(startCmd)
@@ -306,6 +313,7 @@ func startCommand(_ *cobra.Command, _ []string) {
 			PortPool:            pPool,
 			WhitelistEnabled:    whitelistEnabled,
 			PayoutConfiguration: payoutConfiguration,
+			DatabasePath:        dbPath,
 		},
 		payoutPrivateKey,
 	)
