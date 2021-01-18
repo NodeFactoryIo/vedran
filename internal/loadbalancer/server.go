@@ -1,6 +1,7 @@
 package loadbalancer
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"path"
@@ -99,12 +100,19 @@ func StartLoadBalancerServer(
 	r := router.CreateNewApiRouter(apiController, privateKey)
 	prometheus.RecordMetrics(*repos)
 	if props.CertFile != "" {
-		err = http.ListenAndServeTLS(
-			fmt.Sprintf(":%d", props.Port),
-			props.CertFile,
-			props.KeyFile,
-			handlers.CORS()(r),
-		)
+		tlsConfig := &tls.Config{MinVersion: tls.VersionTLS10}
+		server := &http.Server{
+			Addr:      fmt.Sprintf(":%d", props.Port),
+			Handler:   handlers.CORS()(r),
+			TLSConfig: tlsConfig,
+		}
+		err = server.ListenAndServeTLS(props.CertFile, props.KeyFile)
+		//err = http.ListenAndServeTLS(
+		//	fmt.Sprintf(":%d", props.Port),
+		//	props.CertFile,
+		//	props.KeyFile,
+		//	handlers.CORS()(r),
+		//)
 	} else {
 		err = http.ListenAndServe(fmt.Sprintf(":%d", props.Port), handlers.CORS()(r))
 	}
