@@ -1,5 +1,15 @@
 # Changelog
 
+## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.4.2...HEAD)
+
+### Added
+
+### Fix
+- Fix min TLS version [\#175](https://github.com/NodeFactoryIo/vedran/pull/175) ([MakMuftic](https://github.com/MakMuftic))
+
+### Changed
+
 ## [v0.4.3]((https://github.com/NodeFactoryIo/vedran/tree/v0.4.3))
 [Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.4.2...v0.4.3\)
 
