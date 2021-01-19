@@ -1,9 +1,9 @@
 package payout
 
 import (
-	gsrpc "github.com/NodeFactoryIo/go-substrate-rpc-client"
-	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
-	"github.com/NodeFactoryIo/go-substrate-rpc-client/types"
+	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v2"
+	"github.com/centrifuge/go-substrate-rpc-client/v2/signature"
+	"github.com/centrifuge/go-substrate-rpc-client/v2/types"
 	"github.com/pkg/errors"
 	"math/big"
 	"sync"
