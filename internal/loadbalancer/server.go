@@ -107,12 +107,6 @@ func StartLoadBalancerServer(
 			TLSConfig: tlsConfig,
 		}
 		err = server.ListenAndServeTLS(props.CertFile, props.KeyFile)
-		//err = http.ListenAndServeTLS(
-		//	fmt.Sprintf(":%d", props.Port),
-		//	props.CertFile,
-		//	props.KeyFile,
-		//	handlers.CORS()(r),
-		//)
 	} else {
 		err = http.ListenAndServe(fmt.Sprintf(":%d", props.Port), handlers.CORS()(r))
 	}
