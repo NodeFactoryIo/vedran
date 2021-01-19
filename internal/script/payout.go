@@ -36,7 +36,9 @@ func ExecutePayout(
 		return nil, fmt.Errorf("unable to fetch latest metadata, because of %v", err)
 	}
 
-	keyringPair, err := signature.KeyringPairFromSecret(privateKey, 1) // TODO
+	// Use wildcard 42 - Generic Substrate wildcard
+	// https://github.com/paritytech/substrate/wiki/External-Address-Format-(SS58)#address-type
+	keyringPair, err := signature.KeyringPairFromSecret(privateKey, 42)
 	if err != nil {
 		return nil, fmt.Errorf("invalid private key, %v", err)
 	}
