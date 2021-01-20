@@ -194,6 +194,48 @@ func TestApiController_SaveMetricsHandler(t *testing.T) {
 			metricsRepoSaveNumOfCalls: 1,
 		},
 		{
+			name: "Valid metrics save request and node should not be added to active nodes as node is not synced",
+			metricsRequest: MetricsRequest{
+				PeerCount:             0,
+				BestBlockHeight:       1000,
+				FinalizedBlockHeight:  995,
+				TargetBlockHeight:     1400,
+				ReadyTransactionCount: 0,
+			},
+			nodeId:     "1",
+			httpStatus: http.StatusOK,
+			// NodeRepo.FindByID
+			nodeRepoIsNodeOnCooldownReturns: false,
+			nodeRepoIsNodeOnCooldownError:   nil,
+			nodeRepoIsNodeOnNumOfCalls:      1,
+			// NodeRepo.AddNodeToActive
+			nodeRepoAddNodeToActiveError:      nil,
+			nodeRepoAddNodeToActiveNumOfCalls: 0,
+			// NodeRepo.IsNodeActive
+			nodeRepoIsNodeActiveReturn: false,
+			// MetricsRepo.FindByID
+			metricsRepoFindByIDReturn: &models.Metrics{
+				NodeId:                "1",
+				PeerCount:             0,
+				BestBlockHeight:       1000,
+				FinalizedBlockHeight:  995,
+				TargetBlockHeight:     1400,
+				ReadyTransactionCount: 0,
+			},
+			metricsRepoFindByIDError:      nil,
+			metricsRepoFindByIDNumOfCalls: 1,
+			// MetricsRepo.GetLatestBlockMetrics
+			metricsRepoGetLatestBlockMetricsReturn: &models.LatestBlockMetrics{
+				BestBlockHeight:      1000,
+				FinalizedBlockHeight: 999,
+			},
+			metricsRepoGetLatestBlockMetricsError:      nil,
+			metricsRepoGetLatestBlockMetricsNumOfCalls: 0,
+			// MetricsRepo.Save
+			metricsRepoSaveError:      nil,
+			metricsRepoSaveNumOfCalls: 1,
+		},
+		{
 			name:           "Invalid metrics save request",
 			metricsRequest: struct{ PeerCount string }{PeerCount: "10"},
 			nodeId:         "1",
