@@ -46,6 +46,7 @@ func Test_scheduledTask(t *testing.T) {
 					NodeId:               "",
 					BestBlockHeight:      1000,
 					FinalizedBlockHeight: 995,
+					TargetBlockHeight:    1000,
 				},
 			},
 			latestMetrics: []*models.LatestBlockMetrics{
@@ -103,26 +104,31 @@ func Test_scheduledTask(t *testing.T) {
 					NodeId:               "1",
 					BestBlockHeight:      1000,
 					FinalizedBlockHeight: 995,
+					TargetBlockHeight:    1000,
 				},
 				{
 					NodeId:               "2",
 					BestBlockHeight:      1000,
 					FinalizedBlockHeight: 995,
+					TargetBlockHeight:    1000,
 				},
 				{
 					NodeId:               "3",
 					BestBlockHeight:      1000,
 					FinalizedBlockHeight: 995,
+					TargetBlockHeight:    1000,
 				},
 				{
 					NodeId:               "4",
 					BestBlockHeight:      1000,
 					FinalizedBlockHeight: 995,
+					TargetBlockHeight:    1000,
 				},
 				{
 					NodeId:               "5",
 					BestBlockHeight:      1000,
 					FinalizedBlockHeight: 995,
+					TargetBlockHeight:    1000,
 				},
 			},
 			latestMetrics: []*models.LatestBlockMetrics{
@@ -187,26 +193,31 @@ func Test_scheduledTask(t *testing.T) {
 					NodeId:               "1",
 					BestBlockHeight:      1000,
 					FinalizedBlockHeight: 995,
+					TargetBlockHeight:    1000,
 				},
 				{
 					NodeId:               "2",
 					BestBlockHeight:      989,
 					FinalizedBlockHeight: 986,
+					TargetBlockHeight:    1000,
 				},
 				{
 					NodeId:               "3",
 					BestBlockHeight:      1000,
 					FinalizedBlockHeight: 995,
+					TargetBlockHeight:    1000,
 				},
 				{
 					NodeId:               "4",
 					BestBlockHeight:      989,
 					FinalizedBlockHeight: 986,
+					TargetBlockHeight:    1000,
 				},
 				{
 					NodeId:               "5",
 					BestBlockHeight:      1000,
 					FinalizedBlockHeight: 995,
+					TargetBlockHeight:    1000,
 				},
 			},
 			latestMetrics: []*models.LatestBlockMetrics{

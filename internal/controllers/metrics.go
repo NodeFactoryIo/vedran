@@ -14,6 +14,7 @@ type MetricsRequest struct {
 	PeerCount             int32 `json:"peer_count"`
 	BestBlockHeight       int64 `json:"best_block_height"`
 	FinalizedBlockHeight  int64 `json:"finalized_block_height"`
+	TargetBlockHeight     int64 `json:"target_block_height"`
 	ReadyTransactionCount int32 `json:"ready_transaction_count"`
 }
 
@@ -41,6 +42,7 @@ func (c ApiController) SaveMetricsHandler(w http.ResponseWriter, r *http.Request
 		PeerCount:             metricsRequest.PeerCount,
 		BestBlockHeight:       metricsRequest.BestBlockHeight,
 		FinalizedBlockHeight:  metricsRequest.FinalizedBlockHeight,
+		TargetBlockHeight:     metricsRequest.TargetBlockHeight,
 		ReadyTransactionCount: metricsRequest.ReadyTransactionCount,
 	})
 
