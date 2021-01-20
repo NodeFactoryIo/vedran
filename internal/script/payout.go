@@ -18,6 +18,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const GenericSubstrateNetworkIdentifier = 42
+
 func ExecutePayout(
 	privateKey string,
 	totalReward float64,
@@ -38,7 +40,7 @@ func ExecutePayout(
 
 	// Use wildcard 42 - Generic Substrate wildcard
 	// https://github.com/paritytech/substrate/wiki/External-Address-Format-(SS58)#address-type
-	keyringPair, err := signature.KeyringPairFromSecret(privateKey, 42)
+	keyringPair, err := signature.KeyringPairFromSecret(privateKey, GenericSubstrateNetworkIdentifier)
 	if err != nil {
 		return nil, fmt.Errorf("invalid private key, %v", err)
 	}
