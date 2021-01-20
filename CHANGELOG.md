@@ -9,6 +9,7 @@
 - Fix min TLS version [\#175](https://github.com/NodeFactoryIo/vedran/pull/175) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Changed
+- Replace go-substrate-rpc-client fork [\#176](https://github.com/NodeFactoryIo/vedran/pull/176) ([MakMuftic](https://github.com/MakMuftic))
 
 ## [v0.4.3]((https://github.com/NodeFactoryIo/vedran/tree/v0.4.3))
 [Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.4.2...v0.4.3\)
