@@ -105,8 +105,8 @@ Start command will start application on 2 ports that need to be exposed to publi
 |----|-----------|:--------:|
 |`--server-port`|port on which RPC API is exposed|80|
 |`--public-ip`|public IP address of loadbalancer|uses multiple services to find out public IP|
-|`--cert-file`|SSL certification file|uses HTTP|
-|`--key-file`|SSL price key file|uses HTTP|
+|`--cert-file`|path to SSL certification file|uses HTTP|
+|`--key-file`|path to SSL private key file|uses HTTP|
 |`--tunnel-port`|port on which tunnel server is listening for connect requests|5223|
 |`--tunnel-port-range`|range of ports that will be used for creating tunnels|20000:30000|
 
@@ -125,6 +125,7 @@ Start command will start application on 2 ports that need to be exposed to publi
 |`--lb-payout-address`|address on which load balancer fee will be sent|-|
 |`--log-level`|log level (debug, info, warn, error)|error|
 |`--log-file`|path to file in which logs will be saved|`stdout`|
+|`--root-dir`|root directory for all generated files (e.g. database file, log file)|uses current directory|
 
 ### Obtaining DOTs
 If you want to do anything on Polkadot, Kusama, or Westend, then you'll need to get an account and some DOT, KSM, or WND tokens, respectively.
