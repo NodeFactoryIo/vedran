@@ -26,7 +26,7 @@ services:
     container_name: "vedran"
 
   vedran-daemon:
-    image: nodefactory/vedran-daemon:v0.3.0
+    image: nodefactory/vedran-daemon:v0.3.2
     depends_on:
       - vedran
       - polkadot

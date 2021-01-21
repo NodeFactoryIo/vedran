@@ -5,6 +5,7 @@ type Metrics struct {
 	PeerCount             int32
 	BestBlockHeight       int64
 	FinalizedBlockHeight  int64
+	TargetBlockHeight     int64
 	ReadyTransactionCount int32
 }
 

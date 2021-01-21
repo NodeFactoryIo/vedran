@@ -51,6 +51,15 @@ func CheckIfMetricsValid(nodeID string, repos *repositories.Repos) (bool, error)
 	if err != nil {
 		return false, err
 	}
+	// check if node synced
+	if metrics.BestBlockHeight != metrics.TargetBlockHeight {
+		log.Debugf(
+			"Node %s not synced. Best block: %d, Target block: %d",
+			nodeID, metrics.BestBlockHeight, metrics.TargetBlockHeight,
+		)
+		return false, nil
+	}
+
 	latestBlockMetrics, err := repos.MetricsRepo.GetLatestBlockMetrics()
 	if err != nil {
 		return false, err
