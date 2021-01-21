@@ -1,7 +1,11 @@
 # Changelog
 
 ## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
-[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.4.2...HEAD)
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.5.0...HEAD)
+
+
+## [v0.5.0]((https://github.com/NodeFactoryIo/vedran/tree/v0.5.0))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.4.3...v0.5.0)
 
 ### Added
 - Add target block metric [\#177](https://github.com/NodeFactoryIo/vedran/pull/177) ([MakMuftic](https://github.com/MakMuftic))
