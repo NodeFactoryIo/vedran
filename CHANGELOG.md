@@ -4,6 +4,7 @@
 [Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.4.2...HEAD)
 
 ### Added
+- Add target block metric [\#177](https://github.com/NodeFactoryIo/vedran/pull/177) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Fix
 - Fix min TLS version [\#175](https://github.com/NodeFactoryIo/vedran/pull/175) ([MakMuftic](https://github.com/MakMuftic))
