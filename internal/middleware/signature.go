@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
 	"github.com/NodeFactoryIo/vedran/internal/constants"
+	"github.com/centrifuge/go-substrate-rpc-client/v2/signature"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	log "github.com/sirupsen/logrus"
 	"net/http"

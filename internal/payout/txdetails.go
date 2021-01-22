@@ -1,7 +1,7 @@
 package payout
 
 import (
-	"github.com/NodeFactoryIo/go-substrate-rpc-client/rpc/author"
+	"github.com/centrifuge/go-substrate-rpc-client/v2/rpc/author"
 	log "github.com/sirupsen/logrus"
 	"math/big"
 )

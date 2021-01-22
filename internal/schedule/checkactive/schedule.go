@@ -48,13 +48,13 @@ func scheduledTask(repos *repositories.Repos, actions actions.Actions) {
 			continue
 		}
 
-		metricsVald, err := active.CheckIfMetricsValid(node.ID, repos)
+		metricsValid, err := active.CheckIfMetricsValid(node.ID, repos)
 		if err != nil {
 			log.Errorf("Unable to check if node %s active because of %v", node.ID, err)
 			continue
 		}
 
-		if !metricsVald {
+		if !metricsValid {
 			err = repos.NodeRepo.RemoveNodeFromActive(node.ID)
 			if err != nil {
 				log.Errorf("Unable to remove node %s from active because of %v", node.ID, err)

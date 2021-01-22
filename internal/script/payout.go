@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/NodeFactoryIo/vedran/internal/api"
 	"github.com/NodeFactoryIo/vedran/internal/constants"
+	"github.com/centrifuge/go-substrate-rpc-client/v2/signature"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"net/http"
 	"net/url"
@@ -14,9 +15,10 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/controllers"
 	"github.com/NodeFactoryIo/vedran/internal/payout"
 
-	"github.com/NodeFactoryIo/go-substrate-rpc-client/signature"
 	log "github.com/sirupsen/logrus"
 )
+
+const GenericSubstrateNetworkIdentifier = 42
 
 func ExecutePayout(
 	privateKey string,
@@ -36,7 +38,9 @@ func ExecutePayout(
 		return nil, fmt.Errorf("unable to fetch latest metadata, because of %v", err)
 	}
 
-	keyringPair, err := signature.KeyringPairFromSecret(privateKey, "")
+	// Use wildcard 42 - Generic Substrate wildcard
+	// https://github.com/paritytech/substrate/wiki/External-Address-Format-(SS58)#address-type
+	keyringPair, err := signature.KeyringPairFromSecret(privateKey, GenericSubstrateNetworkIdentifier)
 	if err != nil {
 		return nil, fmt.Errorf("invalid private key, %v", err)
 	}

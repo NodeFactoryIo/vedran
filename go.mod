@@ -3,12 +3,12 @@ module github.com/NodeFactoryIo/vedran
 go 1.15
 
 require (
-	github.com/NodeFactoryIo/go-substrate-rpc-client v1.1.1-0.20201117130410-fe8589d08563
 	github.com/asdine/storm/v3 v3.2.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
-	github.com/decred/base58 v1.0.2
+	github.com/centrifuge/go-substrate-rpc-client/v2 v2.1.0
+	github.com/decred/base58 v1.0.3
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/ethereum/go-ethereum v1.9.24
+	github.com/ethereum/go-ethereum v1.9.25
 	github.com/golang/gddo v0.0.0-20200831202555-721e228c7686
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
