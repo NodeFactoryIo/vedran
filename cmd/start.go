@@ -59,7 +59,7 @@ var startCmd = &cobra.Command{
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		DisplayBanner()
 		// create root dir
-		if _, err := os.Stat(rootDir); os.IsNotExist(err) {
+		if _, err := os.Stat(rootDir); os.IsNotExist(err) && rootDir != "" {
 			err = os.Mkdir(rootDir, 0700)
 			if err != nil {
 				log.Fatal("Unable to create root dir ", err)
