@@ -10,6 +10,7 @@ import (
 const (
 	IntervalFromLastPing = 10 * time.Second
 	AllowedBlocksBehind  = 10
+	TargetBlockBuffer    = 10
 )
 
 // CheckIfNodeActive checks if nodes last recorded ping is in last IntervalFromLastPing and if nodes last recorded
@@ -52,18 +53,19 @@ func CheckIfMetricsValid(nodeID string, repos *repositories.Repos) (bool, error)
 		return false, err
 	}
 	// check if node synced
-	if metrics.BestBlockHeight != metrics.TargetBlockHeight {
+	if (metrics.BestBlockHeight + TargetBlockBuffer) < metrics.TargetBlockHeight {
 		log.Debugf(
 			"Node %s not synced. Best block: %d, Target block: %d",
 			nodeID, metrics.BestBlockHeight, metrics.TargetBlockHeight,
 		)
 		return false, nil
 	}
-
+	// get best metrics from pool of nodes
 	latestBlockMetrics, err := repos.MetricsRepo.GetLatestBlockMetrics()
 	if err != nil {
 		return false, err
 	}
+	// check if node falling behind
 	if metrics.BestBlockHeight <= (latestBlockMetrics.BestBlockHeight-AllowedBlocksBehind) ||
 		metrics.FinalizedBlockHeight <= (latestBlockMetrics.FinalizedBlockHeight-AllowedBlocksBehind) {
 		log.Debugf(
@@ -76,7 +78,6 @@ func CheckIfMetricsValid(nodeID string, repos *repositories.Repos) (bool, error)
 		)
 		return false, nil
 	}
-
 	return true, nil
 }
 

@@ -3,6 +3,12 @@
 ## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
 [Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.5.0...HEAD)
 
+### Added
+
+### Fix
+- Add buffer for target block metric [\#184](https://github.com/NodeFactoryIo/vedran/pull/184) ([MakMuftic](https://github.com/MakMuftic))
+
+### Changed
 
 ## [v0.5.0]((https://github.com/NodeFactoryIo/vedran/tree/v0.5.0))
 [Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.4.3...v0.5.0)
