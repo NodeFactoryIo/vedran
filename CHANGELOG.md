@@ -1,9 +1,19 @@
 # Changelog
 
 ## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
-[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.5.1...HEAD)
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.5.2...HEAD)
 
 ### Added
+
+### Fix
+
+### Changed
+
+## [v0.5.2]((https://github.com/NodeFactoryIo/vedran/tree/v0.5.2))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.5.1...v0.5.2)
+
+### Added
+- Add additional logging [\#188](https://github.com/NodeFactoryIo/vedran/pull/188) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Fix
 

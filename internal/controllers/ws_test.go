@@ -80,7 +80,10 @@ func TestApiController_WSHandler(t *testing.T) {
 
 			actionsMockObject := new(actionMocks.Actions)
 			actionsMockObject.On(
-				"PenalizeNode", mock.MatchedBy(func(n models.Node) bool { return n.ID == "1" }), mock.Anything,
+				"PenalizeNode",
+				mock.MatchedBy(func(n models.Node) bool { return n.ID == "1" }),
+				mock.Anything,
+				mock.Anything,
 			).Return()
 
 			apiController := NewApiController(false, repositories.Repos{

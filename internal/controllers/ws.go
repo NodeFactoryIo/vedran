@@ -41,9 +41,9 @@ func (c ApiController) WSHandler(w http.ResponseWriter, r *http.Request) {
 		connectionError := <-connErr
 		connToNode := <-wsConnection
 		if connectionError != nil {
-			log.Errorf("Establishing connection failed because of %v", err)
+			log.Errorf("Establishing connection failed because of %v", connectionError)
 			if connectionError.IsNodeError() {
-				c.actions.PenalizeNode(node, c.repositories)
+				c.actions.PenalizeNode(node, c.repositories, "establishing connection failed")
 			}
 			continue
 		}

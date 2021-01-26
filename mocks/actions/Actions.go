@@ -11,7 +11,7 @@ type Actions struct {
 	mock.Mock
 }
 
-// PenalizeNode provides a mock function with given fields: node, _a1
-func (_m *Actions) PenalizeNode(node models.Node, _a1 repositories.Repos) {
-	_m.Called(node, _a1)
+// PenalizeNode provides a mock function with given fields: node, _a1, message
+func (_m *Actions) PenalizeNode(node models.Node, _a1 repositories.Repos, message string) {
+	_m.Called(node, _a1, message)
 }
