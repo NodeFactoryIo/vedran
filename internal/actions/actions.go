@@ -6,7 +6,7 @@ import (
 )
 
 type Actions interface {
-	PenalizeNode(node models.Node, repositories repositories.Repos)
+	PenalizeNode(node models.Node, repositories repositories.Repos, message string)
 }
 
 type actions struct{}
