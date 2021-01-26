@@ -51,7 +51,7 @@ func TestApiController_RPCHandler(t *testing.T) {
 	recordRepoMock.On("Save", mock.Anything).Return(nil)
 
 	actionsMockObject := new(actionMocks.Actions)
-	actionsMockObject.On("PenalizeNode", mock.Anything, mock.Anything).Return()
+	actionsMockObject.On("PenalizeNode", mock.Anything, mock.Anything, mock.Anything).Return()
 
 	apiController := NewApiController(false, repositories.Repos{
 		NodeRepo:   &nodeRepoMock,
@@ -160,7 +160,7 @@ func TestApiController_BatchRPCHandler(t *testing.T) {
 	recordRepoMock.On("Save", mock.Anything).Return(nil)
 
 	actionsMockObject := new(actionMocks.Actions)
-	actionsMockObject.On("PenalizeNode", mock.Anything, mock.Anything).Return()
+	actionsMockObject.On("PenalizeNode", mock.Anything, mock.Anything, mock.Anything).Return()
 
 	apiController := NewApiController(false, repositories.Repos{
 		NodeRepo:   &nodeRepoMock,
@@ -242,7 +242,7 @@ func TestApiController_RPCHandler_InvalidBody(t *testing.T) {
 	}
 
 	actionsMockObject := new(actionMocks.Actions)
-	actionsMockObject.On("PenalizeNode", mock.Anything, mock.Anything).Return()
+	actionsMockObject.On("PenalizeNode", mock.Anything, mock.Anything, mock.Anything).Return()
 
 	apiController := NewApiController(false, repositories.Repos{}, actionsMockObject)
 

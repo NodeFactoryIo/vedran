@@ -40,7 +40,7 @@ func TestFailedRequest(t *testing.T) {
 			recordRepoMock.On("Save", mock.Anything).Once().Return(tt.saveNodeRecordResult)
 
 			actionsMock := aMock.Actions{}
-			actionsMock.On("PenalizeNode", node, mock.Anything).Return()
+			actionsMock.On("PenalizeNode", node, mock.Anything, mock.Anything).Return()
 
 			FailedRequest(node, repositories.Repos{
 				RecordRepo: &recordRepoMock,
