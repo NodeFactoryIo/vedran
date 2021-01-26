@@ -11,7 +11,7 @@ import (
 // FailedRequest should be called when rpc response is invalid to penalize node.
 // It does not return value as it should be called in separate goroutine
 func FailedRequest(node models.Node, repositories repositories.Repos, actions actions.Actions) {
-	actions.PenalizeNode(node, repositories)
+	actions.PenalizeNode(node, repositories, "failed request")
 
 	err := repositories.RecordRepo.Save(&models.Record{
 		NodeId:    node.ID,

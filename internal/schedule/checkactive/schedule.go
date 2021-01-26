@@ -44,7 +44,7 @@ func scheduledTask(repos *repositories.Repos, actions actions.Actions) {
 		}
 
 		if !pingActive {
-			actions.PenalizeNode(node, *repos)
+			actions.PenalizeNode(node, *repos, "inactive ping")
 			continue
 		}
 

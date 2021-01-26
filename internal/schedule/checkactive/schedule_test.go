@@ -286,7 +286,7 @@ func Test_scheduledTask(t *testing.T) {
 			actionsMockObject := new(actionMocks.Actions)
 			if test.penalizedNodes != nil {
 				for _, pNode := range test.penalizedNodes {
-					actionsMockObject.On("PenalizeNode", pNode, mock.Anything).Return().Once()
+					actionsMockObject.On("PenalizeNode", pNode, mock.Anything, mock.Anything).Return().Once()
 				}
 			}
 
