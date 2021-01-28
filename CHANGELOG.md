@@ -8,6 +8,7 @@
 ### Fix
 
 ### Changed
+- Upgrade request display inside grafana dashboard [\#190](https://github.com/NodeFactoryIo/vedran/pull/190) ([MakMuftic](https://github.com/MakMuftic))
 
 ## [v0.5.2]((https://github.com/NodeFactoryIo/vedran/tree/v0.5.2))
 [Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.5.1...v0.5.2)
