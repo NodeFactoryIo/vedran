@@ -142,7 +142,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 4,
         "w": 6,
         "x": 12,
         "y": 1
@@ -165,7 +165,7 @@
       "pluginVersion": "7.3.6",
       "targets": [
         {
-          "expr": "rate(http_request_duration_seconds_count[5m])",
+          "expr": "rate(http_request_duration_seconds_count[$__interval])",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -182,6 +182,7 @@
         "defaults": {
           "custom": {},
           "mappings": [],
+          "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -199,7 +200,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 4,
         "w": 6,
         "x": 18,
         "y": 1
@@ -231,6 +232,118 @@
       "timeFrom": null,
       "timeShift": null,
       "title": "Requests Per Second (WS)",
+      "type": "stat"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 12,
+        "y": 5
+      },
+      "id": 44,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "/^\\{code=\"200\", handler=\"/\", instance=\"vedran:4000\", job=\"prometheus\", method=\"POST\"\\}$/",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.3.6",
+      "targets": [
+        {
+          "expr": "delta(http_request_duration_seconds_count[$__interval])",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Total number of requests (HTTP)",
+      "type": "stat"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 18,
+        "y": 5
+      },
+      "id": 45,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "/^\\{code=\"200\", handler=\"/ws\", instance=\"vedran:4000\", job=\"prometheus\", method=\"GET\"\\}$/",
+          "limit": 200,
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.3.6",
+      "targets": [
+        {
+          "expr": "delta(http_request_duration_seconds_count[$__interval])",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Total number of requests (WS)",
       "type": "stat"
     },
     {
@@ -808,7 +921,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 4,
         "w": 6,
         "x": 0,
         "y": 30
@@ -875,7 +988,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 4,
         "w": 6,
         "x": 6,
         "y": 30
@@ -940,7 +1053,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 4,
         "w": 6,
         "x": 12,
         "y": 30
@@ -1005,7 +1118,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 4,
         "w": 6,
         "x": 18,
         "y": 30
@@ -1061,7 +1174,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 34
       },
       "hiddenSeries": false,
       "id": 42,
@@ -1162,7 +1275,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 46
+        "y": 42
       },
       "hiddenSeries": false,
       "id": 20,
@@ -1257,7 +1370,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 46
+        "y": 42
       },
       "hiddenSeries": false,
       "id": 16,
@@ -1352,7 +1465,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 54
+        "y": 50
       },
       "hiddenSeries": false,
       "id": 18,
@@ -1461,7 +1574,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 54
+        "y": 50
       },
       "hiddenSeries": false,
       "id": 22,
@@ -1547,7 +1660,7 @@
     "list": []
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {},

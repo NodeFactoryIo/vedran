@@ -15,7 +15,9 @@ import (
 func transfer(dst io.Writer, src io.Reader, logger *log.Entry) {
 	n, err := io.Copy(dst, src)
 	if err != nil {
-		if !strings.Contains(err.Error(), "context canceled") && !strings.Contains(err.Error(), "CANCEL") {
+		if (!strings.Contains(err.Error(), "context canceled") &&
+			!strings.Contains(err.Error(), "CANCEL")) &&
+			!strings.Contains(err.Error(), "stream closed") {
 			logger.Error("copy error ", err)
 		}
 	}
