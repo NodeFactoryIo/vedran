@@ -50,6 +50,62 @@ func TestCheckIfNodeActive(t *testing.T) {
 			expectedError:      nil,
 		},
 		{
+			// as latest metrics have been saved before 20 seconds
+			// node is allowed to be 16 blocks behind (adjusted for time delta)
+			name: "active node::older metrics",
+			node: models.Node{ID: "1"},
+			nodePing: &models.Ping{
+				NodeId:    "1",
+				Timestamp: time.Now(),
+			},
+			nodePingError: nil,
+			nodeMetrics: &models.Metrics{
+				NodeId:                "1",
+				PeerCount:             0,
+				BestBlockHeight:       1000,
+				FinalizedBlockHeight:  995,
+				TargetBlockHeight:     1000,
+				ReadyTransactionCount: 0,
+				Timestamp:             time.Now().Add(-20 * time.Second),
+			},
+			nodeMetricsError: nil,
+			latestMetrics: &models.LatestBlockMetrics{
+				BestBlockHeight:      1015,
+				FinalizedBlockHeight: 1010,
+			},
+			latestMetricsError: nil,
+			expectedResult:     true,
+			expectedError:      nil,
+		},
+		{
+			// adjusted block behind should be capped with default value
+			// this means that maximum allowed block behind is 2x default value
+			name: "not active node::very old metrics",
+			node: models.Node{ID: "1"},
+			nodePing: &models.Ping{
+				NodeId:    "1",
+				Timestamp: time.Now(),
+			},
+			nodePingError: nil,
+			nodeMetrics: &models.Metrics{
+				NodeId:                "1",
+				PeerCount:             0,
+				BestBlockHeight:       1000,
+				FinalizedBlockHeight:  995,
+				TargetBlockHeight:     1000,
+				ReadyTransactionCount: 0,
+				Timestamp:             time.Now().Add(-1020 * time.Second),
+			},
+			nodeMetricsError: nil,
+			latestMetrics: &models.LatestBlockMetrics{
+				BestBlockHeight:      1020,
+				FinalizedBlockHeight: 1015,
+			},
+			latestMetricsError: nil,
+			expectedResult:     false,
+			expectedError:      nil,
+		},
+		{
 			name: "not active node::ping old",
 			node: models.Node{ID: "1"},
 			nodePing: &models.Ping{

@@ -72,7 +72,8 @@ func CheckIfMetricsValid(nodeID string, repos *repositories.Repos) (bool, error)
 	// and expand allowed block behind offset accordingly
 	delta := time.Now().Sub(metrics.Timestamp).Seconds()
 	if delta > 2 {
-		addition := int64(math.Trunc(delta / 3))
+		// addition is capped with base allowed blocks behind
+		addition := int64(math.Min(math.Trunc(delta / 3), AllowedBlocksBehind))
 		allowedBlocksBehind += addition
 	}
 
