@@ -38,6 +38,7 @@ func TestCheckIfNodeActive(t *testing.T) {
 				FinalizedBlockHeight:  995,
 				TargetBlockHeight:     1000,
 				ReadyTransactionCount: 0,
+				Timestamp:             time.Now(),
 			},
 			nodeMetricsError: nil,
 			latestMetrics: &models.LatestBlockMetrics{
@@ -63,6 +64,7 @@ func TestCheckIfNodeActive(t *testing.T) {
 				FinalizedBlockHeight:  995,
 				TargetBlockHeight:     1000,
 				ReadyTransactionCount: 0,
+				Timestamp:             time.Now(),
 			},
 			nodeMetricsError: nil,
 			latestMetrics: &models.LatestBlockMetrics{
@@ -88,6 +90,7 @@ func TestCheckIfNodeActive(t *testing.T) {
 				FinalizedBlockHeight:  995,
 				TargetBlockHeight:     1300,
 				ReadyTransactionCount: 0,
+				Timestamp:             time.Now(),
 			},
 			nodeMetricsError: nil,
 			latestMetrics: &models.LatestBlockMetrics{
@@ -113,6 +116,7 @@ func TestCheckIfNodeActive(t *testing.T) {
 				FinalizedBlockHeight:  995,
 				TargetBlockHeight:     1000,
 				ReadyTransactionCount: 0,
+				Timestamp:             time.Now(),
 			},
 			nodeMetricsError: nil,
 			latestMetrics: &models.LatestBlockMetrics{
@@ -138,6 +142,7 @@ func TestCheckIfNodeActive(t *testing.T) {
 				FinalizedBlockHeight:  994,
 				TargetBlockHeight:     1000,
 				ReadyTransactionCount: 0,
+				Timestamp:             time.Now(),
 			},
 			nodeMetricsError: nil,
 			latestMetrics: &models.LatestBlockMetrics{
@@ -163,6 +168,7 @@ func TestCheckIfNodeActive(t *testing.T) {
 				FinalizedBlockHeight:  995,
 				TargetBlockHeight:     1000,
 				ReadyTransactionCount: 0,
+				Timestamp:             time.Now(),
 			},
 			nodeMetricsError: nil,
 			latestMetrics: &models.LatestBlockMetrics{
@@ -188,6 +194,7 @@ func TestCheckIfNodeActive(t *testing.T) {
 				TargetBlockHeight:     1000,
 				FinalizedBlockHeight:  995,
 				ReadyTransactionCount: 0,
+				Timestamp:             time.Now(),
 			},
 			nodeMetricsError: nil,
 			latestMetrics: &models.LatestBlockMetrics{
@@ -213,6 +220,7 @@ func TestCheckIfNodeActive(t *testing.T) {
 				FinalizedBlockHeight:  995,
 				TargetBlockHeight:     1000,
 				ReadyTransactionCount: 0,
+				Timestamp:             time.Now(),
 			},
 			nodeMetricsError: errors.New("metrics-error"),
 			latestMetrics: &models.LatestBlockMetrics{
@@ -238,6 +246,7 @@ func TestCheckIfNodeActive(t *testing.T) {
 				FinalizedBlockHeight:  995,
 				TargetBlockHeight:     1000,
 				ReadyTransactionCount: 0,
+				Timestamp:             time.Now(),
 			},
 			nodeMetricsError: nil,
 			latestMetrics: &models.LatestBlockMetrics{
