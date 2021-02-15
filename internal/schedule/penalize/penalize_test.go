@@ -93,12 +93,14 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 					BestBlockHeight:      900,
 					FinalizedBlockHeight: 898,
 					TargetBlockHeight:    900,
+					Timestamp: time.Now(),
 				},
 				{
-					NodeId:               "",
+					NodeId:               "1",
 					BestBlockHeight:      1000,
 					FinalizedBlockHeight: 995,
 					TargetBlockHeight:    1000,
+					Timestamp: time.Now(),
 				},
 			},
 			latestMetrics: []*models.LatestBlockMetrics{
@@ -146,24 +148,28 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 					BestBlockHeight:      900,
 					FinalizedBlockHeight: 898,
 					TargetBlockHeight:    900,
+					Timestamp: time.Now(),
 				},
 				{
 					NodeId:               "1",
 					BestBlockHeight:      900,
 					FinalizedBlockHeight: 898,
 					TargetBlockHeight:    900,
+					Timestamp: time.Now(),
 				},
 				{
 					NodeId:               "1",
 					BestBlockHeight:      900,
 					FinalizedBlockHeight: 898,
 					TargetBlockHeight:    900,
+					Timestamp: time.Now(),
 				},
 				{
-					NodeId:               "",
+					NodeId:               "1",
 					BestBlockHeight:      1000,
 					FinalizedBlockHeight: 995,
 					TargetBlockHeight:    1000,
+					Timestamp: time.Now(),
 				},
 			},
 			latestMetrics: []*models.LatestBlockMetrics{
@@ -211,6 +217,7 @@ func TestScheduleCheckForPenalizedNode(t *testing.T) {
 					BestBlockHeight:      900,
 					FinalizedBlockHeight: 898,
 					TargetBlockHeight:    900,
+					Timestamp: time.Now(),
 				},
 			},
 			latestMetrics: []*models.LatestBlockMetrics{
