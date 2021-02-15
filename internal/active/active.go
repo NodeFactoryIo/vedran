@@ -70,7 +70,7 @@ func CheckIfMetricsValid(nodeID string, repos *repositories.Repos) (bool, error)
 	allowedBlocksBehind := int64(AllowedBlocksBehind)
 	// check how much time have passed since last recorded metrics
 	// and expand allowed block behind offset accordingly
-	delta := time.Now().Sub(metrics.Timestamp).Seconds()
+	delta := time.Since(metrics.Timestamp).Seconds()
 	if delta > 2 {
 		// addition is capped with base allowed blocks behind
 		addition := int64(math.Min(math.Trunc(delta / 3), AllowedBlocksBehind))
