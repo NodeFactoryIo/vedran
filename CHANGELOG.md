@@ -6,6 +6,7 @@
 ### Added
 
 ### Fix
+- Minor bug fixes [\#194](https://github.com/NodeFactoryIo/vedran/pull/194) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Changed
 - Upgrade request display inside grafana dashboard [\#190](https://github.com/NodeFactoryIo/vedran/pull/190) ([MakMuftic](https://github.com/MakMuftic))
