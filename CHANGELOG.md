@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.5.3]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
+## [v0.5.3]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
 [Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.5.2...HEAD)
 
 ### Added
