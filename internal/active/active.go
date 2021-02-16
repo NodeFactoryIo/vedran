@@ -4,6 +4,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/internal/models"
 	"github.com/NodeFactoryIo/vedran/internal/repositories"
 	log "github.com/sirupsen/logrus"
+	"math"
 	"time"
 )
 
@@ -65,9 +66,20 @@ func CheckIfMetricsValid(nodeID string, repos *repositories.Repos) (bool, error)
 	if err != nil {
 		return false, err
 	}
+
+	allowedBlocksBehind := int64(AllowedBlocksBehind)
+	// check how much time have passed since last recorded metrics
+	// and expand allowed block behind offset accordingly
+	delta := time.Since(metrics.Timestamp).Seconds()
+	if delta > 2 {
+		// addition is capped with base allowed blocks behind
+		addition := int64(math.Min(math.Trunc(delta / 3), AllowedBlocksBehind))
+		allowedBlocksBehind += addition
+	}
+
 	// check if node falling behind
-	if metrics.BestBlockHeight <= (latestBlockMetrics.BestBlockHeight-AllowedBlocksBehind) ||
-		metrics.FinalizedBlockHeight <= (latestBlockMetrics.FinalizedBlockHeight-AllowedBlocksBehind) {
+	if metrics.BestBlockHeight <= (latestBlockMetrics.BestBlockHeight-allowedBlocksBehind) ||
+		metrics.FinalizedBlockHeight <= (latestBlockMetrics.FinalizedBlockHeight-allowedBlocksBehind) {
 		log.Debugf(
 			"Node %s not active as metrics check failed. "+
 				"Node metrics: BestBlockHeight[%d], FinalizedBlockHeight[%d] "+

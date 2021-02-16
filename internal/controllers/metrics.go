@@ -8,6 +8,7 @@ import (
 	"github.com/NodeFactoryIo/vedran/pkg/util"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"time"
 )
 
 type MetricsRequest struct {
@@ -44,6 +45,7 @@ func (c ApiController) SaveMetricsHandler(w http.ResponseWriter, r *http.Request
 		FinalizedBlockHeight:  metricsRequest.FinalizedBlockHeight,
 		TargetBlockHeight:     metricsRequest.TargetBlockHeight,
 		ReadyTransactionCount: metricsRequest.ReadyTransactionCount,
+		Timestamp:             time.Now(),
 	})
 
 	if err != nil {

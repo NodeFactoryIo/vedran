@@ -7,6 +7,7 @@ type ConnectionErrorType int
 const (
 	NodeError ConnectionErrorType = iota
 	PortPoolError
+	UserCancellationError
 )
 
 type ConnectionError struct {
