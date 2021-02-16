@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/NodeFactoryIo/vedran/internal/actions"
@@ -98,9 +99,16 @@ func EstablishNodeConn(nodeID string, wsConnection chan *websocket.Conn, message
 	dialer.HandshakeTimeout = ShortHandshakeTimeout
 	c, _, err := dialer.Dial(host.String(), nil)
 	if err != nil {
-		connErr <- &ConnectionError{
-			Err:  err,
-			Type: NodeError,
+		if strings.Contains(err.Error(), "cancel") {
+			connErr <- &ConnectionError{
+				Err:  err,
+				Type: UserCancellationError,
+			}
+		} else {
+			connErr <- &ConnectionError{
+				Err:  err,
+				Type: NodeError,
+			}
 		}
 		wsConnection <- nil
 		return
