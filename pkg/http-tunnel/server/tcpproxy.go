@@ -81,6 +81,7 @@ func (p *TCPProxy) Proxy(w io.Writer, r io.ReadCloser, msg *proto.ControlMessage
 		}).Error("dial failed", err)
 		return
 	}
+	defer local.Close()
 
 	if err := tunnel.KeepAlive(local); err != nil {
 		clogger.WithFields(log.Fields{
@@ -106,10 +107,12 @@ func (p *TCPProxy) Proxy(w io.Writer, r io.ReadCloser, msg *proto.ControlMessage
 	transfer(local, r, loggerWithContext)
 
 	<-done
-	err = local.Close()
-	if err != nil {
-		clogger.Errorf("Local close failed because of %v")
-	}
+	/*
+		err = local.Close()
+		if err != nil {
+			clogger.Errorf("Local close failed because of %v")
+		}
+	*/
 
 	clogger.Info("Transfer close called and magic happeneded")
 }
