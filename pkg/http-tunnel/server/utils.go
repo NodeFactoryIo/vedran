@@ -15,16 +15,10 @@ import (
 
 func transfer(dst io.Writer, src io.Reader, logger *log.Entry) {
 	log.Info("BEFORE COPY")
-	n, err := io.Copy(dst, src)
+	n, _ := io.Copy(dst, src)
 	log.Info("AFTER COPY")
-	if err != nil {
-		if (!strings.Contains(err.Error(), "context canceled") &&
-			!strings.Contains(err.Error(), "CANCEL")) &&
-			!strings.Contains(err.Error(), "stream closed") {
-			logger.Error("copy error ", err)
-		}
-	}
 	log.Debugf("transferred %d bytes", n)
+	return
 }
 
 func setXForwardedFor(h http.Header, remoteAddr string) {
