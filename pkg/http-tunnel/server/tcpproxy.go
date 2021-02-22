@@ -105,6 +105,7 @@ func (p *TCPProxy) Proxy(w io.Writer, r io.ReadCloser, msg *proto.ControlMessage
 		"src": target,
 	})
 	transfer(local, r, loggerWithContext)
+	close(done)
 
 	<-done
 	/*
