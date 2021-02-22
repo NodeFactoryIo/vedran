@@ -5,15 +5,18 @@
 package server
 
 import (
-	log "github.com/sirupsen/logrus"
 	"io"
 	"net"
 	"net/http"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func transfer(dst io.Writer, src io.Reader, logger *log.Entry) {
+	log.Info("BEFORE COPY")
 	n, err := io.Copy(dst, src)
+	log.Info("AFTER COPY")
 	if err != nil {
 		if (!strings.Contains(err.Error(), "context canceled") &&
 			!strings.Contains(err.Error(), "CANCEL")) &&
