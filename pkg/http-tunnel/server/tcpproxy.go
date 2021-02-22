@@ -6,11 +6,12 @@ package server
 
 import (
 	"fmt"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel"
-	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/proto"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"net"
+
+	tunnel "github.com/NodeFactoryIo/vedran/pkg/http-tunnel"
+	"github.com/NodeFactoryIo/vedran/pkg/http-tunnel/proto"
+	log "github.com/sirupsen/logrus"
 )
 
 // TCPProxy forwards TCP streams.
@@ -80,7 +81,6 @@ func (p *TCPProxy) Proxy(w io.Writer, r io.ReadCloser, msg *proto.ControlMessage
 		}).Error("dial failed", err)
 		return
 	}
-	defer local.Close()
 
 	if err := tunnel.KeepAlive(local); err != nil {
 		clogger.WithFields(log.Fields{
@@ -95,6 +95,7 @@ func (p *TCPProxy) Proxy(w io.Writer, r io.ReadCloser, msg *proto.ControlMessage
 			"src": target,
 		})
 		transfer(flushWriter{w}, local, loggerWithContext)
+		clogger.Info("Transfer close called")
 		close(done)
 	}()
 
@@ -105,6 +106,12 @@ func (p *TCPProxy) Proxy(w io.Writer, r io.ReadCloser, msg *proto.ControlMessage
 	transfer(local, r, loggerWithContext)
 
 	<-done
+	err = local.Close()
+	if err != nil {
+		clogger.Errorf("Local close failed because of %v")
+	}
+
+	clogger.Info("Transfer close called and magic happeneded")
 }
 
 func (p *TCPProxy) localAddrFor(hostPort string) string {
