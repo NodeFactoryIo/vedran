@@ -94,7 +94,6 @@ func (p *TCPProxy) Proxy(w io.Writer, r io.ReadCloser, msg *proto.ControlMessage
 			"src": target,
 		})
 		transfer(flushWriter{w}, local, loggerWithContext)
-		clogger.Info("Transfer close called")
 	}()
 
 	loggerWithContext := log.WithContext(p.logger.Context).WithFields(log.Fields{
@@ -102,12 +101,11 @@ func (p *TCPProxy) Proxy(w io.Writer, r io.ReadCloser, msg *proto.ControlMessage
 		"src": target,
 	})
 	transfer(local, r, loggerWithContext)
+
 	err = local.Close()
 	if err != nil {
-		clogger.Errorf("Local close failed because of %v")
+		clogger.Errorf("Transfer close failed because of %v")
 	}
-
-	clogger.Info("Transfer close called and magic happeneded")
 }
 
 func (p *TCPProxy) localAddrFor(hostPort string) string {

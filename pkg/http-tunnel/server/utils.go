@@ -14,9 +14,7 @@ import (
 )
 
 func transfer(dst io.Writer, src io.Reader, logger *log.Entry) {
-	log.Info("BEFORE COPY")
 	n, _ := io.Copy(dst, src)
-	log.Info("AFTER COPY")
 	log.Debugf("transferred %d bytes", n)
 	return
 }
