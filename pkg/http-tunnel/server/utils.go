@@ -16,7 +16,6 @@ import (
 func transfer(dst io.Writer, src io.Reader, logger *log.Entry) {
 	n, _ := io.Copy(dst, src)
 	log.Debugf("transferred %d bytes", n)
-	return
 }
 
 func setXForwardedFor(h http.Header, remoteAddr string) {
