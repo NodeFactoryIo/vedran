@@ -103,7 +103,7 @@ func (p *TCPProxy) Proxy(w io.Writer, r io.ReadCloser, msg *proto.ControlMessage
 	})
 	transfer(local, r, loggerWithContext)
 	err = local.Close()
-	if err != nil
+	if err != nil {
 		clogger.Errorf("Local close failed because of %v")
 	}
 
