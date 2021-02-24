@@ -27,6 +27,8 @@ func TestApiController_PingHandler(t *testing.T) {
 		downtimeSaveErr       error
 		calculateDowntimeErr  error
 		downtimeDuration      time.Duration
+		requestTimestamp time.Time
+		lastPingTimestamp time.Time
 	}{
 		{
 			name:                  "Returns 200 if downtime calculation fails",
@@ -37,26 +39,32 @@ func TestApiController_PingHandler(t *testing.T) {
 			downtimeSaveCallCount: 0,
 			downtimeDuration:      time.Duration(0),
 			calculateDowntimeErr:  fmt.Errorf("ERROR"),
+			requestTimestamp: time.Now(),
+			lastPingTimestamp: time.Now().Add(-5 * time.Second),
 		},
 		{
-			name:                  "Returns 200 if donwtime save fails",
+			name:                  "Returns 200 if downtime save fails",
 			statusCode:            200,
 			pingSaveCallCount:     1,
 			pingSaveErr:           nil,
 			downtimeSaveErr:       fmt.Errorf("ERROR"),
 			downtimeSaveCallCount: 1,
-			downtimeDuration:      time.Duration(time.Second * 11),
+			downtimeDuration:      time.Duration(time.Second * 19),
 			calculateDowntimeErr:  nil,
+			requestTimestamp: time.Now(),
+			lastPingTimestamp: time.Now().Add(-19 * time.Second),
 		},
 		{
-			name:                  "Saves downtime if downtime duration more than 5 seconds",
+			name:                  "Saves downtime if downtime duration more than 18 seconds",
 			statusCode:            200,
 			pingSaveCallCount:     1,
 			pingSaveErr:           nil,
 			downtimeSaveErr:       nil,
 			downtimeSaveCallCount: 1,
-			downtimeDuration:      time.Duration(time.Second * 11),
+			downtimeDuration:      time.Duration(time.Second * 19),
 			calculateDowntimeErr:  nil,
+			requestTimestamp: time.Now(),
+			lastPingTimestamp: time.Now().Add(-19 * time.Second),
 		},
 		{
 			name:                  "Returns 500 if saving ping fails",
@@ -67,6 +75,8 @@ func TestApiController_PingHandler(t *testing.T) {
 			downtimeSaveCallCount: 0,
 			downtimeDuration:      time.Duration(time.Second * 8),
 			calculateDowntimeErr:  nil,
+			requestTimestamp: time.Now(),
+			lastPingTimestamp: time.Now().Add(-5 * time.Second),
 		},
 		{
 			name:                  "Returns 200 and does not save downtime if downtime duration less than 5 + 5 seconds",
@@ -77,13 +87,14 @@ func TestApiController_PingHandler(t *testing.T) {
 			downtimeSaveCallCount: 0,
 			downtimeDuration:      time.Duration(time.Second * 8),
 			calculateDowntimeErr:  nil,
+			requestTimestamp: time.Now(),
+			lastPingTimestamp: time.Now().Add(-5 * time.Second),
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 
-			timestamp := time.Now()
 			// create mock controller
 			nodeRepoMock := mocks.NodeRepository{}
 			recordRepoMock := mocks.RecordRepository{}
@@ -92,10 +103,10 @@ func TestApiController_PingHandler(t *testing.T) {
 			pingRepoMock := mocks.PingRepository{}
 			pingRepoMock.On("Save", &models.Ping{
 				NodeId:    "1",
-				Timestamp: timestamp,
+				Timestamp: test.requestTimestamp,
 			}).Return(test.pingSaveErr)
 			pingRepoMock.On("CalculateDowntime", mock.Anything, mock.Anything).Return(
-				time.Now(), test.downtimeDuration, test.calculateDowntimeErr)
+				test.lastPingTimestamp, test.downtimeDuration, test.calculateDowntimeErr)
 
 			downtimeRepoMock := mocks.DowntimeRepository{}
 			downtimeRepoMock.On("Save", mock.Anything).Return(test.downtimeSaveErr)
@@ -113,7 +124,7 @@ func TestApiController_PingHandler(t *testing.T) {
 			req, _ := http.NewRequest("POST", "/api/v1/node", bytes.NewReader(nil))
 			c := &auth.RequestContext{
 				NodeId:    "1",
-				Timestamp: timestamp,
+				Timestamp: test.requestTimestamp,
 			}
 			ctx := context.WithValue(req.Context(), auth.RequestContextKey, c)
 			req = req.WithContext(ctx)

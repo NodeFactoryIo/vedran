@@ -1,5 +1,15 @@
 # Changelog
 
+## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.5.3...HEAD)
+
+### Added
+
+### Fix
+
+### Changed
+- Ping handling upgrade [\#198](https://github.com/NodeFactoryIo/vedran/pull/198) ([MakMuftic](https://github.com/MakMuftic))
+
 ## [v0.5.3]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
 [Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.5.2...HEAD)
 

@@ -34,7 +34,7 @@ func StartScheduledTask(repos *repositories.Repos) {
 func scheduledTask(repos *repositories.Repos, actions actions.Actions) {
 	log.Debug("Started task: check all active nodes")
 	activeNodes := repos.NodeRepo.GetAllActiveNodes()
-
+	var activeNodesAfterCheck []string
 	for _, node := range *activeNodes {
 
 		pingActive, err := active.CheckIfPingActive(node.ID, repos)
@@ -60,6 +60,14 @@ func scheduledTask(repos *repositories.Repos, actions actions.Actions) {
 				log.Errorf("Unable to remove node %s from active because of %v", node.ID, err)
 			}
 			log.Debugf("Node %s metrics lagging more than 10 blocks, removed node from active", node.ID)
+		} else {
+			activeNodesAfterCheck = append(activeNodesAfterCheck, node.ID)
 		}
+	}
+
+	if len(activeNodesAfterCheck) == 0 {
+		log.Debug("There is no active nodes currently")
+	} else {
+		log.Debugf("Currently active nodes: %v", activeNodesAfterCheck)
 	}
 }
