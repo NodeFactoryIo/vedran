@@ -23,7 +23,7 @@ func (c ApiController) PingHandler(w http.ResponseWriter, r *http.Request) {
 	// if two pings come one after another (in 2 second interval)
 	// this means that one ping stuck in network and
 	// there is no need to write multiple downtimes
-	if request.Timestamp.Sub(lastPingTime).Seconds() > 2 {
+	if math.Abs(request.Timestamp.Sub(lastPingTime).Seconds()) > 2 {
 		// check if there were downtime
 		if math.Abs(downtimeDuration.Seconds()) > (stats.PingIntervalInSeconds + pingOffset) {
 			downtime := models.Downtime{
