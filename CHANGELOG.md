@@ -1,12 +1,13 @@
 # Changelog
 
-## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
-[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.5.3...HEAD)
+## [v0.5.4]((https://github.com/NodeFactoryIo/vedran/tree/v0.5.4))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.5.3...v0.5.4)
 
 ### Added
 
 ### Fix
 - Fix tunnel tcp connections not closing after requests finish [\#197](https://github.com/NodeFactoryIo/vedran/pull/197) ([mpetrun5](https://github.com/mpetrun5))
+- Ping handling upgrade [\#198](https://github.com/NodeFactoryIo/vedran/pull/198) ([MakMuftic](https://github.com/MakMuftic))
 
 ### Changed
 
