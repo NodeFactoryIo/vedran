@@ -92,7 +92,7 @@
         "orientation": "vertical",
         "reduceOptions": {
           "calcs": [
-            "max"
+            "last"
           ],
           "fields": "",
           "values": false
@@ -155,7 +155,7 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "max"
           ],
           "fields": "/.*handler=\"/\".*/",
           "values": false
@@ -165,7 +165,7 @@
       "pluginVersion": "7.3.5",
       "targets": [
         {
-          "expr": "rate(http_request_duration_seconds_count[$__interval])",
+          "expr": "rate(http_request_duration_seconds_count[$__range])",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -213,7 +213,7 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "max"
           ],
           "fields": "/.*handler=\"/ws\".*/",
           "values": false
@@ -223,7 +223,7 @@
       "pluginVersion": "7.3.5",
       "targets": [
         {
-          "expr": "rate(http_request_duration_seconds_count[$__interval])",
+          "expr": "rate(http_request_duration_seconds_count[$__range])",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -266,7 +266,7 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "diff"
           ],
           "fields": "/.*handler=\"/\".*/",
           "values": false
@@ -276,8 +276,11 @@
       "pluginVersion": "7.3.5",
       "targets": [
         {
-          "expr": "delta(http_request_duration_seconds_count[$__interval])",
+          "expr": "http_request_duration_seconds_count",
+          "format": "time_series",
+          "instant": false,
           "interval": "",
+          "intervalFactor": 1,
           "legendFormat": "",
           "refId": "A"
         }
@@ -324,7 +327,7 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "diff"
           ],
           "fields": "/.*handler=\"/ws\".*/",
           "limit": 200,
@@ -335,7 +338,7 @@
       "pluginVersion": "7.3.5",
       "targets": [
         {
-          "expr": "delta(http_request_duration_seconds_count[$__interval])",
+          "expr": "http_request_duration_seconds_count",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -1660,12 +1663,12 @@
     "list": []
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Vedran Dashboard",
   "uid": "7tNmHxAGz",
-  "version": 2
+  "version": 3
 }
