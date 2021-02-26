@@ -157,7 +157,7 @@
           "calcs": [
             "mean"
           ],
-          "fields": "",
+          "fields": "/.*handler=\"/\".*/",
           "values": false
         },
         "textMode": "auto"
@@ -215,7 +215,7 @@
           "calcs": [
             "mean"
           ],
-          "fields": "",
+          "fields": "/.*handler=\"/ws\".*/",
           "values": false
         },
         "textMode": "auto"
@@ -223,7 +223,7 @@
       "pluginVersion": "7.3.5",
       "targets": [
         {
-          "expr": "rate(http_request_duration_seconds_count[5m])",
+          "expr": "rate(http_request_duration_seconds_count[$__interval])",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -268,7 +268,7 @@
           "calcs": [
             "sum"
           ],
-          "fields": "",
+          "fields": "/.*handler=\"/\".*/",
           "values": false
         },
         "textMode": "auto"
@@ -326,7 +326,7 @@
           "calcs": [
             "sum"
           ],
-          "fields": "",
+          "fields": "/.*handler=\"/ws\".*/",
           "limit": 200,
           "values": false
         },
@@ -1660,12 +1660,12 @@
     "list": []
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Vedran Dashboard",
   "uid": "7tNmHxAGz",
-  "version": 1
+  "version": 2
 }
