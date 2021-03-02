@@ -92,14 +92,14 @@
         "orientation": "vertical",
         "reduceOptions": {
           "calcs": [
-            "max"
+            "last"
           ],
           "fields": "",
           "values": false
         },
         "textMode": "auto"
       },
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "targets": [
         {
           "expr": "vedran_number_of_successful_requests",
@@ -155,17 +155,17 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "max"
           ],
-          "fields": "/^\\{code=\"200\", handler=\"/\", instance=\"vedran:4000\", job=\"prometheus\", method=\"POST\"\\}$/",
+          "fields": "/.*handler=\"/\".*/",
           "values": false
         },
         "textMode": "auto"
       },
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "targets": [
         {
-          "expr": "rate(http_request_duration_seconds_count[$__interval])",
+          "expr": "rate(http_request_duration_seconds_count[$__range])",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -213,17 +213,17 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "max"
           ],
-          "fields": "/^\\{code=\"200\", handler=\"/ws\", instance=\"vedran:4000\", job=\"prometheus\", method=\"GET\"\\}$/",
+          "fields": "/.*handler=\"/ws\".*/",
           "values": false
         },
         "textMode": "auto"
       },
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "targets": [
         {
-          "expr": "rate(http_request_duration_seconds_count[5m])",
+          "expr": "rate(http_request_duration_seconds_count[$__range])",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -266,18 +266,21 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "diff"
           ],
-          "fields": "/^\\{code=\"200\", handler=\"/\", instance=\"vedran:4000\", job=\"prometheus\", method=\"POST\"\\}$/",
+          "fields": "/.*handler=\"/\".*/",
           "values": false
         },
         "textMode": "auto"
       },
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "targets": [
         {
-          "expr": "delta(http_request_duration_seconds_count[$__interval])",
+          "expr": "http_request_duration_seconds_count",
+          "format": "time_series",
+          "instant": false,
           "interval": "",
+          "intervalFactor": 1,
           "legendFormat": "",
           "refId": "A"
         }
@@ -324,18 +327,18 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "diff"
           ],
-          "fields": "/^\\{code=\"200\", handler=\"/ws\", instance=\"vedran:4000\", job=\"prometheus\", method=\"GET\"\\}$/",
+          "fields": "/.*handler=\"/ws\".*/",
           "limit": 200,
           "values": false
         },
         "textMode": "auto"
       },
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "targets": [
         {
-          "expr": "delta(http_request_duration_seconds_count[$__interval])",
+          "expr": "http_request_duration_seconds_count",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -386,7 +389,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -491,7 +494,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -603,7 +606,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -699,7 +702,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -803,7 +806,7 @@
         },
         "showUnfilled": true
       },
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "targets": [
         {
           "expr": "sum by (address) (vedran_payout_distribution)",
@@ -864,7 +867,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "targets": [
         {
           "expr": "vedran_payout_date",
@@ -941,7 +944,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "targets": [
         {
           "expr": "vedran_version",
@@ -1008,7 +1011,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "targets": [
         {
           "expr": "vedran_version",
@@ -1073,7 +1076,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "targets": [
         {
           "expr": "vedran_lb_payout_fee_total_percentage",
@@ -1138,7 +1141,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "targets": [
         {
           "expr": "vedran_lb_payout_fee_total / 10000000000",
@@ -1196,7 +1199,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1295,7 +1298,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1390,7 +1393,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1485,7 +1488,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1594,7 +1597,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.6",
+      "pluginVersion": "7.3.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1660,12 +1663,12 @@
     "list": []
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Vedran Dashboard",
   "uid": "7tNmHxAGz",
-  "version": 1
+  "version": 3
 }
