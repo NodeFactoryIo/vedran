@@ -251,6 +251,7 @@ Send metrics for node. Auth token should be in header as `X-Auth-Header`. Body s
   "peer_count": "int32",
   "best_block_height": "int64",
   "finalized_block_height": "int64",
+  "target_block_height": "int64",
   "ready_transaction_count": "int32"
 }
 ```
@@ -263,14 +264,29 @@ Returns statistics for all nodes (mapped on node payout address).
 
 ```json
 {
-  "node_1_payout_address": {
-    "total_pings": "float64",
-    "total_requests": "float64"
-  },
-  "node_2_payout_address": {
-    "total_pings": "float64",
-    "total_requests": "float64"
-  },
+  "stats": {
+    "node_1_payout_address": {
+      "total_pings": "float64",
+      "total_requests": "float64"
+    },
+    "node_2_payout_address": {
+      "total_pings": "float64",
+      "total_requests": "float64"
+    }
+  }
+}
+```
+
+---
+
+`GET    api/v1/stats/lb`
+
+Returns statistics on reward distribution between load balancer and nodes.
+
+```json
+{
+  "lb_fee": "string",
+  "nodes_fee": "string"
 }
 ```
 
