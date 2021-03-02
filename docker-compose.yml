@@ -26,11 +26,11 @@ services:
     container_name: "vedran"
 
   vedran-daemon:
-    image: nodefactory/vedran-daemon:v0.3.2
+    image: nodefactory/vedran-daemon:latest
     depends_on:
       - vedran
       - polkadot
-    command: --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-ws http://polkadot:9944 --node-metrics http://polkadot:9615 --payout-address 1Z4GTfUN2QHkSeHqdBUDawgbEWzqtfRG8ouJZ26z3cm7ePN --log-level info
+    command: --id test-id --lb http://vedran:4000 --node-rpc http://polkadot:9933 --node-ws ws://polkadot:9944 --node-metrics http://polkadot:9615 --payout-address 1Z4GTfUN2QHkSeHqdBUDawgbEWzqtfRG8ouJZ26z3cm7ePN --log-level info
 
   prometheus:
     image: prom/prometheus

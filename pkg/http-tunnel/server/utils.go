@@ -5,22 +5,16 @@
 package server
 
 import (
-	log "github.com/sirupsen/logrus"
 	"io"
 	"net"
 	"net/http"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func transfer(dst io.Writer, src io.Reader, logger *log.Entry) {
-	n, err := io.Copy(dst, src)
-	if err != nil {
-		if (!strings.Contains(err.Error(), "context canceled") &&
-			!strings.Contains(err.Error(), "CANCEL")) &&
-			!strings.Contains(err.Error(), "stream closed") {
-			logger.Error("copy error ", err)
-		}
-	}
+	n, _ := io.Copy(dst, src)
 	log.Debugf("transferred %d bytes", n)
 }
 
