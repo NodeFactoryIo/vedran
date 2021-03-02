@@ -1,5 +1,15 @@
 # Changelog
 
+## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.5.4...HEAD)
+
+### Added
+
+### Fix
+- Fix request counters in grafana dashboard [\#200](https://github.com/NodeFactoryIo/vedran/pull/200) ([mpetrun5](https://github.com/mpetrun5))
+
+### Changed
+
 ## [v0.5.4]((https://github.com/NodeFactoryIo/vedran/tree/v0.5.4))
 [Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.5.3...v0.5.4)
 
