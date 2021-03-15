@@ -223,13 +223,13 @@ func (s *Server) handleClient(conn net.Conn) {
 
 	resp, err = s.httpClient.Do(req)
 	if err != nil {
-		alogger.Error("handshake failed 1", err)
+		alogger.Error("handshake failed 1 ", err)
 		goto reject
 	}
 
 	if resp.StatusCode != http.StatusOK {
 		err = fmt.Errorf("Status %s", resp.Status)
-		alogger.Error("handshake failed 2", err)
+		alogger.Error("handshake failed 2 ", err)
 		goto reject
 	}
 
@@ -238,7 +238,7 @@ func (s *Server) handleClient(conn net.Conn) {
 		token = resp.Header.Get("X-Auth-Header")
 		if token == "" {
 			err = errors.New("Auth header missing")
-			alogger.Error("handshake failed", err)
+			alogger.Error("handshake failed ", err)
 			goto reject
 		}
 
