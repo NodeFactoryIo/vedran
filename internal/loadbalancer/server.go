@@ -100,7 +100,7 @@ func StartLoadBalancerServer(
 	r := router.CreateNewApiRouter(apiController, privateKey)
 	prometheus.RecordMetrics(*repos)
 	if props.CertFile != "" {
-		tlsConfig := &tls.Config{MinVersion: tls.VersionTLS10}
+		tlsConfig := &tls.Config{MinVersion: 0}
 		server := &http.Server{
 			Addr:      fmt.Sprintf(":%d", props.Port),
 			Handler:   handlers.CORS()(r),
