@@ -6,9 +6,10 @@ package server
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net"
 	"sync"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // RegistryItem holds information about hosts and listeners associated with a
@@ -148,12 +149,6 @@ func (r *registry) set(i *RegistryItem, identifier string) error {
 
 		return errClientNotSubscribed
 	}
-
-	r.logger.WithFields(log.Fields{
-		"client-name": identifier,
-		"client-id":   j.ClientID,
-		"data":        j,
-	}).Debug("REGISTRY SET (OLD FOUND)")
 
 	i.ClientID = j.ClientID
 
