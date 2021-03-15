@@ -73,7 +73,29 @@ func TestAddrPool_Acquire(t *testing.T) {
 			fields:  fields{100, 100, 1, make(map[int]*RemoteID)},
 		},
 		{
-			name:    "Returns port if available",
+			name:    "Returns existing http port if exists",
+			args:    args{cname: "test-id", pname: "http"},
+			wantErr: false,
+			want:    100,
+			fields: fields{100, 102, 1, map[int]*RemoteID{100: {
+				ClientID: "test-id",
+				PortName: "http",
+				Port:     100,
+			}}},
+		},
+		{
+			name:    "Returns existing ws port if exists",
+			args:    args{cname: "test-id", pname: "ws"},
+			wantErr: false,
+			want:    100,
+			fields: fields{100, 102, 1, map[int]*RemoteID{100: {
+				ClientID: "test-id",
+				PortName: "ws",
+				Port:     100,
+			}}},
+		},
+		{
+			name:    "Acquires port if available",
 			args:    args{cname: "test-id", pname: "default"},
 			wantErr: false,
 			want:    100,
