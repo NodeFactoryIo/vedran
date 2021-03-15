@@ -6,6 +6,7 @@
 ### Added
 
 ### Fix
+- Fix duplicated ports inside tunnel address pool [\#204](https://github.com/NodeFactoryIo/vedran/pull/204) ([mpetrun5](https://github.com/mpetrun5))
 
 ### Changed
 
