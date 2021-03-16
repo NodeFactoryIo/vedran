@@ -1,7 +1,17 @@
 # Changelog
 
 ## [unreleased]((https://github.com/NodeFactoryIo/vedran/tree/HEAD))
-[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.5.4...HEAD)
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.5.5...HEAD)
+
+### Added
+
+### Fix
+- Fix duplicated ports inside tunnel address pool [\#204](https://github.com/NodeFactoryIo/vedran/pull/204) ([mpetrun5](https://github.com/mpetrun5))
+
+### Changed
+
+## [v0.5.5]((https://github.com/NodeFactoryIo/vedran/tree/v0.5.5))
+[Full Changelog](https://github.com/NodeFactoryIo/vedran/compare/v0.5.4...v0.5.5)
 
 ### Added
 

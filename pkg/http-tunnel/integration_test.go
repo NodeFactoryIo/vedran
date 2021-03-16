@@ -67,7 +67,6 @@ func Test_IntegrationTest(t *testing.T) {
 	assert.True(t, strings.Contains(logStr, "msg=\"try connect\""))
 	assert.True(t, strings.Contains(logStr, "msg=\"handshake for address 127.0.0.1:5223\""))
 	assert.True(t, strings.Contains(logStr, "msg=\"REGISTRY SUBSCRIBE\""))
-	assert.True(t, strings.Contains(logStr, "msg=\"REGISTRY SET (OLD FOUND)\""))
 	assert.True(t, strings.Contains(logStr, "msg=\"REGISTRY SET (NEW SET)\""))
 	assert.True(t, strings.Contains(logStr, "msg=\"test-id connected\""))
 
